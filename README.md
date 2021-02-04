@@ -18,7 +18,7 @@ Language: C++20.
 
 ## Roadmap
 
-- [ ] tool header for code page conversion, especially on Windows®.
+- [x] tool header for code page conversion, especially on Windows®.
 
 - [ ] tool header for window class on Windows®.
 
