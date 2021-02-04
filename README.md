@@ -24,23 +24,19 @@ Language: C++20.
 
 - [ ] class of KPS calculator, independent of operating system.
 
-  Should consider the cases that the monitor program runs on the main thread and that on the child thread.
-
-  Should consider the max cache size of history key presses.
-
   Key methods:
 
   ```cpp
-  void notify_key_down(int key, std::chrono::time_point time); // key should be defined in this header, and should be compatible with those in Windows. Whether this method should be PostMessage-like is under consideration.
-  double calc_kps_now(int key);
-  double calc_kps_now(const std::vector<int>& keys); // Sum up the kps. This should be quick.
-  std::vector<double> calc_kps_all(int key);
-  std::vector<double> calc_kps_all(const std::vector<int>& keys); // This is allowed to use much CPU time.
-  void clear();
+void clear();
+  void notify_key_down(int key, time_point time); // key should be defined in this header, and should be compatible with those in Windows. Whether this method should be PostMessage-like is under consideration.
+int calc_kps_now(int key) const;
+  int calc_kps_now(const std::vector<int>& keys) const; // Sum up the kps. This should be quick.
+  std::vector<int> calc_kps_all(int key) const;
+  std::vector<int> calc_kps_all(const std::vector<int>& keys); // This is allowed to use much CPU time.
   ```
-
+  
   The constructor and `operator=` should also be considered.
-
+  
 - [ ] class of key monitor, on Windows®.
 
   There are two options:
@@ -69,6 +65,12 @@ Language: C++20.
 - [ ] implement functions specific to osu!.
 
 - [ ] tool header for DirectUI.
+
+## Details
+
+### The method to calculate KPS
+
+I just save all the pressed keys, and based on it, calculate KPS. The KPS equals to the total times you press in recent 1 second.  
 
 ## License
 
