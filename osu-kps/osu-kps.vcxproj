@@ -158,6 +158,8 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="key_monitor_base.hpp" />
+    <ClInclude Include="key_monitor_hook.hpp" />
     <ClInclude Include="kps_calculator.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

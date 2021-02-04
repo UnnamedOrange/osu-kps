@@ -18,6 +18,9 @@ namespace kps
 	using time_point = std::chrono::time_point<clock>;
 	using namespace std::literals;
 
+	/// <summary>
+	/// KPS 计算器。
+	/// </summary>
 	class kps_calculator
 	{
 	private:

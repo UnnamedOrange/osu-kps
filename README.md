@@ -37,7 +37,7 @@ int calc_kps_now(int key) const;
   
   The constructor and `operator=` should also be considered.
   
-- [ ] class of key monitor, on Windows®.
+- [x] class of key monitor, on Windows®.
 
   There are two options:
 

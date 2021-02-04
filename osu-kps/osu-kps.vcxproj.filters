@@ -26,5 +26,11 @@
     <ClInclude Include="kps_calculator.hpp">
       <Filter>头文件\kps</Filter>
     </ClInclude>
+    <ClInclude Include="key_monitor_base.hpp">
+      <Filter>头文件\kps</Filter>
+    </ClInclude>
+    <ClInclude Include="key_monitor_hook.hpp">
+      <Filter>头文件\kps</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
