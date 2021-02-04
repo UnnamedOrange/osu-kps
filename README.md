@@ -20,7 +20,7 @@ Language: C++20.
 
 - [x] tool header for code page conversion, especially on Windows®.
 
-- [ ] tool header for window class on Windows®.
+- [x] tool header for window class on Windows®.
 
 - [ ] class of KPS calculator, independent of operating system.
 
