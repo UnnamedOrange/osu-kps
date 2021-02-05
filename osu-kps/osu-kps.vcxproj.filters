@@ -35,5 +35,8 @@
     <ClInclude Include="key_monitor_async.hpp">
       <Filter>头文件\kps</Filter>
     </ClInclude>
+    <ClInclude Include="integrated_kps.hpp">
+      <Filter>头文件\kps</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

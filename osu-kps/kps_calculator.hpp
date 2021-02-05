@@ -108,6 +108,7 @@ namespace kps
 				now - std::get<1>(records[start_index]) > frame_length)
 			{
 				sum[std::get<0>(records[start_index])]--;
+				start_index++;
 			}
 			return sum[key];
 		}
