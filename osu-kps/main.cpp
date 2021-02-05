@@ -32,6 +32,9 @@ class main_window : public window
 			HANDLE_MSG(hwnd, WM_NCLBUTTONDOWN, OnNCLButtonDown);
 			HANDLE_MSG(hwnd, WM_MOVING, OnMoving);
 
+			HANDLE_MSG(hwnd, WM_RBUTTONDOWN, OnRButtonDown);
+			HANDLE_MSG(hwnd, WM_COMMAND, OnCommand);
+
 		case WM_DPICHANGED:
 		{
 			// UpdateDpiDependentFontsAndResources();
@@ -57,10 +60,15 @@ class main_window : public window
 		caption(L"osu!kps");
 		SetWindowLongW(hwnd, GWL_STYLE, WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_POPUP | WS_SYSMENU); // 无边框窗口。
 		SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+
+		create_menu();
+
 		return TRUE;
 	}
 	void OnDestroy(HWND)
 	{
+		DestroyMenu(hMenu);
+
 		PostQuitMessage(0);
 	}
 
@@ -120,6 +128,62 @@ class main_window : public window
 		r.right = r.left + nWidth; // 根据左上角位置和大小调整右下角。
 		r.bottom = r.top + nHeight;
 	}
+
+	// 右键菜单。
+	HMENU hMenu{};
+	void create_menu()
+	{
+		// TODO: here
+		hMenu = CreateMenu();
+
+		HMENU hMenuPopup = CreateMenu();
+		{
+			HMENU hMenuKeys = CreateMenu();
+			for (int i = 1; i <= 10; i++)
+				AppendMenuW(hMenuKeys, MF_STRING, i, std::to_wstring(i).c_str());
+
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(hMenuKeys), L"Button count");
+		}
+		{
+			AppendMenuW(hMenuPopup, MF_STRING, id_exit, L"Exit");
+		}
+
+		AppendMenuW(hMenu, MF_POPUP, reinterpret_cast<UINT_PTR>(hMenuPopup), L"popup");
+	}
+	void OnRButtonDown(HWND, BOOL fDoubleClick, int x, int y, UINT keyFlags)
+	{
+		if (!fDoubleClick)
+		{
+			POINT p{ x, y };
+			ClientToScreen(hwnd, &p);
+			TrackPopupMenu(GetSubMenu(hMenu, 0), TPM_RIGHTBUTTON, p.x, p.y,
+				NULL, hwnd, nullptr);
+		}
+	}
+	void OnCommand(HWND, int id, HWND hwndCtl, UINT codeNotify)
+	{
+		if (!hwndCtl) // 如果是菜单。
+		{
+			if (1 <= id && id <= 10) // 修改按键个数。
+			{
+
+			}
+			else
+				switch (id)
+				{
+				case id_exit:
+				{
+					PostMessageW(hwnd, WM_CLOSE, 0, 0);
+					break;
+				}
+				default:
+					break;
+				}
+		}
+	}
+
+public:
+	inline static constexpr int id_exit = 11;
 
 public:
 	kps::kps kps;
