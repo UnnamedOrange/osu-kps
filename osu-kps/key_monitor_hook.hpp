@@ -20,11 +20,6 @@ namespace kps
 	/// </summary>
 	class key_monitor_hook : private key_monitor_base
 	{
-	protected:
-		/// <summary>
-		/// 由使用者实现。
-		/// </summary>
-		virtual void on_key_down(int key, time_point time) = 0;
 	private:
 		using key_monitor_base::_on_llkey_down;
 		using key_monitor_base::_on_llkey_up;
