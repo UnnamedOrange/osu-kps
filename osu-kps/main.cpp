@@ -12,6 +12,7 @@
 #include <utils/timer_thread.hpp>
 
 #include "integrated_kps.hpp"
+#include "keys_manager.hpp"
 
 /* void OnMoving(HWND hwnd, RECT* pRect) */
 #define HANDLE_WM_MOVING(hwnd, wParam, lParam, fn)\
@@ -75,8 +76,9 @@ class main_window : public window
 	// 禁止窗口移出屏幕相关信息。
 	mutable POINT pMouse{};
 	mutable RECT rectWnd{};
-	void OnLButtonDown(HWND, BOOL fDoubleClick, int x, int y, UINT)
+	void OnLButtonDown(HWND, BOOL fDoubleClick, int x, int y, UINT keyFlags)
 	{
+		UNREFERENCED_PARAMETER(keyFlags);
 		if (fDoubleClick)
 		{
 			// TODO: 实现双击修改配置等功能。
@@ -131,27 +133,32 @@ class main_window : public window
 
 	// 右键菜单。
 	HMENU hMenu{};
+	HMENU menus_button_count{};
 	void create_menu()
 	{
-		// TODO: here
 		hMenu = CreateMenu();
-
 		HMENU hMenuPopup = CreateMenu();
+		AppendMenuW(hMenu, MF_POPUP, reinterpret_cast<UINT_PTR>(hMenuPopup), nullptr);
+		// menus_button_count
 		{
-			HMENU hMenuKeys = CreateMenu();
-			for (int i = 1; i <= 10; i++)
-				AppendMenuW(hMenuKeys, MF_STRING, i, std::to_wstring(i).c_str());
+			menus_button_count = CreateMenu();
+			for (int i = 1; i <= id_max_button_count; i++)
+				AppendMenuW(menus_button_count, MF_STRING, i,
+					(std::to_wstring(i) + L"\tCtrl + Shift + " + std::to_wstring(i % 10)).c_str());
 
-			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(hMenuKeys), L"Button count");
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_button_count), L"Button count");
 		}
+		// exit
 		{
 			AppendMenuW(hMenuPopup, MF_STRING, id_exit, L"Exit");
 		}
 
-		AppendMenuW(hMenu, MF_POPUP, reinterpret_cast<UINT_PTR>(hMenuPopup), L"popup");
+		// 勾选当前按键数量。
+		CheckMenuItem(hMenuPopup, k_manager.get_button_count(), MF_CHECKED);
 	}
 	void OnRButtonDown(HWND, BOOL fDoubleClick, int x, int y, UINT keyFlags)
 	{
+		UNREFERENCED_PARAMETER(keyFlags);
 		if (!fDoubleClick)
 		{
 			POINT p{ x, y };
@@ -162,12 +169,11 @@ class main_window : public window
 	}
 	void OnCommand(HWND, int id, HWND hwndCtl, UINT codeNotify)
 	{
+		UNREFERENCED_PARAMETER(codeNotify);
 		if (!hwndCtl) // 如果是菜单。
 		{
-			if (1 <= id && id <= 10) // 修改按键个数。
-			{
-
-			}
+			if (1 <= id && id <= id_max_button_count) // 修改按键个数。
+				change_button_count(id);
 			else
 				switch (id)
 				{
@@ -183,10 +189,23 @@ class main_window : public window
 	}
 
 public:
-	inline static constexpr int id_exit = 11;
+	// 菜单项 id。
+	enum
+	{
+		id_max_button_count = 10,
+		id_exit,
+	};
 
 public:
 	kps::kps kps;
+	keys_manager k_manager;
+	// 改变当前按键个数。
+	void change_button_count(int new_count)
+	{
+		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_UNCHECKED);
+		k_manager.set_button_count(new_count);
+		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_CHECKED);
+	}
 
 public:
 	double scale{ 1 }; // 绘图时的额外比例因子。

@@ -159,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="integrated_kps.hpp" />
+    <ClInclude Include="keys_management.hpp" />
     <ClInclude Include="key_monitor_async.hpp" />
     <ClInclude Include="key_monitor_base.hpp" />
     <ClInclude Include="key_monitor_hook.hpp" />
