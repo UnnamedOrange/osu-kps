@@ -44,7 +44,7 @@ Language: C++20.
 
   It's RAII style.
 
-- [ ] class of wrapped KPS calculator, using key monitor to call notify_key_down. It's a descendant class of KPS calculator.
+- [x] class of wrapped KPS calculator, using key monitor to call notify_key_down. It's a descendant class of KPS calculator.
 
   It's RAII style. By the mean time, it should implement a method that notifies an external function when a key is pressed.
 

@@ -43,6 +43,7 @@ namespace kps
 		std::thread t{ &key_monitor_async::thread_proc, this };
 		void thread_proc()
 		{
+			// TODO: 潜在的线程安全问题。有可能线程已经开始运行，但子类尚未构造完成。
 			while (true)
 			{
 				if (s_exit.try_acquire_for(10ms))
