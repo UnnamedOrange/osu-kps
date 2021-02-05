@@ -80,6 +80,7 @@ namespace kps
 			start_index = 0;
 			std::fill(sum.begin(), sum.end(), 0);
 		}
+	protected:
 		/// <summary>
 		/// 监视器通知按键。
 		/// </summary>
