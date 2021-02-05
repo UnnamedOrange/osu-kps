@@ -48,7 +48,7 @@ Language: C++20.
 
   It's RAII style. By the mean time, it should implement a method that notifies an external function when a key is pressed.
 
-- [ ] menu to choose the number of keys.
+- [x] menu to choose the number of keys.
 
   However, it's after implementing the config system that the keys can be modified.
 

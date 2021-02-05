@@ -41,7 +41,7 @@
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="keys_management.hpp">
+    <ClInclude Include="keys_manager.hpp">
       <Filter>头文件\kps</Filter>
     </ClInclude>
   </ItemGroup>

@@ -34,7 +34,7 @@ public:
 	int get_button_count() const { return crt_button_count; }
 	void set_button_count(int new_button_count)
 	{
-		if (!(1 <= new_button_count && new_button_count <= keys.size()))
+		if (!(1 <= new_button_count && new_button_count <= static_cast<int>(keys.size())))
 			throw std::invalid_argument("new_button_count should be in [1, keys.size()].");
 		crt_button_count = new_button_count;
 	}
