@@ -21,7 +21,7 @@
 
 class main_window : public window
 {
-	virtual INT_PTR WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) override
+	virtual INT_PTR WindowProc(HWND, UINT message, WPARAM wParam, LPARAM lParam) override
 	{
 		switch (message)
 		{
@@ -65,9 +65,9 @@ class main_window : public window
 	}
 
 	// 禁止窗口移出屏幕相关信息。
-	mutable POINT pMouse;
-	mutable RECT rectWnd;
-	void OnLButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT keyFlags)
+	mutable POINT pMouse{};
+	mutable RECT rectWnd{};
+	void OnLButtonDown(HWND, BOOL fDoubleClick, int x, int y, UINT)
 	{
 		if (fDoubleClick)
 		{
@@ -78,7 +78,7 @@ class main_window : public window
 			PostMessageW(hwnd, WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(x, y));
 		}
 	}
-	void OnNCLButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT codeHitTest)
+	void OnNCLButtonDown(HWND, BOOL fDoubleClick, int x, int y, UINT codeHitTest)
 	{
 		// 禁止窗口移出屏幕相关信息。
 		GetWindowRect(hwnd, &rectWnd);
@@ -86,7 +86,7 @@ class main_window : public window
 		FORWARD_WM_NCLBUTTONDOWN(hwnd, fDoubleClick, x, y, codeHitTest, DefWindowProcW);
 		PostMessageW(hwnd, WM_LBUTTONUP, 0, 0);
 	}
-	void OnMoving(HWND hwnd, RECT* pRect)
+	void OnMoving(HWND, RECT* pRect)
 	{
 		RECT& r = *pRect;
 		POINT p;
