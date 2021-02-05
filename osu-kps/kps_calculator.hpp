@@ -31,7 +31,6 @@ namespace kps
 		std::deque<std::tuple<int, time_point>> records; // 按键记录。按时间（第二个元素）升序。
 		mutable size_t start_index{}; // 计算当前 KPS 时，最早按键记录的下标。
 		mutable std::array<int, 256> sum{}; // 计算当前 KPS 时，各按键按键次数总和。
-		// TODO: 增加记录最大值的功能。
 
 	public:
 		kps_calculator() = default;
@@ -92,6 +91,11 @@ namespace kps
 			// TODO: 使用生产者-消费者模型。
 			records.push_back({ key, time });
 			sum[key]++;
+			while (records.size() > cache_size)
+			{
+				records.pop_front();
+				start_index--;
+			}
 		}
 
 	public:
