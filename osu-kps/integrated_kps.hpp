@@ -15,6 +15,7 @@ namespace kps
 	class integrated_kps : public kps_calculator,
 		public std::conditional_t<hook_implement, key_monitor_hook, key_monitor_async>
 	{
+	protected:
 		virtual void on_key_down(int key, time_point time)
 		{
 			notify_key_down(key, time);

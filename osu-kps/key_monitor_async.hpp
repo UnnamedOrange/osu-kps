@@ -21,7 +21,7 @@ namespace kps
 	/// <summary>
 	/// 使用 GetAsyncKeyState 实现的按键监视器。
 	/// </summary>
-	class key_monitor_async : private key_monitor_base
+	class key_monitor_async : public key_monitor_base
 	{
 	private:
 		using key_monitor_base::_on_llkey_down;

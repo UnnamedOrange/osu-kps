@@ -18,7 +18,7 @@ namespace kps
 	/// <summary>
 	/// 使用钩子实现的按键监视器。同一线程只能创建一个这样的按键监视器，但考虑到只会有一个线程创建该对象，因此不保证线程安全。没有测试在两个线程上存在两个该实例是否能正确运行。
 	/// </summary>
-	class key_monitor_hook : private key_monitor_base
+	class key_monitor_hook : public key_monitor_base
 	{
 	private:
 		using key_monitor_base::_on_llkey_down;
