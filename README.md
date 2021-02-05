@@ -22,7 +22,7 @@ Language: C++20.
 
 - [x] tool header for window class on Windows®.
 
-- [ ] class of KPS calculator, independent of operating system.
+- [x] class of KPS calculator, independent of operating system.
 
   Key methods:
 
@@ -42,9 +42,15 @@ Language: C++20.
   1. Use `GetAsyncKeyState`.
   2. Use `SetWindowsHookEx`.
 
+  It's RAII style.
+
 - [ ] class of wrapped KPS calculator, using key monitor to call notify_key_down. It's a descendant class of KPS calculator.
 
-  If option 1 is chosen, a thread lives the same long as this class. If option 2 is chosen, a hook lives the same long as this class. Namely it's RAII style.
+  It's RAII style. By the mean time, it should implement a method that notifies an external function when a key is pressed.
+
+- [ ] menu to choose the number of keys.
+
+  However, it's after implementing the config system that the keys can be modified.
 
 - [ ] use Direct2D to draw a UI.
 
@@ -53,6 +59,8 @@ Language: C++20.
 - [ ] tool header for config system.
 
   I may use json.
+
+- [ ] add more statistic information.
 
 - [ ] tool header for multi-language support.
 
