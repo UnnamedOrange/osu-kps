@@ -88,7 +88,6 @@ namespace kps
 		void notify_key_down(int key, time_point time)
 		{
 			std::lock_guard _(m);
-			// TODO: 使用生产者-消费者模型。
 			records.push_back({ key, time });
 			sum[key]++;
 			while (records.size() > cache_size)
@@ -127,20 +126,5 @@ namespace kps
 			return std::accumulate(keys.begin(), keys.end(), 0,
 				[this](int pre, int key) { return pre + calc_kps_now(key); });
 		}
-
-		// TODO: 构思根据按键记录计算一段时间内 KPS 序列的具体要求。
-
-		/// <summary>
-		/// 根据按键记录，计算某个键在一段时间内的 KPS 序列。可能花费较多时间。
-		/// </summary>
-		/// <param name="key">键。</param>
-		/// <returns>KPS 序列。</returns>
-		std::vector<int> calc_kps_all(int key) const;
-		/// <summary>
-		/// 根据按键记录，计算某些键在一段时间内的 KPS 之和的序列。可能花费较多时间。
-		/// </summary>
-		/// <param name="key">键。</param>
-		/// <returns>KPS 序列。</returns>
-		std::vector<int> calc_kps_all(const std::vector<int>& keys);
 	};
 }

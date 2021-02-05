@@ -31,8 +31,6 @@ Language: C++20.
   void notify_key_down(int key, time_point time); // key should be defined in this header, and should be compatible with those in Windows. Whether this method should be PostMessage-like is under consideration.
   int calc_kps_now(int key) const;
   int calc_kps_now(const std::vector<int>& keys) const; // Sum up the kps. This should be quick.
-  std::vector<int> calc_kps_all(int key) const;
-  std::vector<int> calc_kps_all(const std::vector<int>& keys); // This is allowed to use much CPU time.
   ```
   
   The constructor and `operator=` should also be considered.
