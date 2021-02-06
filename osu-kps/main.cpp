@@ -51,6 +51,8 @@ class main_window : public window
 				prcNewWindow->right - prcNewWindow->left,
 				prcNewWindow->bottom - prcNewWindow->top,
 				SWP_NOZORDER | SWP_NOACTIVATE);
+
+			resize();
 			break;
 		}
 
@@ -71,6 +73,9 @@ class main_window : public window
 
 		// 绘图。
 		init_d2d();
+
+		// 调整窗口大小。
+		resize();
 
 		return TRUE;
 	}
@@ -216,6 +221,50 @@ class main_window : public window
 	}
 	void OnPaint(HWND);
 
+	// 绘图相关参数。
+	inline static double cx_button = 64.0;
+	inline static double cy_button = 80.0;
+	inline static double cx_gap = 8.0;
+	inline static double cy_separator = 8.0;
+	inline static double cx_statistics = 280.0;
+	inline static double cy_statistics = 120.0;
+	/// <summary>
+	/// 计算窗口应有的大小。<remarks>计算时不考虑缩放，最后再乘以缩放。</remarks>
+	/// </summary>
+	/// <returns>(cx, cy)</returns>
+	std::tuple<double, double> calc_size() const
+	{
+		double cx = cx_button * k_manager.get_button_count() +
+			cx_gap * (k_manager.get_button_count() - 1);
+		double cy = cy_button;
+		cx = std::max(cx, cx_statistics);
+		cy += cy_separator + cy_statistics;
+		return { cx * dpi() * scale, cy * dpi() * scale };
+	}
+	/// <summary>
+	/// 根据计算出的窗口大小重设窗口大小。优先保证左上角不动。
+	/// </summary>
+	void resize()
+	{
+		auto size = calc_size();
+		width(static_cast<int>(std::get<0>(size)));
+		height(static_cast<int>(std::get<1>(size)));
+		pRenderTarget->Resize(D2D1::SizeU(width(), height()));
+
+		RECT rWorkArea = work_area();
+		rWorkArea.right -= width();
+		rWorkArea.bottom -= height();
+		int left_shift{};
+		int top_shift{};
+		if (left() > rWorkArea.right)
+			left_shift = left() - rWorkArea.right;
+		if (top() > rWorkArea.bottom)
+			top_shift = top() - rWorkArea.bottom;
+		SetWindowPos(hwnd, nullptr,
+			left() - left_shift, top() - top_shift,
+			0, 0, SWP_NOSIZE | SWP_NOZORDER);
+	}
+
 public:
 	// 菜单项 id。
 	enum
@@ -233,6 +282,7 @@ public:
 		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_UNCHECKED);
 		k_manager.set_button_count(new_count);
 		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_CHECKED);
+		resize();
 	}
 
 public:
