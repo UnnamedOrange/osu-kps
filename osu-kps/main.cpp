@@ -227,7 +227,7 @@ class main_window : public window
 	inline static double cy_button = 72.0;
 	inline static double cx_gap = 8.0;
 	inline static double cy_separator = 8.0;
-	inline static double cx_statistics = 280.0;
+	inline static double cx_statistics = 232.0;
 	inline static double cy_statistics = 120.0;
 	/// <summary>
 	/// 计算窗口应有的大小。<remarks>计算时不考虑缩放，最后再乘以缩放。</remarks>
@@ -272,7 +272,7 @@ public:
 	// 菜单项 id。
 	enum
 	{
-		id_max_button_count = 10,
+		id_max_button_count = keys_manager::max_key_count,
 		id_exit,
 	};
 

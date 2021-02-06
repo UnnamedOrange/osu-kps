@@ -7,13 +7,42 @@
 #include <array>
 #include <stdexcept>
 
+#include "kps_calculator.hpp"
+
 /// <summary>
-/// 按键管理器。用于保存当前按键数量、获取当前各按键。
+/// 按键管理器。用于保存当前按键数量、获取当前各按键。主要用于获取画图时需要的信息。
 /// </summary>
 class keys_manager
 {
-	std::array<std::vector<int>, 10> keys;
-	int crt_button_count{ 4 };
+public:
+	static constexpr size_t max_key_count = 10;
+	static constexpr size_t default_key_count = 4;
+private:
+	std::array<std::vector<int>, max_key_count> keys;
+	int crt_button_count{ default_key_count };
+	struct key_info
+	{
+		kps::time_point previous{};
+		int times{};
+	};
+	std::vector<key_info> extra_info{ default_key_count };
+
+public:
+	/// <summary>
+	/// 当某个键被按下时调用，用于更新信息。
+	/// </summary>
+	/// <param name="key"></param>
+	/// <param name="time"></param>
+	void update_on_key_down(int key, kps::time_point time)
+	{
+		const auto& crt_keys = keys[crt_button_count - 1];
+		for (size_t i = 0; i < crt_keys.size(); i++)
+			if (key == crt_keys[i])
+			{
+				extra_info[i].previous = time;
+				extra_info[i].times++;
+			}
+	}
 
 public:
 	keys_manager()
@@ -29,7 +58,7 @@ public:
 		keys[6] = { 'S', 'D', 'F', space, 'J', 'K', 'L' };
 		keys[7] = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', ';' };
 		keys[8] = { 'A', 'S', 'D', 'F', space, 'J', 'K', 'L', ';' };
-		keys[9] = { 'D', 'F', space, 'J', 'K', 'E', 'R', rmenu,'U','I' };
+		keys[9] = { 'D', 'F', space, 'J', 'K', 'E', 'R', rmenu, 'U', 'I' };
 	}
 	int get_button_count() const { return crt_button_count; }
 	void set_button_count(int new_button_count)
@@ -37,6 +66,8 @@ public:
 		if (!(1 <= new_button_count && new_button_count <= static_cast<int>(keys.size())))
 			throw std::invalid_argument("new_button_count should be in [1, keys.size()].");
 		crt_button_count = new_button_count;
+		extra_info.clear();
+		extra_info.resize(crt_button_count);
 	}
 	const std::vector<int>& get_keys() const
 	{
