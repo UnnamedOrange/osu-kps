@@ -312,6 +312,16 @@ public:
 		return static_cast<std::decay_t<float_t>>(static_cast<double>(val) * dpi());
 	}
 
+private:
+	MONITORINFO _monitor_info_from_window() const
+	{
+		if (!hwnd)
+			throw std::runtime_error("hwnd is nullptr.");
+		MONITORINFO mi{ sizeof(mi) };
+		HMONITOR hMonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+		GetMonitorInfoW(hMonitor, &mi);
+		return mi;
+	}
 public:
 	/// <summary>
 	/// 获取窗口所在显示器的工作区域（Work Area）。
@@ -319,12 +329,15 @@ public:
 	/// <returns>工作区域对应的矩形（RECT）。</returns>
 	RECT work_area() const
 	{
-		if (!hwnd)
-			throw std::runtime_error("hwnd is nullptr.");
-		MONITORINFO mi{ sizeof(mi) };
-		HMONITOR hMonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
-		GetMonitorInfoW(hMonitor, &mi);
-		return mi.rcWork;
+		return _monitor_info_from_window().rcWork;
+	}
+	/// <summary>
+	/// 获取窗口所在显示器的矩形范围。
+	/// </summary>
+	/// <returns>显示器对应的矩形（RECT）。</returns>
+	RECT monitor_area() const
+	{
+		return _monitor_info_from_window().rcMonitor;
 	}
 
 public:

@@ -115,7 +115,7 @@ class main_window : public window
 		RECT& r = *pRect;
 		POINT p;
 		GetCursorPos(&p);
-		RECT rWorkArea = work_area();
+		RECT rWorkArea = monitor_area();
 		int nWidth = r.right - r.left;
 		int nHeight = r.bottom - r.top; // 获取窗口大小。
 		rWorkArea.right -= nWidth; // 将窗口可能出现的位置更改为窗口左上角的点可能出现的位置。
@@ -255,7 +255,7 @@ class main_window : public window
 		height(static_cast<int>(std::get<1>(size)));
 		pRenderTarget->Resize(D2D1::SizeU(width(), height()));
 
-		RECT rWorkArea = work_area();
+		RECT rWorkArea = monitor_area();
 		rWorkArea.right -= width();
 		rWorkArea.bottom -= height();
 		int left_shift{};
