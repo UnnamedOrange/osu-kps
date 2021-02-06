@@ -4,9 +4,25 @@
 #include <d2d1.h>
 #include <d2d1_1.h>
 #pragma comment(lib, "d2d1.lib")
+#include <dwrite.h>
+#pragma comment(lib, "dwrite.lib")
 
 namespace d2d_helper
 {
+	/// <summary>
+	/// 安全释放 ID2D 对象。
+	/// </summary>
+	/// <param name="p">对象指针的引用。</param>
+	template <typename d2d_t>
+	void release(d2d_t*& p)
+	{
+		if (p)
+		{
+			p->Release();
+			p = nullptr;
+		}
+	}
+
 	/// <summary>
 	/// 自动创建并销毁工厂的单例对象。
 	/// </summary>
@@ -15,16 +31,22 @@ namespace d2d_helper
 		struct _RAII_factory
 		{
 			ID2D1Factory* d2d1_factory{};
+			IDWriteFactory* dwrite_factory{};
 			_RAII_factory()
 			{
 				if (FAILED(D2D1CreateFactory(
 					D2D1_FACTORY_TYPE::D2D1_FACTORY_TYPE_MULTI_THREADED, &d2d1_factory)))
 					throw std::runtime_error("Fail to D2D1CreateFactory.");
+				if (FAILED(DWriteCreateFactory(
+					DWRITE_FACTORY_TYPE_SHARED,
+					__uuidof(IDWriteFactory),
+					reinterpret_cast<IUnknown**>(&dwrite_factory))))
+					throw std::runtime_error("Fail to DWriteCreateFactory.");
 			}
 			~_RAII_factory()
 			{
-				if (d2d1_factory)
-					d2d1_factory->Release();
+				release(d2d1_factory);
+				release(dwrite_factory);
 			}
 		};
 		static _RAII_factory& singleton() // _factory 仅在使用时才构造。
@@ -39,19 +61,9 @@ namespace d2d_helper
 		{
 			return singleton().d2d1_factory;
 		}
-	};
-
-	/// <summary>
-	/// 安全释放 ID2D 对象。
-	/// </summary>
-	/// <param name="p">对象指针的引用。</param>
-	template <typename d2d_t>
-	void release(d2d_t*& p)
-	{
-		if (p)
+		static IDWriteFactory* dwrite()
 		{
-			p->Release();
-			p = nullptr;
+			return singleton().dwrite_factory;
 		}
-	}
+	};
 }
