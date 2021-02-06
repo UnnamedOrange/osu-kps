@@ -60,6 +60,8 @@ Language: C++20.
 
   I may use json.
 
+- [ ] add keyboard shortcut.
+
 - [ ] add more statistic information.
 
 - [ ] tool header for multi-language support.
