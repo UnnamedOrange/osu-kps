@@ -221,9 +221,9 @@ class main_window : public window
 	}
 	void OnPaint(HWND);
 
-	// 绘图相关参数。
-	inline static double cx_button = 64.0;
-	inline static double cy_button = 80.0;
+	// 绘图位置参数。
+	inline static double cx_button = 52.0;
+	inline static double cy_button = 72.0;
 	inline static double cx_gap = 8.0;
 	inline static double cy_separator = 8.0;
 	inline static double cx_statistics = 280.0;
@@ -263,6 +263,8 @@ class main_window : public window
 		SetWindowPos(hwnd, nullptr,
 			left() - left_shift, top() - top_shift,
 			0, 0, SWP_NOSIZE | SWP_NOZORDER);
+
+		InvalidateRect(hwnd, nullptr, FALSE);
 	}
 
 public:
@@ -292,8 +294,31 @@ public:
 void main_window::OnPaint(HWND)
 {
 	pRenderTarget->BeginDraw();
+	pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::Black));
+	double x = dpi() * scale; // 总比例因子。
+	auto theme_color = D2D1::ColorF(203.0 / 255, 237.0 / 255, 238.0 / 255);
 	{
+		// 画按键框。
+		for (int i = 0; i < k_manager.get_button_count(); i++)
+		{
+			auto origin_rect = D2D1::RectF(
+				i * (cx_button + cx_gap) * x,
+				0.0F,
+				(i * (cx_button + cx_gap) + cx_button) * x,
+				cy_button * x);
+			double stroke_width = 2 * x;
+			auto draw_rect = origin_rect;
+			draw_rect.left += stroke_width / 2;
+			draw_rect.right -= stroke_width / 2;
+			draw_rect.top += stroke_width / 2;
+			draw_rect.bottom -= stroke_width / 2;
+			auto draw_rounded_rect = D2D1::RoundedRect(draw_rect, 4.0 * x, 4.0 * x);
 
+			ID2D1SolidColorBrush* brush{};
+			pRenderTarget->CreateSolidColorBrush(theme_color, &brush);
+			pRenderTarget->DrawRoundedRectangle(draw_rounded_rect, brush, stroke_width);
+			d2d_helper::release(brush);
+		}
 	}
 	pRenderTarget->EndDraw();
 	ValidateRect(hwnd, nullptr);
