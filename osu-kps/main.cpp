@@ -219,6 +219,7 @@ class main_window : public window
 	{
 		d2d_helper::release(pRenderTarget);
 	}
+	timer_thread _tt{ [this] { InvalidateRect(hwnd, nullptr, FALSE); }, 1000 / 60 };
 	void OnPaint(HWND);
 
 	// 绘图位置参数。
