@@ -280,8 +280,8 @@ public:
 	};
 
 public:
-	kps::kps kps;
 	keys_manager k_manager;
+	kps::kps kps{ std::bind(&keys_manager::update_on_key_down, &k_manager, std::placeholders::_1, std::placeholders::_2) };
 	// 改变当前按键个数。
 	void change_button_count(int new_count)
 	{
@@ -306,21 +306,21 @@ void main_window::OnPaint(HWND)
 		// 画按键框。
 		for (int i = 0; i < k_manager.get_button_count(); i++)
 		{
-			auto origin_rect = D2D1::RectF(
+			auto original_rect = D2D1::RectF(
 				i * (cx_button + cx_gap) * x,
 				0.0F,
 				(i * (cx_button + cx_gap) + cx_button) * x,
-				cy_button * x);
+				cy_button * x); // 框对应矩形。
 			double stroke_width = 2 * x;
-			auto draw_rect = origin_rect;
+			auto draw_rect = original_rect; // 使用 DrawRectangle 时对应的矩形。
 			draw_rect.left += stroke_width / 2;
 			draw_rect.right -= stroke_width / 2;
 			draw_rect.top += stroke_width / 2;
 			draw_rect.bottom -= stroke_width / 2;
 			auto draw_rounded_rect = D2D1::RoundedRect(draw_rect, 4.0 * x, 4.0 * x);
 
-			int k_now = kps.calc_kps_now(k_manager.get_keys()[i]);
-			auto str = std::to_wstring(k_now);
+			auto number_rect = original_rect; // 每个框的数字对应的矩形。
+			number_rect.top += (number_rect.bottom - number_rect.top) * 5 / 8;
 
 			// 按键的发光效果。
 
@@ -334,14 +334,18 @@ void main_window::OnPaint(HWND)
 					DWRITE_FONT_WEIGHT_REGULAR,
 					DWRITE_FONT_STYLE_NORMAL,
 					DWRITE_FONT_STRETCH_NORMAL,
-					24.0 * x,
+					20.0 * x,
 					L"",
 					&text_format_number);
 				text_format_number->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
 				text_format_number->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 				pRenderTarget->CreateSolidColorBrush(theme_color, &brush);
+
+				int k_now = kps.calc_kps_now(k_manager.get_keys()[i]); // 当前框对应 kps。
+				auto str = std::to_wstring(k_now);
+
 				pRenderTarget->DrawTextW(str.c_str(), str.length(), text_format_number,
-					origin_rect, brush);
+					number_rect, brush);
 				release(brush);
 				release(text_format_number);
 			}

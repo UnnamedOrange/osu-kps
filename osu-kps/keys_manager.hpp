@@ -47,17 +47,19 @@ public:
 public:
 	keys_manager()
 	{
+		constexpr int lbutton = 0x01;
 		constexpr int space = 0x20;
 		constexpr int rmenu = 0xA5;
-		keys[0] = { space };
+		constexpr int oem1 = 0xBA; // ;
+		keys[0] = { lbutton };
 		keys[1] = { 'Z', 'X' };
 		keys[2] = { 'Z', 'X', 'C' };
 		keys[3] = { 'D', 'F', 'J', 'K' };
 		keys[4] = { 'D', 'F', space, 'J', 'K' };
 		keys[5] = { 'S', 'D', 'F', 'J', 'K', 'L' };
 		keys[6] = { 'S', 'D', 'F', space, 'J', 'K', 'L' };
-		keys[7] = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', ';' };
-		keys[8] = { 'A', 'S', 'D', 'F', space, 'J', 'K', 'L', ';' };
+		keys[7] = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', oem1 };
+		keys[8] = { 'A', 'S', 'D', 'F', space, 'J', 'K', 'L', oem1 };
 		keys[9] = { 'D', 'F', space, 'J', 'K', 'E', 'R', rmenu, 'U', 'I' };
 	}
 	int get_button_count() const { return crt_button_count; }
