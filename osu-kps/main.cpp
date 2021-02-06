@@ -41,8 +41,6 @@ class main_window : public window
 
 		case WM_DPICHANGED:
 		{
-			// UpdateDpiDependentFontsAndResources();
-
 			RECT* const prcNewWindow = (RECT*)lParam;
 			SetWindowPos(hwnd,
 				NULL,
@@ -51,7 +49,6 @@ class main_window : public window
 				prcNewWindow->right - prcNewWindow->left,
 				prcNewWindow->bottom - prcNewWindow->top,
 				SWP_NOZORDER | SWP_NOACTIVATE);
-
 			resize();
 			break;
 		}
@@ -151,8 +148,14 @@ class main_window : public window
 	// 右键菜单。
 	HMENU hMenu{};
 	HMENU menus_button_count{};
+	/// <summary>
+	/// 创建或重建菜单。
+	/// </summary>
 	void create_menu()
 	{
+		if (hMenu)
+			DestroyMenu(hMenu);
+
 		hMenu = CreateMenu();
 		HMENU hMenuPopup = CreateMenu();
 		AppendMenuW(hMenu, MF_POPUP, reinterpret_cast<UINT_PTR>(hMenuPopup), nullptr);
@@ -299,6 +302,7 @@ void main_window::OnPaint(HWND)
 	double x = dpi() * scale; // 总比例因子。
 	auto theme_color = D2D1::ColorF(203.0 / 255, 237.0 / 255, 238.0 / 255);
 	{
+		using namespace d2d_helper;
 		// 画按键框。
 		for (int i = 0; i < k_manager.get_button_count(); i++)
 		{
@@ -315,10 +319,40 @@ void main_window::OnPaint(HWND)
 			draw_rect.bottom -= stroke_width / 2;
 			auto draw_rounded_rect = D2D1::RoundedRect(draw_rect, 4.0 * x, 4.0 * x);
 
-			ID2D1SolidColorBrush* brush{};
-			pRenderTarget->CreateSolidColorBrush(theme_color, &brush);
-			pRenderTarget->DrawRoundedRectangle(draw_rounded_rect, brush, stroke_width);
-			d2d_helper::release(brush);
+			int k_now = kps.calc_kps_now(k_manager.get_keys()[i]);
+			auto str = std::to_wstring(k_now);
+
+			// 按键的发光效果。
+
+			// 写字。
+			{
+				IDWriteTextFormat* text_format_number{};
+				ID2D1SolidColorBrush* brush{};
+				factory::dwrite()->CreateTextFormat(
+					L"Segoe UI",
+					nullptr,
+					DWRITE_FONT_WEIGHT_REGULAR,
+					DWRITE_FONT_STYLE_NORMAL,
+					DWRITE_FONT_STRETCH_NORMAL,
+					24.0 * x,
+					L"",
+					&text_format_number);
+				text_format_number->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
+				text_format_number->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+				pRenderTarget->CreateSolidColorBrush(theme_color, &brush);
+				pRenderTarget->DrawTextW(str.c_str(), str.length(), text_format_number,
+					origin_rect, brush);
+				release(brush);
+				release(text_format_number);
+			}
+
+			// 最外层的框。
+			{
+				ID2D1SolidColorBrush* brush{};
+				pRenderTarget->CreateSolidColorBrush(theme_color, &brush);
+				pRenderTarget->DrawRoundedRectangle(draw_rounded_rect, brush, stroke_width);
+				release(brush);
+			}
 		}
 	}
 	pRenderTarget->EndDraw();
