@@ -10,6 +10,7 @@
 #include <utils/code_conv.hpp>
 #include <utils/window.hpp>
 #include <utils/timer_thread.hpp>
+#include <utils/d2d_helper.hpp>
 
 #include "integrated_kps.hpp"
 #include "keys_manager.hpp"
@@ -36,6 +37,8 @@ class main_window : public window
 			HANDLE_MSG(hwnd, WM_RBUTTONDOWN, OnRButtonDown);
 			HANDLE_MSG(hwnd, WM_COMMAND, OnCommand);
 
+			HANDLE_MSG(hwnd, WM_PAINT, OnPaint);
+
 		case WM_DPICHANGED:
 		{
 			// UpdateDpiDependentFontsAndResources();
@@ -58,17 +61,26 @@ class main_window : public window
 	}
 	BOOL OnCreate(HWND, LPCREATESTRUCT)
 	{
+		// 窗口信息相关。
 		caption(L"osu!kps");
 		SetWindowLongW(hwnd, GWL_STYLE, WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_POPUP | WS_SYSMENU); // 无边框窗口。
 		SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
+		// 右键菜单。
 		create_menu();
+
+		// 绘图。
+		init_d2d();
 
 		return TRUE;
 	}
 	void OnDestroy(HWND)
 	{
+		// 右键菜单。
 		DestroyMenu(hMenu);
+
+		// 绘图。
+		destruct_d2d();
 
 		PostQuitMessage(0);
 	}
@@ -188,6 +200,22 @@ class main_window : public window
 		}
 	}
 
+	// 绘图。
+	ID2D1HwndRenderTarget* pRenderTarget{};
+	void init_d2d()
+	{
+		if (FAILED(d2d_helper::factory::d2d1()->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),
+			D2D1::HwndRenderTargetProperties(hwnd, D2D1::SizeU(width(), height())),
+			&pRenderTarget)))
+			throw std::runtime_error("Fail to CreateHwndRenderTarget.");
+		pRenderTarget->SetDpi(USER_DEFAULT_SCREEN_DPI, USER_DEFAULT_SCREEN_DPI); // 自己处理高 DPI。
+	}
+	void destruct_d2d()
+	{
+		d2d_helper::release(pRenderTarget);
+	}
+	void OnPaint(HWND);
+
 public:
 	// 菜单项 id。
 	enum
@@ -210,6 +238,16 @@ public:
 public:
 	double scale{ 1 }; // 绘图时的额外比例因子。
 };
+
+void main_window::OnPaint(HWND)
+{
+	pRenderTarget->BeginDraw();
+	{
+
+	}
+	pRenderTarget->EndDraw();
+	ValidateRect(hwnd, nullptr);
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int)
 {
