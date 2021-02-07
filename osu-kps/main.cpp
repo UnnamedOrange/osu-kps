@@ -216,6 +216,7 @@ class main_window : public window
 		com_ptr<ID2D1SolidColorBrush> theme_brush;
 
 		// scale_dep
+		com_ptr<IDWriteTextFormat> text_format_key_name;
 		com_ptr<IDWriteTextFormat> text_format_number;
 	} cache;
 	void init_d2d()
@@ -246,11 +247,23 @@ class main_window : public window
 			DWRITE_FONT_WEIGHT_REGULAR,
 			DWRITE_FONT_STYLE_NORMAL,
 			DWRITE_FONT_STRETCH_NORMAL,
-			20.0 * x,
+			18.0 * x,
 			L"",
 			cache.text_format_number.reset_and_get_address());
 		cache.text_format_number->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
 		cache.text_format_number->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+
+		factory::dwrite()->CreateTextFormat(
+			L"Segoe UI",
+			nullptr,
+			DWRITE_FONT_WEIGHT_REGULAR,
+			DWRITE_FONT_STYLE_NORMAL,
+			DWRITE_FONT_STRETCH_NORMAL,
+			24.0 * x,
+			L"",
+			cache.text_format_key_name.reset_and_get_address());
+		cache.text_format_key_name->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
+		cache.text_format_key_name->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 	}
 	timer_thread _tt{ [this] {
 		if (hwnd)
@@ -353,13 +366,21 @@ void main_window::OnPaint(HWND)
 			draw_rect.bottom -= stroke_width / 2;
 			auto draw_rounded_rect = D2D1::RoundedRect(draw_rect, 4.0 * x, 4.0 * x);
 
+			auto key_name_rect = original_rect; // 每个框的键名对应的矩形。
+			key_name_rect.bottom -= (key_name_rect.bottom - key_name_rect.top) * 2 / 5;
 			auto number_rect = original_rect; // 每个框的数字对应的矩形。
-			number_rect.top += (number_rect.bottom - number_rect.top) * 5 / 8;
+			number_rect.top += (number_rect.bottom - number_rect.top) * 2 / 5;
 
 			// 按键的发光效果。
 
 
 			// 写字。
+			{
+				// TODO: 编写从整数到字符的辅助函数。
+				wchar_t ch = k_manager.get_keys()[i]; // 当前框对应字符。
+				pRenderTarget->DrawTextW(&ch, 1, cache.text_format_key_name,
+					key_name_rect, cache.theme_brush);
+			}
 			{
 				int k_now = kps.calc_kps_now(k_manager.get_keys()[i]); // 当前框对应 kps。
 				auto str = std::to_wstring(k_now);
