@@ -11,6 +11,7 @@
 #include <utils/window.hpp>
 #include <utils/timer_thread.hpp>
 #include <utils/d2d_helper.hpp>
+#include <utils/resource_loader.hpp>
 
 #include "integrated_kps.hpp"
 #include "keys_manager.hpp"
