@@ -86,6 +86,10 @@ namespace d2d_helper
 		{
 			return _p;
 		}
+		operator com_t* () const
+		{
+			return _p;
+		}
 	};
 
 	/// <summary>
@@ -119,11 +123,11 @@ namespace d2d_helper
 		/// <returns>ID2D1Factory 工厂。</returns>
 		static ID2D1Factory* d2d1()
 		{
-			return singleton().d2d1_factory.get();
+			return singleton().d2d1_factory;
 		}
 		static IDWriteFactory* dwrite()
 		{
-			return singleton().dwrite_factory.get();
+			return singleton().dwrite_factory;
 		}
 	};
 }
