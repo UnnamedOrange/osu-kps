@@ -213,7 +213,7 @@ class main_window : public window
 	{
 		if (FAILED(factory::d2d1()->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),
 			D2D1::HwndRenderTargetProperties(hwnd, D2D1::SizeU(width(), height())),
-			pRenderTarget.get_address())))
+			pRenderTarget.reset_and_get_address())))
 			throw std::runtime_error("Fail to CreateHwndRenderTarget.");
 		pRenderTarget->SetDpi(USER_DEFAULT_SCREEN_DPI, USER_DEFAULT_SCREEN_DPI); // 自己处理高 DPI。
 	}
@@ -331,10 +331,10 @@ void main_window::OnPaint(HWND)
 					DWRITE_FONT_STRETCH_NORMAL,
 					20.0 * x,
 					L"",
-					text_format_number.get_address());
+					text_format_number.reset_and_get_address());
 				text_format_number->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
 				text_format_number->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-				pRenderTarget->CreateSolidColorBrush(theme_color, brush.get_address());
+				pRenderTarget->CreateSolidColorBrush(theme_color, brush.reset_and_get_address());
 
 				int k_now = kps.calc_kps_now(k_manager.get_keys()[i]); // 当前框对应 kps。
 				auto str = std::to_wstring(k_now);
@@ -346,7 +346,7 @@ void main_window::OnPaint(HWND)
 			// 最外层的框。
 			{
 				com_ptr<ID2D1SolidColorBrush> brush;
-				pRenderTarget->CreateSolidColorBrush(theme_color, brush.get_address());
+				pRenderTarget->CreateSolidColorBrush(theme_color, brush.reset_and_get_address());
 				pRenderTarget->DrawRoundedRectangle(draw_rounded_rect, brush.get(), stroke_width);
 			}
 		}

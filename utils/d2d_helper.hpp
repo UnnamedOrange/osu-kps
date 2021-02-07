@@ -65,8 +65,9 @@ namespace d2d_helper
 		{
 			return _p;
 		}
-		com_t** get_address()
+		com_t** reset_and_get_address()
 		{
+			reset();
 			return &_p;
 		}
 		void reset()
@@ -99,12 +100,12 @@ namespace d2d_helper
 			_RAII_factory()
 			{
 				if (FAILED(D2D1CreateFactory(
-					D2D1_FACTORY_TYPE::D2D1_FACTORY_TYPE_MULTI_THREADED, d2d1_factory.get_address())))
+					D2D1_FACTORY_TYPE::D2D1_FACTORY_TYPE_MULTI_THREADED, d2d1_factory.reset_and_get_address())))
 					throw std::runtime_error("Fail to D2D1CreateFactory.");
 				if (FAILED(DWriteCreateFactory(
 					DWRITE_FACTORY_TYPE_SHARED,
 					__uuidof(IDWriteFactory),
-					reinterpret_cast<IUnknown**>(dwrite_factory.get_address()))))
+					reinterpret_cast<IUnknown**>(dwrite_factory.reset_and_get_address()))))
 					throw std::runtime_error("Fail to DWriteCreateFactory.");
 			}
 		};
