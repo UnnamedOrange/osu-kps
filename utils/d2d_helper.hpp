@@ -2,9 +2,18 @@
 // See the LICENCE file in the repository root for full licence text.
 
 #include <d2d1.h>
+#include <d2d1helper.h>
 #include <d2d1_1.h>
+#include <d2d1_1helper.h>
+#include <d2d1_2.h>
+#include <d2d1_2helper.h>
+#include <d2d1_3.h>
+#include <d2d1_3helper.h>
 #pragma comment(lib, "d2d1.lib")
 #include <dwrite.h>
+#include <dwrite_1.h>
+#include <dwrite_2.h>
+#include <dwrite_3.h>
 #pragma comment(lib, "dwrite.lib")
 
 namespace d2d_helper
@@ -99,16 +108,18 @@ namespace d2d_helper
 	{
 		struct _RAII_factory
 		{
-			com_ptr<ID2D1Factory> d2d1_factory;
-			com_ptr<IDWriteFactory> dwrite_factory;
+			com_ptr<ID2D1Factory7> d2d1_factory;
+			com_ptr<IDWriteFactory7> dwrite_factory;
 			_RAII_factory()
 			{
 				if (FAILED(D2D1CreateFactory(
-					D2D1_FACTORY_TYPE::D2D1_FACTORY_TYPE_MULTI_THREADED, d2d1_factory.reset_and_get_address())))
+					D2D1_FACTORY_TYPE_MULTI_THREADED,
+					__uuidof(ID2D1Factory7),
+					reinterpret_cast<void**>(d2d1_factory.reset_and_get_address()))))
 					throw std::runtime_error("Fail to D2D1CreateFactory.");
 				if (FAILED(DWriteCreateFactory(
 					DWRITE_FACTORY_TYPE_SHARED,
-					__uuidof(IDWriteFactory),
+					__uuidof(IDWriteFactory7),
 					reinterpret_cast<IUnknown**>(dwrite_factory.reset_and_get_address()))))
 					throw std::runtime_error("Fail to DWriteCreateFactory.");
 			}
