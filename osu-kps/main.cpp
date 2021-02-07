@@ -6,6 +6,7 @@
 #include <Windows.h>
 #undef min
 #undef max
+#include "resource.h"
 
 #include <utils/code_conv.hpp>
 #include <utils/window.hpp>

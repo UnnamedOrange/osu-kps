@@ -50,4 +50,9 @@
       <Filter>资源文件</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Font Include="..\resources\exo2-regular.otf">
+      <Filter>资源文件</Filter>
+    </Font>
+  </ItemGroup>
 </Project>

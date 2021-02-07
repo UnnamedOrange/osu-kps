@@ -13,11 +13,11 @@
 class resource_loader
 {
 public:
-	static auto load(std::wstring_view resource_name, std::wstring_view type_name)
+	static auto load(const wchar_t* resource_name, const wchar_t* type_name)
 	{
 		HINSTANCE hInstance = GetModuleHandleW(nullptr);
 		HRSRC hResInfo = FindResourceW(hInstance,
-			resource_name.data(), type_name.data());
+			resource_name, type_name);
 		if (!hResInfo)
 			throw std::runtime_error("fail to FindResourceW.");
 		HGLOBAL hResource = LoadResource(hInstance, hResInfo);
