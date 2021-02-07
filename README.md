@@ -87,3 +87,13 @@ Copyright (c) UnnamedOrange. Licensed under the MIT Licence.
 See the LICENCE file in the repository root for full licence text.
 
 ## Credits
+
+### Exo 2
+
+Licensed under the [SIL Open Font License](https://www.fontsquirrel.com/license/exo-2).
+
+```
+Copyright (c) 2013, Natanael Gama (www.ndiscovered.com . info(at)ndiscovered.com), with Reserved Font Name Exo.
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+```
