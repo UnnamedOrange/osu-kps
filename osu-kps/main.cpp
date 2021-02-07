@@ -217,7 +217,7 @@ class main_window : public window
 			throw std::runtime_error("Fail to CreateHwndRenderTarget.");
 		pRenderTarget->SetDpi(USER_DEFAULT_SCREEN_DPI, USER_DEFAULT_SCREEN_DPI); // 自己处理高 DPI。
 	}
-	timer_thread _tt{ [this] { InvalidateRect(hwnd, nullptr, FALSE); }, 1000 / 60 };
+	timer_thread _tt{ [this] { if (hwnd) InvalidateRect(hwnd, nullptr, FALSE); }, 1000 / 60 };
 	void OnPaint(HWND);
 
 	// 绘图位置参数。
