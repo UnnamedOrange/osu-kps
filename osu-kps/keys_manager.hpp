@@ -29,7 +29,7 @@ private:
 
 public:
 	/// <summary>
-	/// 当某个键被按下时调用，用于更新信息。
+	/// 当某个键被按下时调用，用于更新信息。该方法可能运行在主线程或子线程。该方法不能花费过多 CPU 时间。
 	/// </summary>
 	/// <param name="key"></param>
 	/// <param name="time"></param>
@@ -62,7 +62,15 @@ public:
 		keys[8] = { 'A', 'S', 'D', 'F', space, 'J', 'K', 'L', oem1 };
 		keys[9] = { 'D', 'F', space, 'J', 'K', 'E', 'R', rmenu, 'U', 'I' };
 	}
+	/// <summary>
+	/// 获取当前按键数量。
+	/// </summary>
+	/// <returns></returns>
 	int get_button_count() const { return crt_button_count; }
+	/// <summary>
+	/// 修改当前按键数量。该方法只能运行在主线程。
+	/// </summary>
+	/// <param name="new_button_count"></param>
 	void set_button_count(int new_button_count)
 	{
 		if (!(1 <= new_button_count && new_button_count <= static_cast<int>(keys.size())))
@@ -71,6 +79,10 @@ public:
 		extra_info.clear();
 		extra_info.resize(crt_button_count);
 	}
+	/// <summary>
+	/// 获取当前的按键集合（序列）。该方法只能运行在主线程。
+	/// </summary>
+	/// <returns></returns>
 	const std::vector<int>& get_keys() const
 	{
 		return keys[static_cast<size_t>(crt_button_count) - 1];
