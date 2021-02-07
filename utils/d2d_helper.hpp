@@ -200,6 +200,7 @@ namespace d2d_helper
 		std::vector<BYTE> font;
 		com_ptr<life_indicator> _life;
 		com_ptr<IDWriteFontCollection1> collection;
+		std::vector<std::wstring> family_names;
 	public:
 		private_font_collection() = default;
 		private_font_collection(const std::vector<BYTE>& font_data)
@@ -235,12 +236,32 @@ namespace d2d_helper
 			com_ptr<IDWriteFontSet> font_set;
 			font_set_builder->CreateFontSet(font_set.reset_and_get_address());
 			factory::dwrite()->CreateFontCollectionFromFontSet(font_set, collection.reset_and_get_address());
+
+			family_names.clear();
+			unsigned to = collection->GetFontFamilyCount();
+			family_names.reserve(to);
+			for (unsigned i = 0; i < to; i++)
+			{
+				com_ptr<IDWriteFontFamily> family;
+				collection->GetFontFamily(i, family.reset_and_get_address());
+				com_ptr<IDWriteLocalizedStrings> names;
+				family->GetFamilyNames(names.reset_and_get_address());
+				unsigned length{};
+				names->GetStringLength(0, &length);
+				std::wstring temp(length, L'\0');
+				names->GetString(0, temp.data(), length + 1);
+				family_names.emplace_back(std::move(temp));
+			}
 		}
 
 	public:
 		auto get() const
 		{
 			return collection.get();
+		}
+		const auto& get_family_names() const
+		{
+			return family_names;
 		}
 	};
 }

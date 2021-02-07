@@ -247,7 +247,7 @@ class main_window : public window
 		double x = dpi() * scale;
 
 		factory::dwrite()->CreateTextFormat(
-			L"Exo 2",
+			cache.theme_font_collection.get_family_names()[0].c_str(),
 			cache.theme_font_collection.get(),
 			DWRITE_FONT_WEIGHT_REGULAR,
 			DWRITE_FONT_STYLE_NORMAL,
@@ -259,7 +259,7 @@ class main_window : public window
 		cache.text_format_number->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 
 		factory::dwrite()->CreateTextFormat(
-			L"Exo 2",
+			cache.theme_font_collection.get_family_names()[0].c_str(),
 			cache.theme_font_collection.get(),
 			DWRITE_FONT_WEIGHT_REGULAR,
 			DWRITE_FONT_STYLE_NORMAL,
