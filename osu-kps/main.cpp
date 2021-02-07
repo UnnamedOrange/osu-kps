@@ -21,6 +21,8 @@
 #define FORWARD_WM_MOVING(hwnd, pRect, fn)\
 	(void)(fn)((hwnd), WM_MOVING, 0L, (LPARAM)(pRect))
 
+using namespace d2d_helper;
+
 class main_window : public window
 {
 	virtual INT_PTR WindowProc(HWND, UINT message, WPARAM wParam, LPARAM lParam) override
@@ -80,9 +82,6 @@ class main_window : public window
 	{
 		// 右键菜单。
 		DestroyMenu(hMenu);
-
-		// 绘图。
-		destruct_d2d();
 
 		PostQuitMessage(0);
 	}
@@ -209,18 +208,14 @@ class main_window : public window
 	}
 
 	// 绘图。
-	ID2D1HwndRenderTarget* pRenderTarget{};
+	com_ptr<ID2D1HwndRenderTarget> pRenderTarget{};
 	void init_d2d()
 	{
-		if (FAILED(d2d_helper::factory::d2d1()->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),
+		if (FAILED(factory::d2d1()->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),
 			D2D1::HwndRenderTargetProperties(hwnd, D2D1::SizeU(width(), height())),
-			&pRenderTarget)))
+			pRenderTarget.get_address())))
 			throw std::runtime_error("Fail to CreateHwndRenderTarget.");
 		pRenderTarget->SetDpi(USER_DEFAULT_SCREEN_DPI, USER_DEFAULT_SCREEN_DPI); // 自己处理高 DPI。
-	}
-	void destruct_d2d()
-	{
-		d2d_helper::release(pRenderTarget);
 	}
 	timer_thread _tt{ [this] { InvalidateRect(hwnd, nullptr, FALSE); }, 1000 / 60 };
 	void OnPaint(HWND);
@@ -302,7 +297,6 @@ void main_window::OnPaint(HWND)
 	double x = dpi() * scale; // 总比例因子。
 	auto theme_color = D2D1::ColorF(203.0 / 255, 237.0 / 255, 238.0 / 255);
 	{
-		using namespace d2d_helper;
 		// 画按键框。
 		for (int i = 0; i < k_manager.get_button_count(); i++)
 		{
@@ -324,10 +318,11 @@ void main_window::OnPaint(HWND)
 
 			// 按键的发光效果。
 
+
 			// 写字。
 			{
-				IDWriteTextFormat* text_format_number{};
-				ID2D1SolidColorBrush* brush{};
+				com_ptr<IDWriteTextFormat> text_format_number;
+				com_ptr<ID2D1SolidColorBrush> brush;
 				factory::dwrite()->CreateTextFormat(
 					L"Segoe UI",
 					nullptr,
@@ -336,26 +331,23 @@ void main_window::OnPaint(HWND)
 					DWRITE_FONT_STRETCH_NORMAL,
 					20.0 * x,
 					L"",
-					&text_format_number);
+					text_format_number.get_address());
 				text_format_number->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
 				text_format_number->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-				pRenderTarget->CreateSolidColorBrush(theme_color, &brush);
+				pRenderTarget->CreateSolidColorBrush(theme_color, brush.get_address());
 
 				int k_now = kps.calc_kps_now(k_manager.get_keys()[i]); // 当前框对应 kps。
 				auto str = std::to_wstring(k_now);
 
-				pRenderTarget->DrawTextW(str.c_str(), str.length(), text_format_number,
-					number_rect, brush);
-				release(brush);
-				release(text_format_number);
+				pRenderTarget->DrawTextW(str.c_str(), str.length(), text_format_number.get(),
+					number_rect, brush.get());
 			}
 
 			// 最外层的框。
 			{
-				ID2D1SolidColorBrush* brush{};
-				pRenderTarget->CreateSolidColorBrush(theme_color, &brush);
-				pRenderTarget->DrawRoundedRectangle(draw_rounded_rect, brush, stroke_width);
-				release(brush);
+				com_ptr<ID2D1SolidColorBrush> brush;
+				pRenderTarget->CreateSolidColorBrush(theme_color, brush.get_address());
+				pRenderTarget->DrawRoundedRectangle(draw_rounded_rect, brush.get(), stroke_width);
 			}
 		}
 	}

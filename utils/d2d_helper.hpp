@@ -10,18 +10,82 @@
 namespace d2d_helper
 {
 	/// <summary>
-	/// 安全释放 ID2D 对象。
+	/// 是否是 COM 类型。
 	/// </summary>
-	/// <param name="p">对象指针的引用。</param>
-	template <typename d2d_t>
-	void release(d2d_t*& p)
+	template <typename T>
+	concept com = requires(T * obj)
 	{
-		if (p)
+		std::derived_from<T, IUnknown>;
+	};
+
+	/// <summary>
+	/// COM 类型智能指针。
+	/// </summary>
+	template <com com_t>
+	class com_ptr
+	{
+		com_t* _p{};
+
+	public:
+		constexpr com_ptr() = default;
+		com_ptr<com_t>& operator=(const com_ptr<com_t>& another)
 		{
-			p->Release();
-			p = nullptr;
+			if (this != &another)
+			{
+				_p = another._p;
+				if (_p)
+					_p->AddRef();
+			}
+			return *this;
 		}
-	}
+		com_ptr<com_t>& operator=(com_ptr<com_t>&& another) noexcept
+		{
+			if (this != &another)
+			{
+				_p = another._p;
+				another._p = nullptr;
+			}
+			return *this;
+		}
+		com_ptr(const com_ptr<com_t>& another)
+		{
+			*this = another;
+		}
+		com_ptr(com_ptr<com_t>&& another) noexcept
+		{
+			*this = std::move(another);
+		}
+		virtual ~com_ptr()
+		{
+			reset();
+		}
+
+	public:
+		com_t* get() const
+		{
+			return _p;
+		}
+		com_t** get_address()
+		{
+			return &_p;
+		}
+		void reset()
+		{
+			if (_p)
+			{
+				_p->Release();
+				_p = nullptr;
+			}
+		}
+		com_t* operator->() const
+		{
+			return _p;
+		}
+		operator bool() const
+		{
+			return _p;
+		}
+	};
 
 	/// <summary>
 	/// 自动创建并销毁工厂的单例对象。
@@ -30,23 +94,18 @@ namespace d2d_helper
 	{
 		struct _RAII_factory
 		{
-			ID2D1Factory* d2d1_factory{};
-			IDWriteFactory* dwrite_factory{};
+			com_ptr<ID2D1Factory> d2d1_factory;
+			com_ptr<IDWriteFactory> dwrite_factory;
 			_RAII_factory()
 			{
 				if (FAILED(D2D1CreateFactory(
-					D2D1_FACTORY_TYPE::D2D1_FACTORY_TYPE_MULTI_THREADED, &d2d1_factory)))
+					D2D1_FACTORY_TYPE::D2D1_FACTORY_TYPE_MULTI_THREADED, d2d1_factory.get_address())))
 					throw std::runtime_error("Fail to D2D1CreateFactory.");
 				if (FAILED(DWriteCreateFactory(
 					DWRITE_FACTORY_TYPE_SHARED,
 					__uuidof(IDWriteFactory),
-					reinterpret_cast<IUnknown**>(&dwrite_factory))))
+					reinterpret_cast<IUnknown**>(dwrite_factory.get_address()))))
 					throw std::runtime_error("Fail to DWriteCreateFactory.");
-			}
-			~_RAII_factory()
-			{
-				release(d2d1_factory);
-				release(dwrite_factory);
 			}
 		};
 		static _RAII_factory& singleton() // _factory 仅在使用时才构造。
@@ -59,11 +118,11 @@ namespace d2d_helper
 		/// <returns>ID2D1Factory 工厂。</returns>
 		static ID2D1Factory* d2d1()
 		{
-			return singleton().d2d1_factory;
+			return singleton().d2d1_factory.get();
 		}
 		static IDWriteFactory* dwrite()
 		{
-			return singleton().dwrite_factory;
+			return singleton().dwrite_factory.get();
 		}
 	};
 }
