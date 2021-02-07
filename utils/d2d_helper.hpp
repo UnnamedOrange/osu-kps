@@ -191,8 +191,12 @@ namespace d2d_helper
 		life_indicator& operator=(life_indicator&&) = delete;
 	};
 
+	/// <summary>
+	/// 私有字体序列。不要重复调用，否则会出现内存泄漏问题。
+	/// </summary>
 	class private_font_collection
 	{
+		inline static com_ptr<IDWriteInMemoryFontFileLoader> in_memory_font_file_loader;
 		std::vector<BYTE> font;
 		com_ptr<life_indicator> _life;
 		com_ptr<IDWriteFontCollection1> collection;
@@ -206,24 +210,28 @@ namespace d2d_helper
 	public:
 		void from_font_data(const std::vector<BYTE>& font_data)
 		{
-			font = font_data;
 			collection.reset();
 			life_indicator::create(_life.reset_and_get_address());
+			font = font_data;
 
-			com_ptr<IDWriteInMemoryFontFileLoader> in_memory_font_file_loader;
-			factory::dwrite()->CreateInMemoryFontFileLoader(in_memory_font_file_loader.reset_and_get_address());
-			factory::dwrite()->RegisterFontFileLoader(in_memory_font_file_loader);
+			if (!in_memory_font_file_loader)
+			{
+				factory::dwrite()->CreateInMemoryFontFileLoader(in_memory_font_file_loader.reset_and_get_address());
+				factory::dwrite()->RegisterFontFileLoader(in_memory_font_file_loader);
+			}
 			com_ptr<IDWriteFontSetBuilder2> font_set_builder;
 			factory::dwrite()->CreateFontSetBuilder(font_set_builder.reset_and_get_address());
-			com_ptr<IDWriteFontFile> font_file_reference;
-			in_memory_font_file_loader->CreateInMemoryFontFileReference(
-				factory::dwrite(),
-				font.data(),
-				font.size(),
-				_life.get(), // Passing the binaryResources object as the data owner -- data lifetime is managed by the owner, so DirectWrite won't make a copy.
-				font_file_reference.reset_and_get_address()
-			);
-			font_set_builder->AddFontFile(font_file_reference); // 可以加好几个。
+			{
+				com_ptr<IDWriteFontFile> font_file_reference;
+				in_memory_font_file_loader->CreateInMemoryFontFileReference(
+					factory::dwrite(),
+					font.data(),
+					font.size(),
+					_life.get(),
+					font_file_reference.reset_and_get_address()
+				);
+				font_set_builder->AddFontFile(font_file_reference);
+			}
 			com_ptr<IDWriteFontSet> font_set;
 			font_set_builder->CreateFontSet(font_set.reset_and_get_address());
 			factory::dwrite()->CreateFontCollectionFromFontSet(font_set, collection.reset_and_get_address());
