@@ -1,6 +1,8 @@
 ﻿// Copyright (c) UnnamedOrange. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+#include <atomic>
+
 #include <d2d1.h>
 #include <d2d1helper.h>
 #include <d2d1_1.h>
@@ -140,5 +142,49 @@ namespace d2d_helper
 		{
 			return singleton().dwrite_factory;
 		}
+	};
+
+	class resource_holder : public IUnknown
+	{
+	private:
+		std::atomic<ULONG> ref_count{ 1 };
+	public:
+		ULONG STDMETHODCALLTYPE AddRef() override
+		{
+			return ++ref_count;
+		}
+		HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, _COM_Outptr_ void** object) override
+		{
+			*object = nullptr;
+			if (riid == __uuidof(IUnknown))
+			{
+				AddRef();
+				*object = this;
+				return S_OK;
+			}
+			return E_NOINTERFACE;
+		}
+		ULONG STDMETHODCALLTYPE Release() override
+		{
+			--ref_count;
+			if (!ref_count)
+				delete this;
+			return ref_count;
+		}
+		
+	private:
+		resource_holder() = default;
+	public:
+		static resource_holder* create()
+		{
+			return new resource_holder;
+		}
+		resource_holder(const resource_holder&) = delete;
+		resource_holder(resource_holder&&) = delete;
+		resource_holder& operator=(const resource_holder&) = delete;
+		resource_holder& operator=(resource_holder&&) = delete;
+
+	public:
+		std::vector<BYTE> resource;
 	};
 }
