@@ -221,6 +221,7 @@ class main_window : public window
 		// scale_dep
 		com_ptr<IDWriteTextFormat> text_format_key_name;
 		com_ptr<IDWriteTextFormat> text_format_number;
+		com_ptr<IDWriteTextFormat> text_format_statistics;
 	} cache;
 	void init_d2d()
 	{
@@ -269,6 +270,16 @@ class main_window : public window
 			cache.text_format_key_name.reset_and_get_address());
 		cache.text_format_key_name->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
 		cache.text_format_key_name->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+
+		factory::dwrite()->CreateTextFormat(
+			cache.theme_font_collection.get_family_names()[0].c_str(),
+			cache.theme_font_collection.get(),
+			DWRITE_FONT_WEIGHT_REGULAR,
+			DWRITE_FONT_STYLE_NORMAL,
+			DWRITE_FONT_STRETCH_NORMAL,
+			16.0 * x,
+			L"",
+			cache.text_format_statistics.reset_and_get_address());
 	}
 	timer_thread _tt{ [this] {
 		if (hwnd)
@@ -285,6 +296,7 @@ class main_window : public window
 	inline static double cx_gap = 8.0;
 	inline static double cy_separator = 8.0;
 	inline static double cx_statistics = 232.0;
+	inline static double cx_kps_number = 32;
 	inline static double cy_statistics = 120.0;
 	/// <summary>
 	/// 计算窗口应有的大小。<remarks>计算时不考虑缩放，最后再乘以缩放。</remarks>
@@ -352,6 +364,7 @@ public:
 void main_window::OnPaint(HWND)
 {
 	pRenderTarget->BeginDraw();
+	pRenderTarget->SetTransform(D2D1::IdentityMatrix());
 	pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::Black));
 	double x = dpi() * scale; // 总比例因子。
 	{
@@ -397,6 +410,45 @@ void main_window::OnPaint(HWND)
 			// 最外层的框。
 			{
 				pRenderTarget->DrawRoundedRectangle(draw_rounded_rect, cache.theme_brush, stroke_width);
+			}
+		}
+
+		// 画统计信息。
+		{
+			// 平移绘制区域，使得逻辑坐标从 (0, 0) 开始。
+			{
+				D2D1_MATRIX_3X2_F transform;
+				pRenderTarget->GetTransform(&transform);
+				auto move = D2D1::Matrix3x2F::Translation(0, (cy_button + cy_separator) * x);
+				pRenderTarget->SetTransform(transform * move);
+			}
+
+			auto kps_number_rect = D2D1::RectF(
+				0, 0,
+				cx_kps_number * x,
+				cy_statistics * x); // kps 数值矩形。
+			auto kps_text_rect = D2D1::RectF(
+				(cx_kps_number + cx_gap) * x, 0,
+				width(),
+				cy_statistics * x); // kps 文字矩形。
+
+			wchar_t buffer[256];
+			{
+				std::swprintf(buffer, std::size(buffer), L"%d",
+					kps.calc_kps_now(k_manager.get_keys()));
+				auto str = std::wstring(buffer);
+
+				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics,
+					kps_number_rect, cache.theme_brush);
+			}
+			{
+				std::swprintf(buffer, std::size(buffer), L"KPS");
+				auto str = std::wstring(buffer);
+
+				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics,
+					kps_text_rect, cache.theme_brush);
 			}
 		}
 	}
