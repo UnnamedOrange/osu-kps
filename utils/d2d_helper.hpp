@@ -144,7 +144,13 @@ namespace d2d_helper
 		}
 	};
 
-	class resource_holder : public IUnknown
+	/// <summary>
+	/// 自定义 COM 对象。用于指明数据的生命周期。
+	/// 实质上不存放数据！只是一个标记。
+	/// 需要使用静态方法 create() 进行构造。
+	/// 建议使用 com_ptr 进行管理。
+	/// </summary>
+	class life_indicator : public IUnknown // COM 对象。
 	{
 	private:
 		std::atomic<ULONG> ref_count{ 1 };
@@ -171,20 +177,62 @@ namespace d2d_helper
 				delete this;
 			return ref_count;
 		}
-		
+
 	private:
-		resource_holder() = default;
+		life_indicator() = default;
 	public:
-		static resource_holder* create()
+		static bool create(life_indicator** p)
 		{
-			return new resource_holder;
+			return *p = new life_indicator;
 		}
-		resource_holder(const resource_holder&) = delete;
-		resource_holder(resource_holder&&) = delete;
-		resource_holder& operator=(const resource_holder&) = delete;
-		resource_holder& operator=(resource_holder&&) = delete;
+		life_indicator(const life_indicator&) = delete;
+		life_indicator(life_indicator&&) = delete;
+		life_indicator& operator=(const life_indicator&) = delete;
+		life_indicator& operator=(life_indicator&&) = delete;
+	};
+
+	class private_font_collection
+	{
+		std::vector<BYTE> font;
+		com_ptr<life_indicator> _life;
+		com_ptr<IDWriteFontCollection1> collection;
+	public:
+		private_font_collection() = default;
+		private_font_collection(const std::vector<BYTE>& font_data)
+		{
+			from_font_data(font_data);
+		}
 
 	public:
-		std::vector<BYTE> resource;
+		void from_font_data(const std::vector<BYTE>& font_data)
+		{
+			font = font_data;
+			collection.reset();
+			life_indicator::create(_life.reset_and_get_address());
+
+			com_ptr<IDWriteInMemoryFontFileLoader> in_memory_font_file_loader;
+			factory::dwrite()->CreateInMemoryFontFileLoader(in_memory_font_file_loader.reset_and_get_address());
+			factory::dwrite()->RegisterFontFileLoader(in_memory_font_file_loader);
+			com_ptr<IDWriteFontSetBuilder2> font_set_builder;
+			factory::dwrite()->CreateFontSetBuilder(font_set_builder.reset_and_get_address());
+			com_ptr<IDWriteFontFile> font_file_reference;
+			in_memory_font_file_loader->CreateInMemoryFontFileReference(
+				factory::dwrite(),
+				font.data(),
+				font.size(),
+				_life.get(), // Passing the binaryResources object as the data owner -- data lifetime is managed by the owner, so DirectWrite won't make a copy.
+				font_file_reference.reset_and_get_address()
+			);
+			font_set_builder->AddFontFile(font_file_reference); // 可以加好几个。
+			com_ptr<IDWriteFontSet> font_set;
+			font_set_builder->CreateFontSet(font_set.reset_and_get_address());
+			factory::dwrite()->CreateFontCollectionFromFontSet(font_set, collection.reset_and_get_address());
+		}
+
+	public:
+		auto get() const
+		{
+			return collection.get();
+		}
 	};
 }

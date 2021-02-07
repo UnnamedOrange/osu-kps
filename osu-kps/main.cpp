@@ -216,6 +216,7 @@ class main_window : public window
 	{
 		// indep
 		com_ptr<ID2D1SolidColorBrush> theme_brush;
+		private_font_collection theme_font_collection;
 
 		// scale_dep
 		com_ptr<IDWriteTextFormat> text_format_key_name;
@@ -238,14 +239,16 @@ class main_window : public window
 		pRenderTarget->CreateSolidColorBrush(theme_color,
 			cache.theme_brush.reset_and_get_address());
 
+		cache.theme_font_collection.from_font_data(
+			resource_loader::load(MAKEINTRESOURCEW(IDR_Exo2_Regular), L"OTF"));
 	}
 	void build_scale_dep_resource()
 	{
 		double x = dpi() * scale;
 
 		factory::dwrite()->CreateTextFormat(
-			L"Segoe UI",
-			nullptr,
+			L"Exo 2",
+			cache.theme_font_collection.get(),
 			DWRITE_FONT_WEIGHT_REGULAR,
 			DWRITE_FONT_STYLE_NORMAL,
 			DWRITE_FONT_STRETCH_NORMAL,
@@ -256,8 +259,8 @@ class main_window : public window
 		cache.text_format_number->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 
 		factory::dwrite()->CreateTextFormat(
-			L"Segoe UI",
-			nullptr,
+			L"Exo 2",
+			cache.theme_font_collection.get(),
 			DWRITE_FONT_WEIGHT_REGULAR,
 			DWRITE_FONT_STYLE_NORMAL,
 			DWRITE_FONT_STRETCH_NORMAL,
