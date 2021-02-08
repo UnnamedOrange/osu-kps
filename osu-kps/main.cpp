@@ -66,7 +66,7 @@ class main_window : public window
 	BOOL OnCreate(HWND, LPCREATESTRUCT)
 	{
 		// 窗口信息相关。
-		caption(L"osu!kps");
+		caption(L"osu-kps");
 		SetWindowLongW(hwnd, GWL_STYLE, WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_POPUP | WS_SYSMENU); // 无边框窗口。
 		SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
