@@ -242,6 +242,10 @@ class main_window : public window
 	struct cache_type
 	{
 		// indep
+		static constexpr auto theme_color = color(203u, 237u, 238u);
+		static constexpr auto light_active_color = color(227u, 172u, 181u);
+		static constexpr auto active_color = color(255u, 104u, 143u);
+
 		com_ptr<ID2D1SolidColorBrush> theme_brush;
 		private_font_collection theme_font_collection;
 
@@ -249,6 +253,7 @@ class main_window : public window
 		com_ptr<IDWriteTextFormat> text_format_key_name;
 		com_ptr<IDWriteTextFormat> text_format_number;
 		com_ptr<IDWriteTextFormat> text_format_statistics;
+		com_ptr<IDWriteTextFormat> text_format_total_keys;
 	} cache;
 	void init_d2d()
 	{
@@ -263,8 +268,7 @@ class main_window : public window
 	}
 	void build_indep_resource()
 	{
-		auto theme_color = color(203u, 237u, 238u);
-		pRenderTarget->CreateSolidColorBrush(theme_color,
+		pRenderTarget->CreateSolidColorBrush(cache.theme_color,
 			cache.theme_brush.reset_and_get_address());
 
 		cache.theme_font_collection.from_font_data(
@@ -304,9 +308,19 @@ class main_window : public window
 			DWRITE_FONT_WEIGHT_REGULAR,
 			DWRITE_FONT_STYLE_NORMAL,
 			DWRITE_FONT_STRETCH_NORMAL,
-			16.0 * x,
+			20.0 * x,
 			L"",
 			cache.text_format_statistics.reset_and_get_address());
+		factory::dwrite()->CreateTextFormat(
+			cache.theme_font_collection.get_family_names()[0].c_str(),
+			cache.theme_font_collection.get(),
+			DWRITE_FONT_WEIGHT_REGULAR,
+			DWRITE_FONT_STYLE_NORMAL,
+			DWRITE_FONT_STRETCH_NORMAL,
+			15.0 * x,
+			L"",
+			cache.text_format_total_keys.reset_and_get_address());
+		cache.text_format_total_keys->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 	}
 	timer_thread _tt{ [this] {
 		if (hwnd)
@@ -315,6 +329,35 @@ class main_window : public window
 			UpdateWindow(hwnd);
 		}
 	}, 1000 / 60 };
+	/// <summary>
+	/// 将颜色根据参数进行插值。
+	/// crt 从 0 到 threshold 1 之间，总是 from。
+	/// crt 接近 threshold2 时，接近 to（0.9）。
+	/// crt 趋于正无穷时，为 to。当 crt 为负数时，行为未定义。
+	/// </summary>
+	/// <typeparam name="param_t"></typeparam>
+	/// <param name="from"></param>
+	/// <param name="to"></param>
+	/// <param name="crt">当前参数。</param>
+	/// <param name="threshold1">阈值 1。</param>
+	/// <returns></returns>
+	template <typename param_t>
+	static color _interpolate(color from, color to, param_t crt, param_t threshold1, param_t threshold2)
+	{
+		if (crt < 0 || threshold1 < 0 || threshold2 < threshold1)
+			throw std::invalid_argument("invalid argument.");
+
+		double ratio{};
+		if (crt >= threshold1)
+		{
+			crt -= threshold1;
+			auto sigmoid = [](double x) {return 1 / (1 + std::exp(-x)); };
+			constexpr double ratio_t2 = 0.9;
+			double a = -std::log(1 / ratio_t2 - 1) / std::log(std::exp(1)) / (threshold2 - threshold1);
+			ratio = sigmoid(a * crt);
+		}
+		return color::linear_interpolation(from, to, ratio);
+	}
 	void OnPaint(HWND);
 
 	// 绘图位置参数。
@@ -326,7 +369,8 @@ class main_window : public window
 	inline static double cx_kps_number = 24.0;
 	inline static double cx_kps_text = 45.0;
 	inline static double cx_total_number = 40.0;
-	inline static double cy_statistics = 16.0;
+	inline static double cy_statistics = 20.0;
+	inline static double cy_total_keys = 15.0;
 	/// <summary>
 	/// 计算窗口应有的大小。<remarks>计算时不考虑缩放，最后再乘以缩放。</remarks>
 	/// </summary>
@@ -441,7 +485,11 @@ void main_window::OnPaint(HWND)
 
 			// 最外层的框。
 			{
-				pRenderTarget->DrawRoundedRectangle(draw_rounded_rect, cache.theme_brush, stroke_width);
+				com_ptr<ID2D1SolidColorBrush> brush;
+				color text_color = _interpolate(cache.theme_color, cache.light_active_color,
+					kps.calc_kps_now(k_manager.get_keys()[i]), 3, 5);
+				pRenderTarget->CreateSolidColorBrush(text_color, brush.reset_and_get_address());
+				pRenderTarget->DrawRoundedRectangle(draw_rounded_rect, brush, stroke_width);
 			}
 		}
 
@@ -472,19 +520,23 @@ void main_window::OnPaint(HWND)
 				max_number_rect.right + (cx_gap + cx_kps_text) * x,
 				cy_statistics * x); // 最大 kps 文字矩形。
 			auto total_number_rect = D2D1::RectF(
-				max_text_rect.right + cx_gap * x, 0,
+				max_text_rect.right + cx_gap * x, (cy_statistics - cy_total_keys) * x,
 				(cx_statistics - cx_gap) * x,
 				cy_statistics * x); // 总按键数值矩形。
 
 			wchar_t buffer[256];
 			{
+				auto kps_now = kps.calc_kps_now(k_manager.get_keys());
 				std::swprintf(buffer, std::size(buffer), L"%d",
-					kps.calc_kps_now(k_manager.get_keys()));
+					kps_now);
 				auto str = std::wstring(buffer);
 
+				com_ptr<ID2D1SolidColorBrush> brush;
+				color text_color = _interpolate(cache.theme_color, cache.active_color, kps_now, 6, 13);
+				pRenderTarget->CreateSolidColorBrush(text_color, brush.reset_and_get_address());
 				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics,
-					kps_number_rect, cache.theme_brush);
+					kps_number_rect, brush);
 			}
 			{
 				std::swprintf(buffer, std::size(buffer), L"KPS");
@@ -516,8 +568,7 @@ void main_window::OnPaint(HWND)
 					k_manager.get_total_count());
 				auto str = std::wstring(buffer);
 
-				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
-				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics,
+				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_total_keys,
 					total_number_rect, cache.theme_brush);
 			}
 		}
