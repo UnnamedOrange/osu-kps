@@ -33,7 +33,7 @@ private:
 	// 其他统计信息。
 private:
 	int total_count{};
-	int max_kps{};
+	double max_kps{};
 
 public:
 	/// <summary>
@@ -123,7 +123,7 @@ public:
 		total_count = 0;
 	}
 	/// <returns>最大 KPS。</returns>
-	int get_max_kps() const
+	double get_max_kps() const
 	{
 		return max_kps;
 	}

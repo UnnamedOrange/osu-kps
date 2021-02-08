@@ -9,6 +9,7 @@
 #include <numeric>
 #include <array>
 #include <tuple>
+#include <memory>
 #include <chrono>
 #include <mutex>
 
@@ -18,56 +19,47 @@ namespace kps
 	using time_point = std::chrono::time_point<clock>;
 	using namespace std::literals;
 
-	/// <summary>
-	/// KPS 计算器。
-	/// </summary>
-	class kps_calculator
+	class kps_interface
 	{
-	private:
-		mutable std::recursive_mutex m; // 只允许一个线程运行各成员函数。
-	private:
-		static constexpr size_t cache_size = 8192; // 保存按键数量的最大值。
-		static constexpr auto frame_length = 1s; // 计算 KPS 的帧长度。
-		std::deque<std::tuple<int, time_point>> records; // 按键记录。按时间（第二个元素）升序。
-		mutable size_t start_index{}; // 计算当前 KPS 时，最早按键记录的下标。
-		mutable std::array<int, 256> sum{}; // 计算当前 KPS 时，各按键按键次数总和。
+	protected:
+		mutable std::mutex m; // 只允许一个线程运行各成员函数。
+	public:
+		using deque_t = std::deque<std::tuple<int, time_point>>;
+	protected:
+		deque_t records; // 按键记录。按时间（第二个元素）升序。
+	public:
+		using callback_t = std::function<void(int, time_point)>;
+	protected:
+		callback_t callback; // 按键时的回调函数。
 
 	public:
-		kps_calculator() = default;
-		kps_calculator(const kps_calculator& another)
+		/// <summary>
+		/// 注册回调函数。按键时会被调用。
+		/// 调用线程与监视器线程相同。保证调用该函数时已上锁。不要再次上锁！
+		/// 会覆盖之前注册的回调函数。
+		/// </summary>
+		/// <param name="func"></param>
+		void register_callback(callback_t func)
 		{
-			*this = another;
+			std::lock_guard _(m);
+			callback = func;
 		}
-		kps_calculator(kps_calculator&& another) noexcept
+		/// <summary>
+		/// 取消注册回调函数。
+		/// 有可能调用该函数时回调函数正在被调用，此时将在回调函数运行结束后再取消注册。
+		/// </summary>
+		void unregister_callback()
 		{
-			*this = std::move(another);
+			std::lock_guard _(m);
+			callback = callback_t();
 		}
-		kps_calculator& operator=(const kps_calculator& another)
-		{
-			if (this != &another)
-			{
-				std::lock_guard _1(m);
-				std::lock_guard _2(another.m);
-				records = another.records;
-				start_index = another.start_index;
-				sum = another.sum;
-			}
-			return *this;
-		}
-		kps_calculator& operator=(kps_calculator&& another) noexcept
-		{
-			if (this != &another)
-			{
-				std::lock_guard _1(m);
-				std::lock_guard _2(another.m);
-				records = std::move(another.records);
-				start_index = another.start_index;
-				another.start_index = 0;
-				sum = another.sum;
-				std::fill(another.sum.begin(), another.sum.end(), 0);
-			}
-			return *this;
-		}
+
+	public:
+		kps_interface() = default;
+		kps_interface(const kps_interface&) = delete;
+		kps_interface(kps_interface&&) = delete;
+		kps_interface& operator=(const kps_interface&) = delete;
+		kps_interface& operator=(kps_interface&&) = delete;
 
 	public:
 		/// <summary>
@@ -77,8 +69,6 @@ namespace kps
 		{
 			std::lock_guard _(m);
 			records.clear();
-			start_index = 0;
-			std::fill(sum.begin(), sum.end(), 0);
 		}
 	protected:
 		/// <summary>
@@ -90,42 +80,114 @@ namespace kps
 		{
 			std::lock_guard _(m);
 			records.push_back({ key, time });
-			sum[key]++;
-			while (records.size() > cache_size)
-			{
-				records.pop_front();
-				start_index--;
-			}
+			if (callback)
+				callback(key, time);
 		}
 
+		friend class kps_implement_base;
+		friend class kps_implement_hard;
+	};
+
+	class kps_implement_base
+	{
+	protected:
+		kps_interface* src;
 	public:
+		kps_implement_base(kps_interface* src) : src(src) {}
+		kps_implement_base(const kps_implement_base&) = delete;
+		kps_implement_base(kps_implement_base&&) = delete;
+		kps_implement_base& operator=(const kps_implement_base&) = delete;
+		kps_implement_base& operator=(kps_implement_base&&) = delete;
+
+	private:
 		/// <summary>
-		/// 根据按键记录，计算当前某个键的 KPS。
+		/// 计算当前 kps。通过 src 访问数据。保证在被调用时 src 不会发生写操作。
 		/// </summary>
-		/// <param name="key">键。</param>
-		/// <returns>KPS。</returns>
-		int calc_kps_now(int key) const
+		/// <param name="key"></param>
+		/// <returns></returns>
+		virtual double calc_kps_now_implement(int key) const = 0;
+	public:
+		double calc_kps_now(int key) const
 		{
-			std::lock_guard _(m);
+			std::lock_guard _(src->m);
+			return calc_kps_now_implement(key);
+		}
+		double calc_kps_now(const std::vector<int>& keys) const
+		{
+			std::lock_guard _(src->m);
+			return std::accumulate(keys.begin(), keys.end(), 0.0,
+				[this](double pre, int key) { return pre + calc_kps_now_implement(key); });
+		}
+	};
+
+	class kps_implement_hard : public kps_implement_base
+	{
+		static constexpr auto frame_length = 1s; // 计算 KPS 的帧长度。
+		mutable size_t start_index{}; // 计算当前 KPS 时，最早按键记录的下标。
+		mutable std::array<int, 256> sum{}; // 计算当前 KPS 时，各按键按键次数总和。
+	public:
+		kps_implement_hard(kps_interface* src) : kps_implement_base(src)
+		{
+			src->register_callback(
+				std::bind(&kps_implement_hard::on_key_down, this,
+					std::placeholders::_1, std::placeholders::_2));
+		}
+		~kps_implement_hard()
+		{
+			src->unregister_callback();
+		}
+	private:
+		void on_key_down(int key, time_point)
+		{
+			sum[key]++;
+		}
+		virtual double calc_kps_now_implement(int key) const override
+		{
 			auto now = clock::now();
-			while (start_index < records.size() &&
-				now - std::get<1>(records[start_index]) > frame_length)
+			while (start_index < src->records.size() &&
+				now - std::get<1>(src->records[start_index]) > frame_length)
 			{
-				sum[std::get<0>(records[start_index])]--;
+				sum[std::get<0>(src->records[start_index])]--;
 				start_index++;
 			}
 			return sum[key];
 		}
-		/// <summary>
-		/// 根据按键记录，计算当前某些键的 KPS 之和。
-		/// </summary>
-		/// <param name="keys">键。不会去重。</param>
-		/// <returns>KPS。</returns>
-		int calc_kps_now(const std::vector<int>& keys) const
+	};
+
+	enum class kps_implement_type
+	{
+		kps_implement_type_hard,
+	};
+
+	class kps_calculator : public kps_interface
+	{
+	private:
+		std::shared_ptr<kps_implement_base> implement;
+	public:
+		kps_calculator(kps_implement_type implement_type = kps_implement_type::kps_implement_type_hard)
 		{
-			std::lock_guard _(m);
-			return std::accumulate(keys.begin(), keys.end(), 0,
-				[this](int pre, int key) { return pre + calc_kps_now(key); });
+			change_implement_type(implement_type);
+		}
+		void change_implement_type(kps_implement_type implement_type)
+		{
+			switch (implement_type)
+			{
+			case kps_implement_type::kps_implement_type_hard:
+			{
+				implement = std::make_shared<kps_implement_hard>(this);
+				break;
+			}
+			}
+		}
+
+	public:
+		double calc_kps_now(int key) const
+		{
+			return implement->calc_kps_now(key);
+		}
+		double calc_kps_now(const std::vector<int>& keys) const
+		{
+			return implement->calc_kps_now(keys);
 		}
 	};
 }

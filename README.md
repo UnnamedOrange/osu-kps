@@ -58,7 +58,7 @@ Graphics: Direct2D.
 
   And more:
 
-  - [ ] support different implementation of KPS calculator.
+  - [x] support different implementation of KPS calculator.
   - [ ] draw the key correctly.
   - [ ] draw the graph.
 

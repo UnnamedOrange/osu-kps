@@ -470,7 +470,7 @@ void main_window::OnPaint(HWND)
 				auto alpha_param = std::chrono::duration_cast<decltype(0.0s)>(
 					kps::clock::now() - k_manager.previous_by_index(i));
 				color brush_color = _interpolate(cache.theme_color, cache.light_active_color,
-					kps.calc_kps_now(k_manager.get_keys()[i]), 3, 5);
+					kps.calc_kps_now(k_manager.get_keys()[i]), 2.0, 4.0);
 				brush_color.a = 0.75;
 				color brush_color_transparent = brush_color;
 				brush_color_transparent.a = 0;
@@ -488,13 +488,13 @@ void main_window::OnPaint(HWND)
 			// 写字。
 			{
 				// TODO: 编写从整数到字符的辅助函数。
-				wchar_t ch = k_manager.get_keys()[i]; // 当前框对应字符。
+				wchar_t ch = static_cast<wchar_t>(k_manager.get_keys()[i]); // 当前框对应字符。
 				pRenderTarget->DrawTextW(&ch, 1, cache.text_format_key_name,
 					key_name_rect, cache.theme_brush);
 			}
 			{
-				int k_now = kps.calc_kps_now(k_manager.get_keys()[i]); // 当前框对应 kps。
-				auto str = std::to_wstring(k_now);
+				double k_now = kps.calc_kps_now(k_manager.get_keys()[i]); // 当前框对应 kps。
+				auto str = std::to_wstring(static_cast<int>(k_now + 0.5));
 
 				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_number,
 					number_rect, cache.theme_brush);
@@ -503,7 +503,7 @@ void main_window::OnPaint(HWND)
 			// 最外层的框。
 			{
 				color text_color = _interpolate(cache.theme_color, cache.light_active_color,
-					kps.calc_kps_now(k_manager.get_keys()[i]), 3, 5);
+					kps.calc_kps_now(k_manager.get_keys()[i]), 2.0, 4.0);
 				com_ptr<ID2D1SolidColorBrush> brush;
 				pRenderTarget->CreateSolidColorBrush(text_color, brush.reset_and_get_address());
 				pRenderTarget->DrawRoundedRectangle(draw_rounded_rect, brush, stroke_width);
@@ -543,12 +543,12 @@ void main_window::OnPaint(HWND)
 
 			wchar_t buffer[256];
 			{
-				auto kps_now = kps.calc_kps_now(k_manager.get_keys());
+				double kps_now = kps.calc_kps_now(k_manager.get_keys());
 				std::swprintf(buffer, std::size(buffer), L"%d",
-					kps_now);
+					static_cast<int>(kps_now + 0.5));
 				auto str = std::wstring(buffer);
 
-				color text_color = _interpolate(cache.theme_color, cache.active_color, kps_now, 6, 13);
+				color text_color = _interpolate(cache.theme_color, cache.active_color, kps_now, 6.0, 13.0);
 				com_ptr<ID2D1SolidColorBrush> brush;
 				pRenderTarget->CreateSolidColorBrush(text_color, brush.reset_and_get_address());
 				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
@@ -565,7 +565,7 @@ void main_window::OnPaint(HWND)
 			}
 			{
 				std::swprintf(buffer, std::size(buffer), L"%d",
-					k_manager.get_max_kps());
+					static_cast<int>(k_manager.get_max_kps() + 0.5));
 				auto str = std::wstring(buffer);
 
 				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);

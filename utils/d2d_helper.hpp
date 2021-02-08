@@ -172,10 +172,10 @@ namespace d2d_helper
 		}
 		ULONG STDMETHODCALLTYPE Release() override
 		{
-			--ref_count;
-			if (!ref_count)
+			ULONG ret = --ref_count;
+			if (!ret)
 				delete this;
-			return ref_count;
+			return ret;
 		}
 
 	private:
