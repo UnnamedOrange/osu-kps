@@ -64,6 +64,11 @@ Graphics: Direct2D.
 
   After this step the project can be pre-released.
 
+- [ ] details.
+
+  - [ ] perfect the behavior when resizing.
+  - [ ] add `&` for button count menu.
+
 - [ ] tool header for config system.
 
   I may use json.
