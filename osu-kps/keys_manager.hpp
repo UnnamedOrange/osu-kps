@@ -135,4 +135,12 @@ public:
 		std::lock_guard _(m);
 		max_kps = 0;
 	}
+	/// <summary>
+	/// 获取第 idx 个按键上一次按下的时间。
+	/// </summary>
+	/// <param name="idx">从 0 开始的下标。</param>
+	kps::time_point previous_by_index(size_t idx)
+	{
+		return extra_info[idx].previous;
+	}
 };

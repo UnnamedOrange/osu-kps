@@ -167,7 +167,7 @@ class main_window : public window
 			menus_button_count = CreateMenu();
 			for (int i = 1; i <= id_max_button_count; i++)
 				AppendMenuW(menus_button_count, MF_STRING, i,
-					(std::to_wstring(i) + L"\tCtrl + Shift + " + std::to_wstring(i % 10)).c_str());
+					std::to_wstring(i).c_str());
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_button_count), L"Button count");
 		}
@@ -354,7 +354,7 @@ class main_window : public window
 			auto sigmoid = [](double x) {return 1 / (1 + std::exp(-x)); };
 			constexpr double ratio_t2 = 0.9;
 			double a = -std::log(1 / ratio_t2 - 1) / std::log(std::exp(1)) / (threshold2 - threshold1);
-			ratio = sigmoid(a * crt);
+			ratio = (sigmoid(a * crt) - 0.5) * 2;
 		}
 		return color::linear_interpolation(from, to, ratio);
 	}
@@ -466,7 +466,24 @@ void main_window::OnPaint(HWND)
 			number_rect.top += (number_rect.bottom - number_rect.top) * 2 / 5;
 
 			// 按键的发光效果。
+			{
+				auto alpha_param = std::chrono::duration_cast<decltype(0.0s)>(
+					kps::clock::now() - k_manager.previous_by_index(i));
+				color brush_color = _interpolate(cache.theme_color, cache.light_active_color,
+					kps.calc_kps_now(k_manager.get_keys()[i]), 3, 5);
+				brush_color.a = 0.75;
+				color brush_color_transparent = brush_color;
+				brush_color_transparent.a = 0;
+				brush_color = _interpolate(brush_color, brush_color_transparent,
+					alpha_param.count(), (0.1s).count(), (0.5s).count());
 
+				if (brush_color.a > 1e-6)
+				{
+					com_ptr<ID2D1SolidColorBrush> brush;
+					pRenderTarget->CreateSolidColorBrush(brush_color, brush.reset_and_get_address());
+					pRenderTarget->FillRoundedRectangle(draw_rounded_rect, brush);
+				}
+			}
 
 			// 写字。
 			{
@@ -485,9 +502,9 @@ void main_window::OnPaint(HWND)
 
 			// 最外层的框。
 			{
-				com_ptr<ID2D1SolidColorBrush> brush;
 				color text_color = _interpolate(cache.theme_color, cache.light_active_color,
 					kps.calc_kps_now(k_manager.get_keys()[i]), 3, 5);
+				com_ptr<ID2D1SolidColorBrush> brush;
 				pRenderTarget->CreateSolidColorBrush(text_color, brush.reset_and_get_address());
 				pRenderTarget->DrawRoundedRectangle(draw_rounded_rect, brush, stroke_width);
 			}
@@ -531,8 +548,8 @@ void main_window::OnPaint(HWND)
 					kps_now);
 				auto str = std::wstring(buffer);
 
-				com_ptr<ID2D1SolidColorBrush> brush;
 				color text_color = _interpolate(cache.theme_color, cache.active_color, kps_now, 6, 13);
+				com_ptr<ID2D1SolidColorBrush> brush;
 				pRenderTarget->CreateSolidColorBrush(text_color, brush.reset_and_get_address());
 				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics,
