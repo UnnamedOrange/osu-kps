@@ -296,8 +296,10 @@ class main_window : public window
 	inline static double cx_gap = 8.0;
 	inline static double cy_separator = 8.0;
 	inline static double cx_statistics = 232.0;
-	inline static double cx_kps_number = 32;
-	inline static double cy_statistics = 120.0;
+	inline static double cx_kps_number = 24.0;
+	inline static double cx_kps_text = 45.0;
+	inline static double cx_total_number = 40.0;
+	inline static double cy_statistics = 16.0;
 	/// <summary>
 	/// 计算窗口应有的大小。<remarks>计算时不考虑缩放，最后再乘以缩放。</remarks>
 	/// </summary>
@@ -308,7 +310,7 @@ class main_window : public window
 			cx_gap * (k_manager.get_button_count() - 1);
 		double cy = cy_button;
 		cx = std::max(cx, cx_statistics);
-		cy += cy_separator + cy_statistics;
+		cy += cy_separator + cy_statistics + cy_separator;
 		return { cx * dpi() * scale, cy * dpi() * scale };
 	}
 	/// <summary>
@@ -346,7 +348,7 @@ public:
 	};
 
 public:
-	keys_manager k_manager;
+	keys_manager k_manager{ &kps };
 	kps::kps kps{ std::bind(&keys_manager::update_on_key_down, &k_manager, std::placeholders::_1, std::placeholders::_2) };
 	// 改变当前按键个数。
 	void change_button_count(int new_count)
@@ -424,13 +426,25 @@ void main_window::OnPaint(HWND)
 			}
 
 			auto kps_number_rect = D2D1::RectF(
-				0, 0,
-				cx_kps_number * x,
+				cx_gap * x, 0,
+				(cx_gap + cx_kps_number) * x,
 				cy_statistics * x); // kps 数值矩形。
 			auto kps_text_rect = D2D1::RectF(
-				(cx_kps_number + cx_gap) * x, 0,
-				width(),
+				kps_number_rect.right + cx_gap * x, 0,
+				kps_number_rect.right + (cx_gap + cx_kps_text) * x,
 				cy_statistics * x); // kps 文字矩形。
+			auto max_number_rect = D2D1::RectF(
+				kps_text_rect.right + cx_gap * x, 0,
+				kps_text_rect.right + (cx_gap + cx_kps_number) * x,
+				cy_statistics * x); // 最大 kps 数值矩形。
+			auto max_text_rect = D2D1::RectF(
+				max_number_rect.right + cx_gap * x, 0,
+				max_number_rect.right + (cx_gap + cx_kps_text) * x,
+				cy_statistics * x); // 最大 kps 文字矩形。
+			auto total_number_rect = D2D1::RectF(
+				max_text_rect.right + cx_gap * x, 0,
+				(cx_statistics - cx_gap) * x,
+				cy_statistics * x); // 总按键数值矩形。
 
 			wchar_t buffer[256];
 			{
@@ -449,6 +463,32 @@ void main_window::OnPaint(HWND)
 				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
 				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics,
 					kps_text_rect, cache.theme_brush);
+			}
+			{
+				std::swprintf(buffer, std::size(buffer), L"%d",
+					k_manager.get_max_kps());
+				auto str = std::wstring(buffer);
+
+				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics,
+					max_number_rect, cache.theme_brush);
+			}
+			{
+				std::swprintf(buffer, std::size(buffer), L"max");
+				auto str = std::wstring(buffer);
+
+				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics,
+					max_text_rect, cache.theme_brush);
+			}
+			{
+				std::swprintf(buffer, std::size(buffer), L"%d",
+					k_manager.get_total_count());
+				auto str = std::wstring(buffer);
+
+				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics,
+					total_number_rect, cache.theme_brush);
 			}
 		}
 	}

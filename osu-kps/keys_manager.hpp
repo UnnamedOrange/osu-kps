@@ -18,6 +18,10 @@ public:
 	static constexpr size_t max_key_count = 10;
 	static constexpr size_t default_key_count = 4;
 private:
+	std::recursive_mutex m;
+private:
+	kps::kps* src{};
+private:
 	std::array<std::vector<int>, max_key_count> keys;
 	int crt_button_count{ default_key_count };
 	struct key_info
@@ -26,6 +30,10 @@ private:
 		int times{};
 	};
 	std::vector<key_info> extra_info{ default_key_count };
+	// 其他统计信息。
+private:
+	int total_count{};
+	int max_kps{};
 
 public:
 	/// <summary>
@@ -35,6 +43,7 @@ public:
 	/// <param name="time"></param>
 	void update_on_key_down(int key, kps::time_point time)
 	{
+		std::lock_guard _(m);
 		const auto& crt_keys = keys[crt_button_count - 1];
 		for (size_t i = 0; i < crt_keys.size(); i++)
 			if (key == crt_keys[i])
@@ -42,6 +51,12 @@ public:
 				extra_info[i].previous = time;
 				extra_info[i].times++;
 			}
+
+		if (std::count(crt_keys.begin(), crt_keys.end(), key))
+			++total_count;
+
+		if (src)
+			max_kps = std::max(max_kps, src->calc_kps_now(crt_keys));
 	}
 
 public:
@@ -62,6 +77,10 @@ public:
 		keys[8] = { 'A', 'S', 'D', 'F', space, 'J', 'K', 'L', oem1 };
 		keys[9] = { 'D', 'F', space, 'J', 'K', 'E', 'R', rmenu, 'U', 'I' };
 	}
+	keys_manager(kps::kps* source) : keys_manager()
+	{
+		src = source;
+	}
 	/// <summary>
 	/// 获取当前按键数量。
 	/// </summary>
@@ -73,6 +92,7 @@ public:
 	/// <param name="new_button_count"></param>
 	void set_button_count(int new_button_count)
 	{
+		std::lock_guard _(m);
 		if (!(1 <= new_button_count && new_button_count <= static_cast<int>(keys.size())))
 			throw std::invalid_argument("new_button_count should be in [1, keys.size()].");
 		crt_button_count = new_button_count;
@@ -80,11 +100,39 @@ public:
 		extra_info.resize(crt_button_count);
 	}
 	/// <summary>
-	/// 获取当前的按键集合（序列）。该方法只能运行在主线程。
+	/// 获取当前的按键集合（序列）。只有主线程才应在外部调用该函数。
 	/// </summary>
 	/// <returns></returns>
 	const std::vector<int>& get_keys() const
 	{
 		return keys[static_cast<size_t>(crt_button_count) - 1];
+	}
+
+public:
+	/// <returns>总按键次数。</returns>
+	int get_total_count() const
+	{
+		return total_count;
+	}
+	/// <summary>
+	/// 清空总按键次数。
+	/// </summary>
+	void clear_total_count()
+	{
+		std::lock_guard _(m);
+		total_count = 0;
+	}
+	/// <returns>最大 KPS。</returns>
+	int get_max_kps() const
+	{
+		return max_kps;
+	}
+	/// <summary>
+	/// 清空最大 KPS。
+	/// </summary>
+	void clear_max_kps()
+	{
+		std::lock_guard _(m);
+		max_kps = 0;
 	}
 };
