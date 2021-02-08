@@ -13,6 +13,7 @@
 #include <utils/timer_thread.hpp>
 #include <utils/d2d_helper.hpp>
 #include <utils/resource_loader.hpp>
+#include <utils/keyboard_char.hpp>
 
 #include "integrated_kps.hpp"
 #include "keys_manager.hpp"
@@ -246,11 +247,15 @@ class main_window : public window
 		static constexpr auto light_active_color = color(227u, 172u, 181u);
 		static constexpr auto active_color = color(255u, 104u, 143u);
 
+		keyboard_char kc;
+
 		com_ptr<ID2D1SolidColorBrush> theme_brush;
 		private_font_collection theme_font_collection;
 
 		// scale_dep
 		com_ptr<IDWriteTextFormat> text_format_key_name;
+		com_ptr<IDWriteTextFormat> text_format_key_name_small;
+		com_ptr<IDWriteTextFormat> text_format_key_name_MDL2;
 		com_ptr<IDWriteTextFormat> text_format_number;
 		com_ptr<IDWriteTextFormat> text_format_statistics;
 		com_ptr<IDWriteTextFormat> text_format_total_keys;
@@ -278,49 +283,80 @@ class main_window : public window
 	{
 		double x = dpi() * scale;
 
-		factory::dwrite()->CreateTextFormat(
-			cache.theme_font_collection.get_family_names()[0].c_str(),
-			cache.theme_font_collection.get(),
-			DWRITE_FONT_WEIGHT_REGULAR,
-			DWRITE_FONT_STYLE_NORMAL,
-			DWRITE_FONT_STRETCH_NORMAL,
-			18.0 * x,
-			L"",
-			cache.text_format_number.reset_and_get_address());
-		cache.text_format_number->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
-		cache.text_format_number->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+		// text_format_number
+		{
+			factory::dwrite()->CreateTextFormat(
+				cache.theme_font_collection.get_family_names()[0].c_str(),
+				cache.theme_font_collection.get(),
+				DWRITE_FONT_WEIGHT_REGULAR,
+				DWRITE_FONT_STYLE_NORMAL,
+				DWRITE_FONT_STRETCH_NORMAL,
+				18.0 * x,
+				L"",
+				cache.text_format_number.reset_and_get_address());
+			cache.text_format_number->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
+			cache.text_format_number->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+		}
+		// text_format_key_name
+		{
+			factory::dwrite()->CreateTextFormat(
+				cache.theme_font_collection.get_family_names()[0].c_str(),
+				cache.theme_font_collection.get(),
+				DWRITE_FONT_WEIGHT_REGULAR,
+				DWRITE_FONT_STYLE_NORMAL,
+				DWRITE_FONT_STRETCH_NORMAL,
+				24.0 * x,
+				L"",
+				cache.text_format_key_name.reset_and_get_address());
+			cache.text_format_key_name->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
+			cache.text_format_key_name->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 
-		factory::dwrite()->CreateTextFormat(
-			cache.theme_font_collection.get_family_names()[0].c_str(),
-			cache.theme_font_collection.get(),
-			DWRITE_FONT_WEIGHT_REGULAR,
-			DWRITE_FONT_STYLE_NORMAL,
-			DWRITE_FONT_STRETCH_NORMAL,
-			24.0 * x,
-			L"",
-			cache.text_format_key_name.reset_and_get_address());
-		cache.text_format_key_name->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
-		cache.text_format_key_name->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+			factory::dwrite()->CreateTextFormat(
+				cache.theme_font_collection.get_family_names()[0].c_str(),
+				cache.theme_font_collection.get(),
+				DWRITE_FONT_WEIGHT_REGULAR,
+				DWRITE_FONT_STYLE_NORMAL,
+				DWRITE_FONT_STRETCH_NORMAL,
+				16.0 * x,
+				L"",
+				cache.text_format_key_name_small.reset_and_get_address());
+			cache.text_format_key_name_small->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
+			cache.text_format_key_name_small->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 
-		factory::dwrite()->CreateTextFormat(
-			cache.theme_font_collection.get_family_names()[0].c_str(),
-			cache.theme_font_collection.get(),
-			DWRITE_FONT_WEIGHT_REGULAR,
-			DWRITE_FONT_STYLE_NORMAL,
-			DWRITE_FONT_STRETCH_NORMAL,
-			20.0 * x,
-			L"",
-			cache.text_format_statistics.reset_and_get_address());
-		factory::dwrite()->CreateTextFormat(
-			cache.theme_font_collection.get_family_names()[0].c_str(),
-			cache.theme_font_collection.get(),
-			DWRITE_FONT_WEIGHT_REGULAR,
-			DWRITE_FONT_STYLE_NORMAL,
-			DWRITE_FONT_STRETCH_NORMAL,
-			15.0 * x,
-			L"",
-			cache.text_format_total_keys.reset_and_get_address());
-		cache.text_format_total_keys->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+			factory::dwrite()->CreateTextFormat(
+				L"Segoe MDL2 Assets",
+				nullptr,
+				DWRITE_FONT_WEIGHT_REGULAR,
+				DWRITE_FONT_STYLE_NORMAL,
+				DWRITE_FONT_STRETCH_NORMAL,
+				24.0 * x,
+				L"",
+				cache.text_format_key_name_MDL2.reset_and_get_address());
+			cache.text_format_key_name_MDL2->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
+			cache.text_format_key_name_MDL2->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+		}
+		// text_format_statistics, text_format_total_keys
+		{
+			factory::dwrite()->CreateTextFormat(
+				cache.theme_font_collection.get_family_names()[0].c_str(),
+				cache.theme_font_collection.get(),
+				DWRITE_FONT_WEIGHT_REGULAR,
+				DWRITE_FONT_STYLE_NORMAL,
+				DWRITE_FONT_STRETCH_NORMAL,
+				20.0 * x,
+				L"",
+				cache.text_format_statistics.reset_and_get_address());
+			factory::dwrite()->CreateTextFormat(
+				cache.theme_font_collection.get_family_names()[0].c_str(),
+				cache.theme_font_collection.get(),
+				DWRITE_FONT_WEIGHT_REGULAR,
+				DWRITE_FONT_STYLE_NORMAL,
+				DWRITE_FONT_STRETCH_NORMAL,
+				15.0 * x,
+				L"",
+				cache.text_format_total_keys.reset_and_get_address());
+			cache.text_format_total_keys->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+		}
 	}
 	timer_thread _tt{ [this] {
 		if (hwnd)
@@ -487,9 +523,11 @@ void main_window::OnPaint(HWND)
 
 			// 写字。
 			{
-				// TODO: 编写从整数到字符的辅助函数。
-				wchar_t ch = static_cast<wchar_t>(k_manager.get_keys()[i]); // 当前框对应字符。
-				pRenderTarget->DrawTextW(&ch, 1, cache.text_format_key_name,
+				auto s = cache.kc.to_short(k_manager.get_keys()[i]);
+				auto str = code_conv<char8_t, wchar_t>::convert(s.key);
+				pRenderTarget->DrawTextW(str.c_str(), str.length(),
+					s.need_MDL2 ? cache.text_format_key_name_MDL2 :
+					(s.is_single ? cache.text_format_key_name : cache.text_format_key_name_small),
 					key_name_rect, cache.theme_brush);
 			}
 			{

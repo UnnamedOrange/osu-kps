@@ -7,6 +7,8 @@
 #include <array>
 #include <stdexcept>
 
+#include <utils/keyboard_char.hpp>
+
 #include "kps_calculator.hpp"
 
 /// <summary>
@@ -62,20 +64,17 @@ public:
 public:
 	keys_manager()
 	{
-		constexpr int lbutton = 0x01;
-		constexpr int space = 0x20;
-		constexpr int rmenu = 0xA5;
-		constexpr int oem1 = 0xBA; // ;
-		keys[0] = { lbutton };
-		keys[1] = { 'Z', 'X' };
+		using vk = keyboard_char::vk;
+		keys[0] = { vk::vk_lbutton };
+		keys[1] = { vk::vk_lbutton, vk::vk_rbutton };
 		keys[2] = { 'Z', 'X', 'C' };
 		keys[3] = { 'D', 'F', 'J', 'K' };
-		keys[4] = { 'D', 'F', space, 'J', 'K' };
+		keys[4] = { 'D', 'F', vk::vk_space, 'J', 'K' };
 		keys[5] = { 'S', 'D', 'F', 'J', 'K', 'L' };
-		keys[6] = { 'S', 'D', 'F', space, 'J', 'K', 'L' };
-		keys[7] = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', oem1 };
-		keys[8] = { 'A', 'S', 'D', 'F', space, 'J', 'K', 'L', oem1 };
-		keys[9] = { 'D', 'F', space, 'J', 'K', 'E', 'R', rmenu, 'U', 'I' };
+		keys[6] = { 'S', 'D', 'F', vk::vk_space, 'J', 'K', 'L' };
+		keys[7] = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', vk::vk_semicolon };
+		keys[8] = { 'A', 'S', 'D', 'F', vk::vk_space, 'J', 'K', 'L', vk::vk_semicolon };
+		keys[9] = { 'D', 'F', vk::vk_space, 'J', 'K', 'E', 'R', vk::vk_ralt, 'U', 'I' };
 	}
 	keys_manager(kps::kps* source) : keys_manager()
 	{
