@@ -150,8 +150,6 @@ class main_window : public window
 
 	// 右键菜单。
 	HMENU hMenu{};
-	HMENU menus_button_count{};
-	HMENU menus_reset{};
 	/// <summary>
 	/// 创建或重建菜单。
 	/// </summary>
@@ -165,7 +163,7 @@ class main_window : public window
 		AppendMenuW(hMenu, MF_POPUP, reinterpret_cast<UINT_PTR>(hMenuPopup), nullptr);
 		// menus_button_count
 		{
-			menus_button_count = CreateMenu();
+			HMENU menus_button_count = CreateMenu();
 			for (int i = 1; i <= id_max_button_count; i++)
 				AppendMenuW(menus_button_count, MF_STRING, i,
 					std::to_wstring(i).c_str());
@@ -174,13 +172,22 @@ class main_window : public window
 		}
 		// menus_reset
 		{
-			menus_reset = CreateMenu();
+			HMENU menus_reset = CreateMenu();
 			AppendMenuW(menus_reset, MF_STRING, id_reset_total, L"Total keys");
 			AppendMenuW(menus_reset, MF_STRING, id_reset_max, L"Max KPS");
 			AppendMenuW(menus_reset, MF_STRING, id_reset_all, L"All");
 
-
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_reset), L"Reset");
+		}
+		// menus_zoom
+		{
+			HMENU menus_zoom = CreateMenu();
+			AppendMenuW(menus_zoom, MF_STRING, id_zoom_half, L"0.75x");
+			AppendMenuW(menus_zoom, MF_STRING, id_zoom_1, L"1x");
+			AppendMenuW(menus_zoom, MF_STRING, id_zoom_2, L"2x");
+			AppendMenuW(menus_zoom, MF_STRING, id_zoom_3, L"3x");
+
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_zoom), L"Zoom");
 		}
 		// exit
 		{
@@ -188,7 +195,17 @@ class main_window : public window
 		}
 
 		// 勾选当前按键数量。
-		CheckMenuItem(hMenuPopup, k_manager.get_button_count(), MF_CHECKED);
+		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_CHECKED);
+		// 勾选当前缩放比例。
+		if (scale == 1)
+			CheckMenuItem(hMenu, id_zoom_1, MF_CHECKED);
+		else if (scale == 2)
+			CheckMenuItem(hMenu, id_zoom_2, MF_CHECKED);
+		else if (scale == 3)
+			CheckMenuItem(hMenu, id_zoom_3, MF_CHECKED);
+		else
+			CheckMenuItem(hMenu, id_zoom_half, MF_CHECKED);
+
 	}
 	void OnRButtonDown(HWND, BOOL fDoubleClick, int x, int y, UINT keyFlags)
 	{
@@ -208,6 +225,24 @@ class main_window : public window
 		{
 			if (1 <= id && id <= id_max_button_count) // 修改按键个数。
 				change_button_count(id);
+			else if (id_zoom_half <= id && id <= id_zoom_3)
+			{
+				constexpr double t[]{ 0.75, 1, 2, 3 };
+				scale = t[id - id_zoom_half];
+				build_scale_dep_resource();
+				resize();
+
+				for (int i = id_zoom_half; i <= id_zoom_3; i++)
+					CheckMenuItem(hMenu, i, MF_UNCHECKED);
+				if (scale == 1)
+					CheckMenuItem(hMenu, id_zoom_1, MF_CHECKED);
+				else if (scale == 2)
+					CheckMenuItem(hMenu, id_zoom_2, MF_CHECKED);
+				else if (scale == 3)
+					CheckMenuItem(hMenu, id_zoom_3, MF_CHECKED);
+				else
+					CheckMenuItem(hMenu, id_zoom_half, MF_CHECKED);
+			}
 			else
 				switch (id)
 				{
@@ -455,6 +490,10 @@ public:
 		id_reset_max,
 		id_reset_all,
 		id_exit,
+		id_zoom_half,
+		id_zoom_1,
+		id_zoom_2,
+		id_zoom_3,
 	};
 
 public:
