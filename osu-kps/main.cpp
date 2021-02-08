@@ -150,6 +150,7 @@ class main_window : public window
 	// 右键菜单。
 	HMENU hMenu{};
 	HMENU menus_button_count{};
+	HMENU menus_reset{};
 	/// <summary>
 	/// 创建或重建菜单。
 	/// </summary>
@@ -169,6 +170,16 @@ class main_window : public window
 					(std::to_wstring(i) + L"\tCtrl + Shift + " + std::to_wstring(i % 10)).c_str());
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_button_count), L"Button count");
+		}
+		// menus_reset
+		{
+			menus_reset = CreateMenu();
+			AppendMenuW(menus_reset, MF_STRING, id_reset_total, L"Total keys");
+			AppendMenuW(menus_reset, MF_STRING, id_reset_max, L"Max KPS");
+			AppendMenuW(menus_reset, MF_STRING, id_reset_all, L"All");
+
+
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_reset), L"Reset");
 		}
 		// exit
 		{
@@ -199,6 +210,22 @@ class main_window : public window
 			else
 				switch (id)
 				{
+				case id_reset_total:
+				{
+					k_manager.clear_total_count();
+					break;
+				}
+				case id_reset_max:
+				{
+					k_manager.clear_max_kps();
+					break;
+				}
+				case id_reset_all:
+				{
+					k_manager.clear_total_count();
+					k_manager.clear_max_kps();
+					break;
+				}
 				case id_exit:
 				{
 					PostMessageW(hwnd, WM_CLOSE, 0, 0);
@@ -344,6 +371,9 @@ public:
 	enum
 	{
 		id_max_button_count = keys_manager::max_key_count,
+		id_reset_total,
+		id_reset_max,
+		id_reset_all,
 		id_exit,
 	};
 
