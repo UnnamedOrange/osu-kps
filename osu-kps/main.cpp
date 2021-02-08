@@ -263,7 +263,7 @@ class main_window : public window
 	}
 	void build_indep_resource()
 	{
-		auto theme_color = D2D1::ColorF(203.0 / 255, 237.0 / 255, 238.0 / 255);
+		auto theme_color = color(203u, 237u, 238u);
 		pRenderTarget->CreateSolidColorBrush(theme_color,
 			cache.theme_brush.reset_and_get_address());
 

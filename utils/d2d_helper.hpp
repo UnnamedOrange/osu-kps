@@ -264,4 +264,60 @@ namespace d2d_helper
 			return family_names;
 		}
 	};
+
+	/// <summary>
+	/// 颜色类。
+	/// </summary>
+	class color
+	{
+	public:
+		FLOAT r{};
+		FLOAT g{};
+		FLOAT b{};
+		FLOAT a{ 1 };
+	public:
+		static constexpr unsigned red_shift = 16;
+		static constexpr unsigned green_shift = 8;
+		static constexpr unsigned blue_shift = 0;
+		static constexpr unsigned alpha_shift = 24;
+		static constexpr unsigned red_mask = 0xff << red_shift;
+		static constexpr unsigned green_mask = 0xff << green_shift;
+		static constexpr unsigned blue_mask = 0xff << blue_shift;
+		static constexpr unsigned alpha_mask = 0xff << alpha_shift;
+	public:
+		constexpr color() = default;
+		constexpr color(unsigned int rgb_or_argb, unsigned char a = 0) :
+			r{ static_cast<FLOAT>((rgb_or_argb & red_mask) >> red_shift) / 255.f },
+			g{ static_cast<FLOAT>((rgb_or_argb & green_mask) >> green_shift) / 255.f },
+			b{ static_cast<FLOAT>((rgb_or_argb & blue_mask) >> blue_shift) / 255.f }
+		{
+			if (a)
+				this->a = static_cast<FLOAT>(a / 255.f);
+			else
+				this->a = static_cast<FLOAT>((rgb_or_argb & alpha_mask) >> alpha_shift) / 255.f;
+		}
+		constexpr color(FLOAT r, FLOAT g, FLOAT b, FLOAT a = 1.f) :
+			r(r), g(g), b(b), a(a) {}
+		constexpr color(unsigned r, unsigned g, unsigned b, unsigned a = 255) :
+			r(static_cast<FLOAT>(r) / 255.f),
+			g(static_cast<FLOAT>(g) / 255.f),
+			b(static_cast<FLOAT>(b) / 255.f),
+			a(static_cast<FLOAT>(a) / 255.f) {}
+	public:
+		static constexpr color linear_interpolation(const color& c0, const color& c1, FLOAT ratio)
+		{
+			color ret;
+			ret.r = c0.r * (1 - ratio) + c1.r * ratio;
+			ret.g = c0.g * (1 - ratio) + c1.g * ratio;
+			ret.b = c0.b * (1 - ratio) + c1.b * ratio;
+			ret.a = c0.a * (1 - ratio) + c1.a * ratio;
+			return ret;
+		}
+
+	public:
+		operator D2D1::ColorF() const
+		{
+			return D2D1::ColorF(r, g, b, a);
+		}
+	};
 }
