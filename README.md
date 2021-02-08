@@ -59,7 +59,7 @@ Graphics: Direct2D.
   And more:
 
   - [x] support different implementation of KPS calculator.
-  - [ ] draw the key correctly.
+  - [x] draw the key correctly.
   - [ ] draw the graph.
 
   After this step the project can be pre-released.
@@ -67,6 +67,8 @@ Graphics: Direct2D.
 - [ ] tool header for config system.
 
   I may use json.
+
+- [ ] add more keys in keyboard_char.
 
 - [ ] add keyboard shortcut.
 
@@ -88,7 +90,7 @@ I just save all the pressed keys, and based on it, calculate KPS. The KPS equals
 
 Copyright (c) UnnamedOrange. Licensed under the MIT Licence.
 
-See the LICENCE file in the repository root for full licence text.
+See the [LICENSE](./LICENSE) file in the repository root for full licence text.
 
 ## Credits
 
