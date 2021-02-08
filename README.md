@@ -10,11 +10,13 @@ It's been a long time since I wrote a complete project. osu!kps could be a best 
 
 ## Environment
 
-Target platform: Windows®.
+Target platform: Windows® 10.
 
 IDE: Visual Studio® 2019.
 
 Language: C++20.
+
+Graphics: Direct2D.
 
 ## Roadmap
 
@@ -54,6 +56,12 @@ Language: C++20.
 
 - [ ] use Direct2D to draw a UI.
 
+  And more:
+
+  - [ ] support different implementation of KPS calculator.
+  - [ ] draw the key correctly.
+  - [ ] draw the graph.
+
   After this step the project can be pre-released.
 
 - [ ] tool header for config system.
@@ -62,8 +70,6 @@ Language: C++20.
 
 - [ ] add keyboard shortcut.
 
-- [ ] add more statistic information.
-
 - [ ] tool header for multi-language support.
 
   I may use json.
@@ -71,8 +77,6 @@ Language: C++20.
   After this step the project can be released.
 
 - [ ] implement functions specific to osu!.
-
-- [ ] tool header for DirectUI.
 
 ## Details
 
