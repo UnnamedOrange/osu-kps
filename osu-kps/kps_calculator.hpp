@@ -21,18 +21,18 @@ namespace kps
 
 	class kps_interface
 	{
-	protected:
+	private:
 		mutable std::mutex m; // 只允许一个线程运行各成员函数。
 	public:
 		using deque_t = std::deque<std::tuple<int, time_point>>;
-	protected:
+	private:
 		deque_t records; // 按键记录。按时间（第二个元素）升序。
 	public:
 		using callback_t = std::function<void(int, time_point)>;
-	protected:
+	private:
 		callback_t callback; // 按键时的回调函数。
 
-	public:
+	private:
 		/// <summary>
 		/// 注册回调函数。按键时会被调用。
 		/// 调用线程与监视器线程相同。保证调用该函数时已上锁。不要再次上锁！
@@ -131,6 +131,9 @@ namespace kps
 			src->register_callback(
 				std::bind(&kps_implement_hard::on_key_down, this,
 					std::placeholders::_1, std::placeholders::_2));
+			std::lock_guard _(src->m);
+			for (const auto& [key, time] : src->records)
+				sum[key]++;
 		}
 		~kps_implement_hard()
 		{
@@ -162,6 +165,8 @@ namespace kps
 	class kps_calculator : public kps_interface
 	{
 	private:
+		mutable std::mutex m;
+	private:
 		std::shared_ptr<kps_implement_base> implement;
 	public:
 		kps_calculator(kps_implement_type implement_type = kps_implement_type::kps_implement_type_hard)
@@ -170,6 +175,7 @@ namespace kps
 		}
 		void change_implement_type(kps_implement_type implement_type)
 		{
+			std::lock_guard _(m);
 			switch (implement_type)
 			{
 			case kps_implement_type::kps_implement_type_hard:
@@ -183,10 +189,12 @@ namespace kps
 	public:
 		double calc_kps_now(int key) const
 		{
+			std::lock_guard _(m);
 			return implement->calc_kps_now(key);
 		}
 		double calc_kps_now(const std::vector<int>& keys) const
 		{
+			std::lock_guard _(m);
 			return implement->calc_kps_now(keys);
 		}
 	};
