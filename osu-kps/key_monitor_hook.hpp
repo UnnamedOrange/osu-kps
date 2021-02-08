@@ -41,9 +41,9 @@ namespace kps
 			auto ks = PKBDLLHOOKSTRUCT(lParam);
 			if (nCode == HC_ACTION)
 			{
-				if (wParam == WM_KEYDOWN)
+				if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN)
 					_on_llkey_down(ks->vkCode, clock::now());
-				else if (wParam == WM_KEYUP)
+				else if (wParam == WM_KEYUP || wParam == WM_SYSKEYUP)
 					_on_llkey_up(ks->vkCode);
 			}
 			return CallNextHookEx(hKeybd, nCode, wParam, lParam);
