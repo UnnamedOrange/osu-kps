@@ -156,6 +156,7 @@ class main_window : public window
 		id_max_button_count = keys_manager::max_key_count,
 		id_reset_total,
 		id_reset_max,
+		id_reset_graph,
 		id_reset_all,
 		id_exit,
 		id_zoom_half,
@@ -189,6 +190,7 @@ class main_window : public window
 			HMENU menus_reset = CreateMenu();
 			AppendMenuW(menus_reset, MF_STRING, id_reset_total, L"Total keys");
 			AppendMenuW(menus_reset, MF_STRING, id_reset_max, L"Max KPS");
+			AppendMenuW(menus_reset, MF_STRING, id_reset_graph, L"KPS graph");
 			AppendMenuW(menus_reset, MF_STRING, id_reset_all, L"All");
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_reset), L"Reset");
@@ -274,10 +276,16 @@ class main_window : public window
 					k_manager.clear_max_kps();
 					break;
 				}
+				case id_reset_graph:
+				{
+					kps.clear();
+					break;
+				}
 				case id_reset_all:
 				{
 					k_manager.clear_total_count();
 					k_manager.clear_max_kps();
+					kps.clear();
 					break;
 				}
 				case id_exit:

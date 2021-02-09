@@ -22,7 +22,7 @@ namespace kps
 	class kps_interface
 	{
 	private:
-		mutable std::mutex m; // 只允许一个线程运行各成员函数。
+		mutable std::recursive_mutex m; // 只允许一个线程运行各成员函数。
 	public:
 		using deque_t = std::deque<std::tuple<int, time_point>>;
 	private:
@@ -84,6 +84,8 @@ namespace kps
 		{
 			std::lock_guard _(m);
 			records.clear();
+			for (auto& t : records_individual)
+				t.clear();
 		}
 	protected:
 		/// <summary>
@@ -125,38 +127,48 @@ namespace kps
 
 	public:
 		virtual kps_implement_type type() const = 0;
+		void clear()
+		{
+			std::lock_guard _(src->m);
+			src->clear();
+			clear_implement();
+		}
 
 	private:
+		/// <summary>
+		/// 清空子类临时数据。
+		/// </summary>
+		virtual void clear_implement() = 0;
 		/// <summary>
 		/// 计算当前 kps。通过 src 访问数据。保证在被调用时 src 不会发生写操作。
 		/// </summary>
 		/// <param name="key"></param>
 		/// <returns></returns>
-		virtual double calc_kps_now_implement(int key) const = 0;
+		virtual double calc_kps_now_implement(int key) = 0;
 		/// <summary>
 		/// 计算最近的 kps。通过 src 访问数据。保证在被调用时 src 不会发生写操作。
 		/// </summary>
 		/// <param name="key"></param>
 		/// <returns></returns>
-		virtual history_array calc_kps_recent_implement(int key) const = 0;
+		virtual history_array calc_kps_recent_implement(int key) = 0;
 	public:
-		double calc_kps_now(int key) const
+		double calc_kps_now(int key)
 		{
 			std::lock_guard _(src->m);
 			return calc_kps_now_implement(key);
 		}
-		double calc_kps_now(const std::vector<int>& keys) const
+		double calc_kps_now(const std::vector<int>& keys)
 		{
 			std::lock_guard _(src->m);
 			return std::accumulate(keys.begin(), keys.end(), 0.0,
 				[this](double pre, int key) { return pre + calc_kps_now_implement(key); });
 		}
-		history_array calc_kps_recent(int key) const
+		history_array calc_kps_recent(int key)
 		{
 			std::lock_guard _(src->m);
 			return calc_kps_recent_implement(key);
 		}
-		history_array calc_kps_recent(const std::vector<int>& keys) const
+		history_array calc_kps_recent(const std::vector<int>& keys)
 		{
 			std::lock_guard _(src->m);
 			history_array ret{};
@@ -173,15 +185,16 @@ namespace kps
 	class kps_implement_hard : public kps_implement_base
 	{
 		static constexpr auto frame_length = 1s; // 计算 KPS 的帧长度。
-		mutable size_t start_index{}; // 计算当前 KPS 时，最早按键记录的下标。
-		mutable std::array<int, 256> sum{}; // 计算当前 KPS 时，各按键按键次数总和。
+		size_t start_index{}; // 计算当前 KPS 时，最早按键记录的下标。
+		std::array<int, 256> sum{}; // 计算当前 KPS 时，各按键按键次数总和。
 
-		mutable std::array<size_t, 256> recent_pivot{}; // 要考虑的历史 KPS 内最靠前的下标。
+		std::array<size_t, 256> recent_pivot{}; // 要考虑的历史 KPS 内最靠前的下标。
 	public:
 		virtual kps_implement_type type() const override
 		{
 			return kps_implement_type::kps_implement_type_hard;
 		}
+
 	public:
 		kps_implement_hard(kps_interface* src) : kps_implement_base(src)
 		{
@@ -203,7 +216,13 @@ namespace kps
 		{
 			sum[key]++;
 		}
-		virtual double calc_kps_now_implement(int key) const override
+		virtual void clear_implement() override
+		{
+			start_index = 0;
+			std::fill(sum.begin(), sum.end(), int());
+			std::fill(recent_pivot.begin(), recent_pivot.end(), size_t());
+		}
+		virtual double calc_kps_now_implement(int key) override
 		{
 			auto now = clock::now();
 			while (start_index < src->records.size() &&
@@ -214,7 +233,7 @@ namespace kps
 			}
 			return sum[key];
 		}
-		virtual history_array calc_kps_recent_implement(int key) const override
+		virtual history_array calc_kps_recent_implement(int key) override
 		{
 			auto get_time = [&](size_t idx) {return std::get<1>(src->records_individual[key][idx]); };
 			auto now = clock::now();
@@ -283,6 +302,12 @@ namespace kps
 				break;
 			}
 			}
+		}
+	public:
+		void clear()
+		{
+			std::lock_guard _(m);
+			implement->clear();
 		}
 
 	public:
