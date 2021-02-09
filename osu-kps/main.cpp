@@ -740,7 +740,7 @@ void main_window::OnPaint(HWND)
 			{
 				D2D1_MATRIX_3X2_F transform;
 				pRenderTarget->GetTransform(&transform);
-				auto move = D2D1::Matrix3x2F::Translation(0, (cy_button + 0.5 * cy_separator + cy_separator) * x);
+				auto move = D2D1::Matrix3x2F::Translation(0, (cy_button + cy_separator) * x);
 				pRenderTarget->SetTransform(transform * move);
 			}
 		}
@@ -821,7 +821,7 @@ void main_window::OnPaint(HWND)
 			{
 				D2D1_MATRIX_3X2_F transform;
 				pRenderTarget->GetTransform(&transform);
-				auto move = D2D1::Matrix3x2F::Translation(0, (cy_statistics + cy_separator) * x);
+				auto move = D2D1::Matrix3x2F::Translation(0, (cy_statistics + 0.5 * cy_separator + cy_separator) * x);
 				pRenderTarget->SetTransform(transform * move);
 			}
 		}
