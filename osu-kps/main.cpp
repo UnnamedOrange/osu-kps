@@ -452,6 +452,7 @@ class main_window : public window
 	inline static double cx_total_number = 40.0;
 	inline static double cy_statistics = 20.0;
 	inline static double cy_total_keys = 15.0;
+	inline static double cy_graph = 80.0;
 	/// <summary>
 	/// 计算窗口应有的大小。<remarks>计算时不考虑缩放，最后再乘以缩放。</remarks>
 	/// </summary>
@@ -462,7 +463,8 @@ class main_window : public window
 			cx_gap * (k_manager.get_button_count() - 1);
 		double cy = cy_button;
 		cx = std::max(cx, cx_statistics);
-		cy += cy_separator + cy_statistics + cy_separator;
+		cy += cy_separator + cy_statistics;
+		cy += cy_separator + cy_graph;
 		return { cx * dpi() * scale, cy * dpi() * scale };
 	}
 	/// <summary>
@@ -562,7 +564,6 @@ void main_window::OnPaint(HWND)
 	{
 		// 画按键框。
 		{
-
 			for (int i = 0; i < k_manager.get_button_count(); i++)
 			{
 				auto original_rect = D2D1::RectF(
@@ -715,6 +716,79 @@ void main_window::OnPaint(HWND)
 				pRenderTarget->GetTransform(&transform);
 				auto move = D2D1::Matrix3x2F::Translation(0, (cy_statistics + cy_separator) * x);
 				pRenderTarget->SetTransform(transform * move);
+			}
+		}
+
+		// 画图
+		{
+			auto graph_rect = D2D1::RectF(
+				cx_gap * x, 0,
+				width() - cx_gap * x,
+				cy_graph * x); // 图形矩形。
+			double stroke_width = 1 * x;
+			auto draw_rect = graph_rect; // 使用 DrawRectangle 时对应的矩形。
+			draw_rect.left += stroke_width / 2;
+			draw_rect.right -= stroke_width / 2;
+			draw_rect.top += stroke_width / 2;
+			draw_rect.bottom -= stroke_width / 2;
+
+			// 具体图形。
+			{
+				com_ptr<ID2D1PathGeometry> geometry;
+				factory::d2d1()->CreatePathGeometry(geometry.reset_and_get_address());
+				ID2D1GeometrySink* sink;
+				geometry->Open(&sink);
+				{
+					sink->BeginFigure(
+						D2D1::Point2F(draw_rect.right, draw_rect.bottom),
+						D2D1_FIGURE_BEGIN_FILLED
+					);
+					sink->AddLine(D2D1::Point2F(draw_rect.left, draw_rect.bottom));
+					auto value = kps.calc_kps_recent(k_manager.get_keys());
+					double ceil_height = std::max(5.0,
+						1.2 * std::max(k_manager.get_max_kps(),
+							*std::max_element(value.begin(), value.end())));
+					double graph_width = draw_rect.right - draw_rect.left;
+					double graph_height = draw_rect.bottom - draw_rect.top;
+					for (size_t i = 0; i < kps::history_count; i++)
+					{
+						sink->AddLine(D2D1::Point2F(
+							draw_rect.left + graph_width * i / (kps::history_count - 1),
+							draw_rect.bottom - graph_height * (value[i] / ceil_height)
+						));
+					}
+					sink->AddLine(D2D1::Point2F(draw_rect.right, draw_rect.bottom));
+					sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+				}
+				sink->Close();
+
+
+				com_ptr<ID2D1GradientStopCollection> gradient_stops;
+				D2D1_GRADIENT_STOP stops[] =
+				{
+					{ 0.f, cache.theme_color },
+					{ 0.3f, cache.light_active_color },
+					{ 1.f, cache.active_color },
+				};
+				pRenderTarget->CreateGradientStopCollection(
+					stops,
+					std::size(stops),
+					gradient_stops.reset_and_get_address()
+				);
+				com_ptr<ID2D1LinearGradientBrush> brush;
+				pRenderTarget->CreateLinearGradientBrush(
+					D2D1::LinearGradientBrushProperties(
+						D2D1::Point2F(0, draw_rect.bottom),
+						D2D1::Point2F(0, draw_rect.top)),
+					D2D1::BrushProperties(),
+					gradient_stops,
+					brush.reset_and_get_address()
+				);
+				pRenderTarget->FillGeometry(geometry, brush);
+			}
+			// 外边框。
+			{
+				pRenderTarget->DrawRectangle(draw_rect, cache.theme_brush, stroke_width);
 			}
 		}
 	}
