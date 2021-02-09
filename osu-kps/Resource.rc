@@ -68,7 +68,7 @@ BEGIN
         BLOCK "080404b0"
         BEGIN
             VALUE "CompanyName", "UnnamdOrange"
-            VALUE "FileDescription", "osu!kps"
+            VALUE "FileDescription", "osu-kps"
             VALUE "FileVersion", "1.0.0.0"
             VALUE "InternalName", "osu-kps.exe"
             VALUE "LegalCopyright", "UnnamdOrange Copyright (C) 2021"
