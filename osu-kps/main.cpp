@@ -228,20 +228,7 @@ class main_window : public window
 			else if (id_zoom_half <= id && id <= id_zoom_3)
 			{
 				constexpr double t[]{ 0.75, 1, 2, 3 };
-				scale = t[id - id_zoom_half];
-				build_scale_dep_resource();
-				resize();
-
-				for (int i = id_zoom_half; i <= id_zoom_3; i++)
-					CheckMenuItem(hMenu, i, MF_UNCHECKED);
-				if (scale == 1)
-					CheckMenuItem(hMenu, id_zoom_1, MF_CHECKED);
-				else if (scale == 2)
-					CheckMenuItem(hMenu, id_zoom_2, MF_CHECKED);
-				else if (scale == 3)
-					CheckMenuItem(hMenu, id_zoom_3, MF_CHECKED);
-				else
-					CheckMenuItem(hMenu, id_zoom_half, MF_CHECKED);
+				change_scale(t[id - id_zoom_half]);
 			}
 			else
 				switch (id)
@@ -473,8 +460,8 @@ class main_window : public window
 		InvalidateRect(hwnd, nullptr, FALSE);
 	}
 
-public:
 	// 菜单项 id。
+public:
 	enum
 	{
 		id_max_button_count = keys_manager::max_key_count,
@@ -488,10 +475,15 @@ public:
 		id_zoom_3,
 	};
 
+	// KPS。
 public:
 	keys_manager k_manager{ &kps };
 	kps::kps kps{ std::bind(&keys_manager::update_on_key_down, &k_manager, std::placeholders::_1, std::placeholders::_2) };
-	// 改变当前按键个数。
+	// 选项。
+public:
+	/// <summary>
+	/// 改变当前按键个数。
+	/// </summary>
 	void change_button_count(int new_count)
 	{
 		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_UNCHECKED);
@@ -499,8 +491,29 @@ public:
 		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_CHECKED);
 		resize();
 	}
+	/// <summary>
+	/// 改变当前缩放比例。
+	/// </summary>
+	void change_scale(double new_scale)
+	{
+		constexpr double t[]{ 0.75, 1, 2, 3 };
+		scale = new_scale;
+		build_scale_dep_resource();
+		resize();
 
-public:
+		for (int i = id_zoom_half; i <= id_zoom_3; i++)
+			CheckMenuItem(hMenu, i, MF_UNCHECKED);
+		if (scale == 1)
+			CheckMenuItem(hMenu, id_zoom_1, MF_CHECKED);
+		else if (scale == 2)
+			CheckMenuItem(hMenu, id_zoom_2, MF_CHECKED);
+		else if (scale == 3)
+			CheckMenuItem(hMenu, id_zoom_3, MF_CHECKED);
+		else
+			CheckMenuItem(hMenu, id_zoom_half, MF_CHECKED);
+	}
+
+private:
 	double scale{ 1 }; // 绘图时的额外比例因子。
 };
 
