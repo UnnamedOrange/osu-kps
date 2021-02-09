@@ -164,6 +164,9 @@ class main_window : public window
 		id_zoom_2,
 		id_zoom_3,
 		id_method_hard,
+		id_show_buttons,
+		id_show_statistics,
+		id_show_graph,
 	};
 	/// <summary>
 	/// 创建或重建菜单。
@@ -202,6 +205,16 @@ class main_window : public window
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_kps_method), L"KPS method");
 		}
+		AppendMenuW(hMenuPopup, MF_SEPARATOR, NULL, nullptr);
+		// menus_show
+		{
+			HMENU menus_show = CreateMenu();
+			AppendMenuW(menus_show, MF_STRING, id_show_buttons, L"Buttons");
+			AppendMenuW(menus_show, MF_STRING, id_show_statistics, L"Statistics");
+			AppendMenuW(menus_show, MF_STRING, id_show_graph, L"Graph");
+
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_show), L"Show");
+		}
 		// menus_zoom
 		{
 			HMENU menus_zoom = CreateMenu();
@@ -228,6 +241,13 @@ class main_window : public window
 			break;
 		}
 		}
+		// 勾选当前显示内容。
+		if (show_buttons)
+			CheckMenuItem(hMenu, id_show_buttons, MF_CHECKED);
+		if (show_statistics)
+			CheckMenuItem(hMenu, id_show_statistics, MF_CHECKED);
+		if (show_graph)
+			CheckMenuItem(hMenu, id_show_graph, MF_CHECKED);
 		// 勾选当前缩放比例。
 		if (scale == 1)
 			CheckMenuItem(hMenu, id_zoom_1, MF_CHECKED);
@@ -286,6 +306,21 @@ class main_window : public window
 					k_manager.clear_total_count();
 					k_manager.clear_max_kps();
 					kps.clear();
+					break;
+				}
+				case id_show_buttons:
+				{
+					change_show_buttons(!show_buttons);
+					break;
+				}
+				case id_show_statistics:
+				{
+					change_show_statistics(!show_statistics);
+					break;
+				}
+				case id_show_graph:
+				{
+					change_show_graph(!show_graph);
 					break;
 				}
 				case id_exit:
@@ -461,6 +496,9 @@ class main_window : public window
 	inline static double cy_statistics = 20.0;
 	inline static double cy_total_keys = 15.0;
 	inline static double cy_graph = 80.0;
+	bool show_buttons{ true };
+	bool show_statistics{ true };
+	bool show_graph{ true };
 	/// <summary>
 	/// 计算窗口应有的大小。<remarks>计算时不考虑缩放，最后再乘以缩放。</remarks>
 	/// </summary>
@@ -469,10 +507,15 @@ class main_window : public window
 	{
 		double cx = cx_button * k_manager.get_button_count() +
 			cx_gap * (k_manager.get_button_count() - 1);
-		double cy = cy_button;
 		cx = std::max(cx, cx_statistics);
-		cy += cy_separator + cy_statistics;
-		cy += cy_separator + cy_graph;
+		double cy = 0;
+		if (show_buttons)
+			cy += cy_button + cy_separator;
+		if (show_statistics)
+			cy += cy_statistics + cy_separator;
+		if (show_graph)
+			cy += cy_graph + cy_separator;
+		cy -= cy_separator;
 		return { cx * dpi() * scale, cy * dpi() * scale };
 	}
 	/// <summary>
@@ -558,6 +601,34 @@ public:
 		}
 		}
 	}
+	bool is_any_shown()
+	{
+		return show_buttons || show_statistics || show_graph;
+	}
+	void change_show_buttons(bool show)
+	{
+		show_buttons = show;
+		if (!is_any_shown())
+			show_buttons = true;
+		CheckMenuItem(hMenu, id_show_buttons, show_buttons ? MF_CHECKED : MF_UNCHECKED);
+		resize();
+	}
+	void change_show_statistics(bool show)
+	{
+		show_statistics = show;
+		if (!is_any_shown())
+			show_statistics = true;
+		CheckMenuItem(hMenu, id_show_statistics, show_statistics ? MF_CHECKED : MF_UNCHECKED);
+		resize();
+	}
+	void change_show_graph(bool show)
+	{
+		show_graph = show;
+		if (!is_any_shown())
+			show_graph = true;
+		CheckMenuItem(hMenu, id_show_graph, show_graph ? MF_CHECKED : MF_UNCHECKED);
+		resize();
+	}
 
 private:
 	double scale{ 1 }; // 绘图时的额外比例因子。
@@ -571,6 +642,7 @@ void main_window::OnPaint(HWND)
 	double x = dpi() * scale; // 总比例因子。
 	{
 		// 画按键框。
+		if (show_buttons)
 		{
 			for (int i = 0; i < k_manager.get_button_count(); i++)
 			{
@@ -648,6 +720,7 @@ void main_window::OnPaint(HWND)
 		}
 
 		// 画统计信息。
+		if (show_statistics)
 		{
 			auto kps_number_rect = D2D1::RectF(
 				cx_gap * x, 0,
@@ -728,6 +801,7 @@ void main_window::OnPaint(HWND)
 		}
 
 		// 画图
+		if (show_graph)
 		{
 			auto graph_rect = D2D1::RectF(
 				cx_gap * x, 0,
@@ -796,6 +870,14 @@ void main_window::OnPaint(HWND)
 			// 外边框。
 			{
 				pRenderTarget->DrawRectangle(draw_rect, cache.theme_brush, stroke_width);
+			}
+
+			// 平移绘制区域，使得逻辑坐标从 (0, 0) 开始。
+			{
+				D2D1_MATRIX_3X2_F transform;
+				pRenderTarget->GetTransform(&transform);
+				auto move = D2D1::Matrix3x2F::Translation(0, (cy_graph + cy_separator) * x);
+				pRenderTarget->SetTransform(transform * move);
 			}
 		}
 	}
