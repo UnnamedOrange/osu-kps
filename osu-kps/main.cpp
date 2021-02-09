@@ -318,77 +318,69 @@ class main_window : public window
 	{
 		double x = dpi() * scale;
 
-		// text_format_number
+		auto create_text_format = [&](
+			const wchar_t* font_family_name,
+			IDWriteFontCollection* font_collection,
+			FLOAT fontSize,
+			IDWriteTextFormat** text_format)
 		{
-			factory::dwrite()->CreateTextFormat(
-				cache.theme_font_collection.get_family_names()[0].c_str(),
-				cache.theme_font_collection.get(),
+			return factory::dwrite()->CreateTextFormat(
+				font_family_name,
+				font_collection,
 				DWRITE_FONT_WEIGHT_REGULAR,
 				DWRITE_FONT_STYLE_NORMAL,
 				DWRITE_FONT_STRETCH_NORMAL,
-				18.0 * x,
+				fontSize,
 				L"",
+				text_format);
+		};
+		// text_format_number
+		{
+			create_text_format(
+				cache.theme_font_collection.get_family_names()[0].c_str(),
+				cache.theme_font_collection.get(),
+				18.0 * x,
 				cache.text_format_number.reset_and_get_address());
 			cache.text_format_number->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
 			cache.text_format_number->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 		}
 		// text_format_key_name
 		{
-			factory::dwrite()->CreateTextFormat(
+			create_text_format(
 				cache.theme_font_collection.get_family_names()[0].c_str(),
 				cache.theme_font_collection.get(),
-				DWRITE_FONT_WEIGHT_REGULAR,
-				DWRITE_FONT_STYLE_NORMAL,
-				DWRITE_FONT_STRETCH_NORMAL,
 				24.0 * x,
-				L"",
 				cache.text_format_key_name.reset_and_get_address());
 			cache.text_format_key_name->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
 			cache.text_format_key_name->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 
-			factory::dwrite()->CreateTextFormat(
+			create_text_format(
 				cache.theme_font_collection.get_family_names()[0].c_str(),
 				cache.theme_font_collection.get(),
-				DWRITE_FONT_WEIGHT_REGULAR,
-				DWRITE_FONT_STYLE_NORMAL,
-				DWRITE_FONT_STRETCH_NORMAL,
 				16.0 * x,
-				L"",
 				cache.text_format_key_name_small.reset_and_get_address());
 			cache.text_format_key_name_small->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
 			cache.text_format_key_name_small->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 
-			factory::dwrite()->CreateTextFormat(
+			create_text_format(
 				L"Segoe MDL2 Assets",
 				nullptr,
-				DWRITE_FONT_WEIGHT_REGULAR,
-				DWRITE_FONT_STYLE_NORMAL,
-				DWRITE_FONT_STRETCH_NORMAL,
 				24.0 * x,
-				L"",
 				cache.text_format_key_name_MDL2.reset_and_get_address());
 			cache.text_format_key_name_MDL2->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
 			cache.text_format_key_name_MDL2->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 		}
 		// text_format_statistics, text_format_total_keys
 		{
-			factory::dwrite()->CreateTextFormat(
+			create_text_format(
 				cache.theme_font_collection.get_family_names()[0].c_str(),
 				cache.theme_font_collection.get(),
-				DWRITE_FONT_WEIGHT_REGULAR,
-				DWRITE_FONT_STYLE_NORMAL,
-				DWRITE_FONT_STRETCH_NORMAL,
 				20.0 * x,
-				L"",
 				cache.text_format_statistics.reset_and_get_address());
-			factory::dwrite()->CreateTextFormat(
+			create_text_format(
 				cache.theme_font_collection.get_family_names()[0].c_str(),
 				cache.theme_font_collection.get(),
-				DWRITE_FONT_WEIGHT_REGULAR,
-				DWRITE_FONT_STYLE_NORMAL,
-				DWRITE_FONT_STRETCH_NORMAL,
 				15.0 * x,
-				L"",
 				cache.text_format_total_keys.reset_and_get_address());
 			cache.text_format_total_keys->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 		}
@@ -520,75 +512,74 @@ void main_window::OnPaint(HWND)
 	double x = dpi() * scale; // 总比例因子。
 	{
 		// 画按键框。
-		for (int i = 0; i < k_manager.get_button_count(); i++)
 		{
-			auto original_rect = D2D1::RectF(
-				i * (cx_button + cx_gap) * x,
-				0.0F,
-				(i * (cx_button + cx_gap) + cx_button) * x,
-				cy_button * x); // 框对应矩形。
-			double stroke_width = 2 * x;
-			auto draw_rect = original_rect; // 使用 DrawRectangle 时对应的矩形。
-			draw_rect.left += stroke_width / 2;
-			draw_rect.right -= stroke_width / 2;
-			draw_rect.top += stroke_width / 2;
-			draw_rect.bottom -= stroke_width / 2;
-			auto draw_rounded_rect = D2D1::RoundedRect(draw_rect, 4.0 * x, 4.0 * x);
 
-			auto key_name_rect = original_rect; // 每个框的键名对应的矩形。
-			key_name_rect.bottom -= (key_name_rect.bottom - key_name_rect.top) * 2 / 5;
-			auto number_rect = original_rect; // 每个框的数字对应的矩形。
-			number_rect.top += (number_rect.bottom - number_rect.top) * 2 / 5;
-
-			// 按键的发光效果。
+			for (int i = 0; i < k_manager.get_button_count(); i++)
 			{
-				auto alpha_param = std::chrono::duration_cast<decltype(0.0s)>(
-					kps::clock::now() - k_manager.previous_by_index(i));
-				color brush_color = _interpolate(cache.theme_color, cache.light_active_color,
-					kps.calc_kps_now(k_manager.get_keys()[i]), 2.0, 4.0);
-				brush_color.a = 0.75;
-				color brush_color_transparent = brush_color;
-				brush_color_transparent.a = 0;
-				brush_color = _interpolate(brush_color, brush_color_transparent,
-					alpha_param.count(), (0.1s).count(), (0.5s).count());
+				auto original_rect = D2D1::RectF(
+					i * (cx_button + cx_gap) * x,
+					0.0F,
+					(i * (cx_button + cx_gap) + cx_button) * x,
+					cy_button * x); // 框对应矩形。
+				double stroke_width = 2 * x;
+				auto draw_rect = original_rect; // 使用 DrawRectangle 时对应的矩形。
+				draw_rect.left += stroke_width / 2;
+				draw_rect.right -= stroke_width / 2;
+				draw_rect.top += stroke_width / 2;
+				draw_rect.bottom -= stroke_width / 2;
+				auto draw_rounded_rect = D2D1::RoundedRect(draw_rect, 4.0 * x, 4.0 * x);
 
-				if (brush_color.a > 1e-6)
+				auto key_name_rect = original_rect; // 每个框的键名对应的矩形。
+				key_name_rect.bottom -= (key_name_rect.bottom - key_name_rect.top) * 2 / 5;
+				auto number_rect = original_rect; // 每个框的数字对应的矩形。
+				number_rect.top += (number_rect.bottom - number_rect.top) * 2 / 5;
+
+				// 按键的发光效果。
 				{
+					auto alpha_param = std::chrono::duration_cast<decltype(0.0s)>(
+						kps::clock::now() - k_manager.previous_by_index(i));
+					color brush_color = _interpolate(cache.theme_color, cache.light_active_color,
+						kps.calc_kps_now(k_manager.get_keys()[i]), 2.0, 4.0);
+					brush_color.a = 0.75;
+					color brush_color_transparent = brush_color;
+					brush_color_transparent.a = 0;
+					brush_color = _interpolate(brush_color, brush_color_transparent,
+						alpha_param.count(), (0.1s).count(), (0.5s).count());
+
+					if (brush_color.a > 1e-6)
+					{
+						com_ptr<ID2D1SolidColorBrush> brush;
+						pRenderTarget->CreateSolidColorBrush(brush_color, brush.reset_and_get_address());
+						pRenderTarget->FillRoundedRectangle(draw_rounded_rect, brush);
+					}
+				}
+
+				// 写字。
+				{
+					auto s = cache.kc.to_short(k_manager.get_keys()[i]);
+					auto str = code_conv<char8_t, wchar_t>::convert(s.key);
+					pRenderTarget->DrawTextW(str.c_str(), str.length(),
+						s.need_MDL2 ? cache.text_format_key_name_MDL2 :
+						(s.is_single ? cache.text_format_key_name : cache.text_format_key_name_small),
+						key_name_rect, cache.theme_brush);
+				}
+				{
+					double k_now = kps.calc_kps_now(k_manager.get_keys()[i]); // 当前框对应 kps。
+					auto str = std::to_wstring(static_cast<int>(k_now + 0.5));
+
+					pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_number,
+						number_rect, cache.theme_brush);
+				}
+
+				// 最外层的框。
+				{
+					color text_color = _interpolate(cache.theme_color, cache.light_active_color,
+						kps.calc_kps_now(k_manager.get_keys()[i]), 2.0, 4.0);
 					com_ptr<ID2D1SolidColorBrush> brush;
-					pRenderTarget->CreateSolidColorBrush(brush_color, brush.reset_and_get_address());
-					pRenderTarget->FillRoundedRectangle(draw_rounded_rect, brush);
+					pRenderTarget->CreateSolidColorBrush(text_color, brush.reset_and_get_address());
+					pRenderTarget->DrawRoundedRectangle(draw_rounded_rect, brush, stroke_width);
 				}
 			}
-
-			// 写字。
-			{
-				auto s = cache.kc.to_short(k_manager.get_keys()[i]);
-				auto str = code_conv<char8_t, wchar_t>::convert(s.key);
-				pRenderTarget->DrawTextW(str.c_str(), str.length(),
-					s.need_MDL2 ? cache.text_format_key_name_MDL2 :
-					(s.is_single ? cache.text_format_key_name : cache.text_format_key_name_small),
-					key_name_rect, cache.theme_brush);
-			}
-			{
-				double k_now = kps.calc_kps_now(k_manager.get_keys()[i]); // 当前框对应 kps。
-				auto str = std::to_wstring(static_cast<int>(k_now + 0.5));
-
-				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_number,
-					number_rect, cache.theme_brush);
-			}
-
-			// 最外层的框。
-			{
-				color text_color = _interpolate(cache.theme_color, cache.light_active_color,
-					kps.calc_kps_now(k_manager.get_keys()[i]), 2.0, 4.0);
-				com_ptr<ID2D1SolidColorBrush> brush;
-				pRenderTarget->CreateSolidColorBrush(text_color, brush.reset_and_get_address());
-				pRenderTarget->DrawRoundedRectangle(draw_rounded_rect, brush, stroke_width);
-			}
-		}
-
-		// 画统计信息。
-		{
 			// 平移绘制区域，使得逻辑坐标从 (0, 0) 开始。
 			{
 				D2D1_MATRIX_3X2_F transform;
@@ -596,7 +587,10 @@ void main_window::OnPaint(HWND)
 				auto move = D2D1::Matrix3x2F::Translation(0, (cy_button + cy_separator) * x);
 				pRenderTarget->SetTransform(transform * move);
 			}
+		}
 
+		// 画统计信息。
+		{
 			auto kps_number_rect = D2D1::RectF(
 				cx_gap * x, 0,
 				(cx_gap + cx_kps_number) * x,
