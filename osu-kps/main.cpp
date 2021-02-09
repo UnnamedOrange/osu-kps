@@ -659,6 +659,14 @@ void main_window::OnPaint(HWND)
 				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_total_keys,
 					total_number_rect, cache.theme_brush);
 			}
+
+			// 平移绘制区域，使得逻辑坐标从 (0, 0) 开始。
+			{
+				D2D1_MATRIX_3X2_F transform;
+				pRenderTarget->GetTransform(&transform);
+				auto move = D2D1::Matrix3x2F::Translation(0, (cy_statistics + cy_separator) * x);
+				pRenderTarget->SetTransform(transform * move);
+			}
 		}
 	}
 	pRenderTarget->EndDraw();
