@@ -355,6 +355,8 @@ class main_window : public window
 		com_ptr<IDWriteTextFormat> text_format_number;
 		com_ptr<IDWriteTextFormat> text_format_statistics;
 		com_ptr<IDWriteTextFormat> text_format_total_keys;
+
+		com_ptr<ID2D1LinearGradientBrush> graph_brush;
 	} cache;
 	void init_d2d()
 	{
@@ -444,6 +446,30 @@ class main_window : public window
 				15.0 * x,
 				cache.text_format_total_keys.reset_and_get_address());
 			cache.text_format_total_keys->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+		}
+
+		// graph_brush
+		{
+			com_ptr<ID2D1GradientStopCollection> gradient_stops;
+			D2D1_GRADIENT_STOP stops[] =
+			{
+				{ 0.f, cache.theme_color },
+				{ 0.3f, cache.light_active_color },
+				{ 1.f, cache.active_color },
+			};
+			pRenderTarget->CreateGradientStopCollection(
+				stops,
+				std::size(stops),
+				gradient_stops.reset_and_get_address()
+			);
+			pRenderTarget->CreateLinearGradientBrush(
+				D2D1::LinearGradientBrushProperties(
+					D2D1::Point2F(0, cy_graph * x),
+					D2D1::Point2F(0, 0)),
+				D2D1::BrushProperties(),
+				gradient_stops,
+				cache.graph_brush.reset_and_get_address()
+			);
 		}
 	}
 	timer_thread _tt{ [this] {
@@ -844,28 +870,7 @@ void main_window::OnPaint(HWND)
 				}
 				sink->Close();
 
-				com_ptr<ID2D1GradientStopCollection> gradient_stops;
-				D2D1_GRADIENT_STOP stops[] =
-				{
-					{ 0.f, cache.theme_color },
-					{ 0.3f, cache.light_active_color },
-					{ 1.f, cache.active_color },
-				};
-				pRenderTarget->CreateGradientStopCollection(
-					stops,
-					std::size(stops),
-					gradient_stops.reset_and_get_address()
-				);
-				com_ptr<ID2D1LinearGradientBrush> brush;
-				pRenderTarget->CreateLinearGradientBrush(
-					D2D1::LinearGradientBrushProperties(
-						D2D1::Point2F(0, draw_rect.bottom),
-						D2D1::Point2F(0, draw_rect.top)),
-					D2D1::BrushProperties(),
-					gradient_stops,
-					brush.reset_and_get_address()
-				);
-				pRenderTarget->FillGeometry(geometry, brush);
+				pRenderTarget->FillGeometry(geometry, cache.graph_brush);
 			}
 			// 外边框。
 			{
