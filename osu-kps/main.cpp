@@ -744,8 +744,8 @@ void main_window::OnPaint(HWND)
 			{
 				com_ptr<ID2D1PathGeometry> geometry;
 				factory::d2d1()->CreatePathGeometry(geometry.reset_and_get_address());
-				ID2D1GeometrySink* sink;
-				geometry->Open(&sink);
+				com_ptr<ID2D1GeometrySink> sink;
+				geometry->Open(sink.reset_and_get_address());
 				{
 					sink->BeginFigure(
 						D2D1::Point2F(draw_rect.right, draw_rect.bottom),
@@ -769,7 +769,6 @@ void main_window::OnPaint(HWND)
 					sink->EndFigure(D2D1_FIGURE_END_CLOSED);
 				}
 				sink->Close();
-
 
 				com_ptr<ID2D1GradientStopCollection> gradient_stops;
 				D2D1_GRADIENT_STOP stops[] =
