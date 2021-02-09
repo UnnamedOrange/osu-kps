@@ -150,6 +150,20 @@ class main_window : public window
 
 	// 右键菜单。
 	HMENU hMenu{};
+	// 菜单项 id。
+	enum
+	{
+		id_max_button_count = keys_manager::max_key_count,
+		id_reset_total,
+		id_reset_max,
+		id_reset_all,
+		id_exit,
+		id_zoom_half,
+		id_zoom_1,
+		id_zoom_2,
+		id_zoom_3,
+		id_method_hard,
+	};
 	/// <summary>
 	/// 创建或重建菜单。
 	/// </summary>
@@ -179,6 +193,13 @@ class main_window : public window
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_reset), L"Reset");
 		}
+		// menus_kps_method
+		{
+			HMENU menus_kps_method = CreateMenu();
+			AppendMenuW(menus_kps_method, MF_STRING, id_method_hard, L"Hard");
+
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_kps_method), L"KPS method");
+		}
 		// menus_zoom
 		{
 			HMENU menus_zoom = CreateMenu();
@@ -196,6 +217,15 @@ class main_window : public window
 
 		// 勾选当前按键数量。
 		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_CHECKED);
+		// 勾选当前实现方式。
+		switch (kps.implement_type())
+		{
+		case kps::kps_implement_type::kps_implement_type_hard:
+		{
+			CheckMenuItem(hMenu, id_method_hard, MF_CHECKED);
+			break;
+		}
+		}
 		// 勾选当前缩放比例。
 		if (scale == 1)
 			CheckMenuItem(hMenu, id_zoom_1, MF_CHECKED);
@@ -205,7 +235,6 @@ class main_window : public window
 			CheckMenuItem(hMenu, id_zoom_3, MF_CHECKED);
 		else
 			CheckMenuItem(hMenu, id_zoom_half, MF_CHECKED);
-
 	}
 	void OnRButtonDown(HWND, BOOL fDoubleClick, int x, int y, UINT keyFlags)
 	{
@@ -230,6 +259,8 @@ class main_window : public window
 				constexpr double t[]{ 0.75, 1, 2, 3 };
 				change_scale(t[id - id_zoom_half]);
 			}
+			else if (id_method_hard <= id && id <= id_method_hard)
+				change_implement(static_cast<kps::kps_implement_type>(id - id_method_hard));
 			else
 				switch (id)
 				{
@@ -460,21 +491,6 @@ class main_window : public window
 		InvalidateRect(hwnd, nullptr, FALSE);
 	}
 
-	// 菜单项 id。
-public:
-	enum
-	{
-		id_max_button_count = keys_manager::max_key_count,
-		id_reset_total,
-		id_reset_max,
-		id_reset_all,
-		id_exit,
-		id_zoom_half,
-		id_zoom_1,
-		id_zoom_2,
-		id_zoom_3,
-	};
-
 	// KPS。
 public:
 	keys_manager k_manager{ &kps };
@@ -511,6 +527,26 @@ public:
 			CheckMenuItem(hMenu, id_zoom_3, MF_CHECKED);
 		else
 			CheckMenuItem(hMenu, id_zoom_half, MF_CHECKED);
+	}
+	/// <summary>
+	/// 改变当前 KPS 计算方式。
+	/// </summary>
+	/// <param name="new_type"></param>
+	void change_implement(kps::kps_implement_type new_type)
+	{
+		kps.change_implement_type(new_type);
+
+		for (int i = id_method_hard; i <= id_method_hard; i++)
+			CheckMenuItem(hMenu, i, MF_UNCHECKED);
+
+		switch (kps.implement_type())
+		{
+		case kps::kps_implement_type::kps_implement_type_hard:
+		{
+			CheckMenuItem(hMenu, id_method_hard, MF_CHECKED);
+			break;
+		}
+		}
 	}
 
 private:

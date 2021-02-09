@@ -31,6 +31,10 @@ namespace kps
 		using callback_t = std::function<void(int, time_point)>;
 	private:
 		callback_t callback; // 按键时的回调函数。
+	public:
+		using id_t = unsigned long long;
+	private:
+		unsigned long long callback_id; // 回调函数的标志 id。
 
 	private:
 		/// <summary>
@@ -38,20 +42,30 @@ namespace kps
 		/// 调用线程与监视器线程相同。保证调用该函数时已上锁。不要再次上锁！
 		/// 会覆盖之前注册的回调函数。
 		/// </summary>
-		/// <param name="func"></param>
-		void register_callback(callback_t func)
+		/// <param name="func">注册的回调函数。</param>
+		/// <param name="id">回调函数的标志 id。需要在取消注册时提供。</param>
+		void register_callback(callback_t func, id_t id)
 		{
 			std::lock_guard _(m);
 			callback = func;
+			callback_id = id;
 		}
 		/// <summary>
 		/// 取消注册回调函数。
 		/// 有可能调用该函数时回调函数正在被调用，此时将在回调函数运行结束后再取消注册。
 		/// </summary>
-		void unregister_callback()
+		/// <param name="id">用于标志的 id。仅当 id 与注册时的相同时，取消注册才会成功。</param>
+		/// <returns>是否取消注册成功。即 id 是否匹配。</returns>
+		bool unregister_callback(id_t id)
 		{
 			std::lock_guard _(m);
-			callback = callback_t();
+			if (callback_id == id)
+			{
+				callback = callback_t();
+				id = id_t();
+				return true;
+			}
+			return false;
 		}
 
 	public:
@@ -88,6 +102,11 @@ namespace kps
 		friend class kps_implement_hard;
 	};
 
+	enum class kps_implement_type
+	{
+		kps_implement_type_hard,
+	};
+
 	class kps_implement_base
 	{
 	protected:
@@ -98,6 +117,9 @@ namespace kps
 		kps_implement_base(kps_implement_base&&) = delete;
 		kps_implement_base& operator=(const kps_implement_base&) = delete;
 		kps_implement_base& operator=(kps_implement_base&&) = delete;
+
+	public:
+		virtual kps_implement_type type() const = 0;
 
 	private:
 		/// <summary>
@@ -126,18 +148,24 @@ namespace kps
 		mutable size_t start_index{}; // 计算当前 KPS 时，最早按键记录的下标。
 		mutable std::array<int, 256> sum{}; // 计算当前 KPS 时，各按键按键次数总和。
 	public:
+		virtual kps_implement_type type() const override
+		{
+			return kps_implement_type::kps_implement_type_hard;
+		}
+	public:
 		kps_implement_hard(kps_interface* src) : kps_implement_base(src)
 		{
 			src->register_callback(
 				std::bind(&kps_implement_hard::on_key_down, this,
-					std::placeholders::_1, std::placeholders::_2));
+					std::placeholders::_1, std::placeholders::_2),
+				reinterpret_cast<kps_interface::id_t>(this));
 			std::lock_guard _(src->m);
 			for (const auto& [key, time] : src->records)
 				sum[key]++;
 		}
 		~kps_implement_hard()
 		{
-			src->unregister_callback();
+			src->unregister_callback(reinterpret_cast<kps_interface::id_t>(this));
 		}
 	private:
 		void on_key_down(int key, time_point)
@@ -157,17 +185,17 @@ namespace kps
 		}
 	};
 
-	enum class kps_implement_type
-	{
-		kps_implement_type_hard,
-	};
-
 	class kps_calculator : public kps_interface
 	{
 	private:
 		mutable std::mutex m;
 	private:
 		std::shared_ptr<kps_implement_base> implement;
+	public:
+		auto implement_type() const
+		{
+			return implement->type();
+		}
 	public:
 		kps_calculator(kps_implement_type implement_type = kps_implement_type::kps_implement_type_hard)
 		{
