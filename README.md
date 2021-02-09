@@ -2,7 +2,7 @@
 
 KPS (keys per second) indicator for osu! in C++.
 
-This project is under regard. \_(:3」∠)\_
+This project is under development. \_(:3」∠)\_
 
 ## Motivation
 
@@ -54,28 +54,34 @@ Graphics: Direct2D.
 
   However, it's after implementing the config system that the keys can be modified.
 
-- [ ] use Direct2D to draw a UI.
+- [x] use Direct2D to draw a UI.
 
   And more:
 
   - [x] support different implementation of KPS calculator.
   - [x] draw the key correctly.
-  - [ ] draw the graph.
-
-  After this step the project can be pre-released.
+  - [x] draw the graph.
 
 - [ ] details.
 
-  - [ ] perfect the behavior when resizing.
   - [ ] add `&` for button count menu.
+  - [ ] correct the size when the buttons are hidden.
+  - [ ] draw more aux. info. in the graph.
+  - [ ] perfect the behavior when resizing.
 
 - [ ] tool header for config system.
 
   I may use json.
 
+  After this step the project can be pre-released.
+
 - [ ] add more keys in keyboard_char.
 
 - [ ] add keyboard shortcut.
+
+- [ ] do the documents.
+
+- [ ] implement "soft" KPS method.
 
 - [ ] tool header for multi-language support.
 
@@ -87,7 +93,7 @@ Graphics: Direct2D.
 
 ## Details
 
-### The method to calculate KPS
+### The "hard" method to calculate KPS
 
 I just save all the pressed keys, and based on it, calculate KPS. The KPS equals to the total times you press in recent 1 second.  
 
