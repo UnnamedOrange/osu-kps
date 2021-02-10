@@ -186,7 +186,7 @@ class main_window : public window
 				i <= to; i++)
 				AppendMenuW(menus_button_count, MF_STRING, i,
 					std::to_wstring(i).c_str());
-			if (id_max_button_count >= 10)
+			if constexpr (id_max_button_count >= 10)
 				AppendMenuW(menus_button_count, MF_STRING, 10,
 					L"1&0");
 
@@ -875,7 +875,8 @@ void main_window::OnPaint(HWND)
 
 			auto text_rect = draw_rect; // 文字矩形。
 
-			auto value = kps.calc_kps_recent(k_manager.get_keys());
+			auto value = kps.calc_kps_recent(
+				{ k_manager.get_keys().cbegin(), k_manager.get_keys().cend() });
 			double max_value = *std::max_element(value.begin(), value.end());
 			double ceil_height = std::max(5.0,
 				1.25 * std::max(k_manager.get_max_kps(), max_value)); // 最高点对应的值。

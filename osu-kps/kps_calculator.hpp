@@ -6,6 +6,7 @@
 #include <vector>
 #include <deque>
 #include <algorithm>
+#include <unordered_set>
 #include <numeric>
 #include <array>
 #include <tuple>
@@ -150,7 +151,7 @@ namespace kps
 		/// </summary>
 		/// <param name="key"></param>
 		/// <returns></returns>
-		virtual history_array calc_kps_recent_implement(int key) = 0;
+		virtual history_array calc_kps_recent_implement(const std::unordered_set<int> keys) = 0;
 	public:
 		double calc_kps_now(int key)
 		{
@@ -163,22 +164,10 @@ namespace kps
 			return std::accumulate(keys.begin(), keys.end(), 0.0,
 				[this](double pre, int key) { return pre + calc_kps_now_implement(key); });
 		}
-		history_array calc_kps_recent(int key)
+		history_array calc_kps_recent(const std::unordered_set<int>& keys)
 		{
 			std::lock_guard _(src->m);
-			return calc_kps_recent_implement(key);
-		}
-		history_array calc_kps_recent(const std::vector<int>& keys)
-		{
-			std::lock_guard _(src->m);
-			history_array ret{};
-			for (int key : keys)
-			{
-				auto t = calc_kps_recent_implement(key);
-				for (size_t i = 0; i < ret.size(); i++)
-					ret[i] += t[i];
-			}
-			return ret;
+			return calc_kps_recent_implement(keys);
 		}
 	};
 
@@ -188,7 +177,7 @@ namespace kps
 		size_t start_index{}; // 计算当前 KPS 时，最早按键记录的下标。
 		std::array<int, 256> sum{}; // 计算当前 KPS 时，各按键按键次数总和。
 
-		std::array<size_t, 256> recent_pivot{}; // 要考虑的历史 KPS 内最靠前的下标。
+		size_t recent_pivot{}; // 要考虑的历史 KPS 内最靠前的下标。
 	public:
 		virtual kps_implement_type type() const override
 		{
@@ -220,7 +209,7 @@ namespace kps
 		{
 			start_index = 0;
 			std::fill(sum.begin(), sum.end(), int());
-			std::fill(recent_pivot.begin(), recent_pivot.end(), size_t());
+			recent_pivot = 0;
 		}
 		virtual double calc_kps_now_implement(int key) override
 		{
@@ -233,25 +222,29 @@ namespace kps
 			}
 			return sum[key];
 		}
-		virtual history_array calc_kps_recent_implement(int key) override
+		virtual history_array calc_kps_recent_implement(const std::unordered_set<int> keys) override
 		{
-			// TODO: 修复奇怪的抖动。
 			history_array ret{};
-			auto get_time = [&](size_t idx) { return std::get<1>(src->records_individual[key][idx]); };
+			auto get_time = [&](size_t idx) { return std::get<1>(src->records[idx]); };
 			auto now = clock::now();
 			long long integral_second = std::ceil(
 				std::chrono::duration_cast<std::chrono::duration<double>>(now.time_since_epoch()).count());
 			now = clock::time_point(
 				std::chrono::duration_cast<clock::duration>(std::chrono::seconds(integral_second)));
-			while (recent_pivot[key] < src->records_individual[key].size() &&
-				now - get_time(recent_pivot[key]) > 1s * (ret.size() + 1)) // 对答案有贡献的点的最远位置。
-				recent_pivot[key]++;
+			while (recent_pivot < src->records.size() &&
+				now - get_time(recent_pivot) > 1s * (ret.size() + 1)) // 对答案有贡献的点的最远位置。
+				recent_pivot++;
 			// 双指针法。
-			size_t left = recent_pivot[key];
-			size_t right = recent_pivot[key];
-			while (right < src->records_individual[key].size() &&
+			size_t left = recent_pivot;
+			size_t right = recent_pivot;
+			size_t count = 0;
+			while (right < src->records.size() &&
 				get_time(right) < now - std::chrono::seconds(ret.size()))
+			{
+				if (keys.count(std::get<0>(src->records[right])))
+					count++;
 				right++;
+			}
 			for (size_t crt_time = 0; crt_time < ret.size(); crt_time++)
 			{
 				auto real_time_point_left = now - std::chrono::seconds(ret.size() - crt_time);
@@ -259,17 +252,27 @@ namespace kps
 				// 初始条件：hard KPS 区间的右端点为当前时间区间的左端点。
 				// 注意此时假设 right 在不处于当前时间区间的最右边。
 				while (left < right && real_time_point_left - get_time(left) > 1s)
+				{
+					if (keys.count(std::get<0>(src->records[left])))
+						count--;
 					left++;
-				ret[crt_time] = right - left;
+				}
+				ret[crt_time] = count;
 				// 用当前时间区间内的点更新。
-				while (right < src->records_individual[key].size() &&
+				while (right < src->records.size() &&
 					get_time(right) < real_time_point_right)
 				{
+					if (keys.count(std::get<0>(src->records[right])))
+						count++;
 					right++;
 					while (left < right && get_time(right - 1) - get_time(left) > 1s)
+					{
+						if (keys.count(std::get<0>(src->records[left])))
+							count--;
 						left++;
+					}
 					if (real_time_point_left <= get_time(right - 1))
-						ret[crt_time] = std::max(ret[crt_time], static_cast<double>(right - left));
+						ret[crt_time] = std::max(ret[crt_time], static_cast<double>(count));
 				}
 			}
 			return ret;
@@ -331,15 +334,7 @@ namespace kps
 		/// <summary>
 		/// 计算最近的 KPS。其含义取决于具体实现。
 		/// </summary>
-		history_array calc_kps_recent(int key) const
-		{
-			std::lock_guard _(m);
-			return implement->calc_kps_recent(key);
-		}
-		/// <summary>
-		/// 计算最近的 KPS。其含义取决于具体实现。
-		/// </summary>
-		history_array calc_kps_recent(const std::vector<int>& keys) const
+		history_array calc_kps_recent(const std::unordered_set<int>& keys) const
 		{
 			std::lock_guard _(m);
 			return implement->calc_kps_recent(keys);
