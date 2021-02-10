@@ -535,8 +535,10 @@ class main_window : public window
 	/// <returns>(cx, cy)</returns>
 	std::tuple<double, double> calc_size() const
 	{
-		double cx = cx_button * k_manager.get_button_count() +
-			cx_gap * (k_manager.get_button_count() - 1);
+		double cx = 0;
+		if (show_buttons)
+			cx = std::max(cx, cx_button * k_manager.get_button_count() +
+				cx_gap * (k_manager.get_button_count() - 1));
 		cx = std::max(cx, cx_statistics);
 		double cy = 0;
 		if (show_buttons)
