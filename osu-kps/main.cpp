@@ -858,10 +858,10 @@ void main_window::OnPaint(HWND)
 							*std::max_element(value.begin(), value.end())));
 					double graph_width = draw_rect.right - draw_rect.left;
 					double graph_height = draw_rect.bottom - draw_rect.top;
-					for (size_t i = 0; i < kps::history_count; i++)
+					for (size_t i = 0; i < value.size(); i++)
 					{
 						sink->AddLine(D2D1::Point2F(
-							draw_rect.left + graph_width * i / (kps::history_count - 1),
+							draw_rect.left + graph_width * i / (value.size() - 1),
 							draw_rect.bottom - graph_height * (value[i] / ceil_height)
 						));
 					}
