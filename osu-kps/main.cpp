@@ -344,12 +344,15 @@ class main_window : public window
 	{
 		// indep
 		static constexpr auto theme_color = color(203u, 237u, 238u);
+		static constexpr auto theme_color_half_trans = color(203u, 237u, 238u, 191u);
 		static constexpr auto light_active_color = color(227u, 172u, 181u);
 		static constexpr auto active_color = color(255u, 104u, 143u);
 
 		keyboard_char kc;
 
 		com_ptr<ID2D1SolidColorBrush> theme_brush;
+		com_ptr<ID2D1SolidColorBrush> theme_half_trans_brush;
+		com_ptr<ID2D1StrokeStyle> dash_stroke;
 		private_font_collection theme_font_collection;
 
 		// scale_dep
@@ -359,6 +362,7 @@ class main_window : public window
 		com_ptr<IDWriteTextFormat> text_format_number;
 		com_ptr<IDWriteTextFormat> text_format_statistics;
 		com_ptr<IDWriteTextFormat> text_format_total_keys;
+		com_ptr<IDWriteTextFormat> text_format_graph;
 
 		com_ptr<ID2D1LinearGradientBrush> graph_brush;
 	} cache;
@@ -377,6 +381,20 @@ class main_window : public window
 	{
 		pRenderTarget->CreateSolidColorBrush(cache.theme_color,
 			cache.theme_brush.reset_and_get_address());
+		pRenderTarget->CreateSolidColorBrush(cache.theme_color_half_trans,
+			cache.theme_half_trans_brush.reset_and_get_address());
+
+		factory::d2d1()->CreateStrokeStyle(
+			D2D1::StrokeStyleProperties(
+				D2D1_CAP_STYLE_FLAT,
+				D2D1_CAP_STYLE_FLAT,
+				D2D1_CAP_STYLE_FLAT,
+				D2D1_LINE_JOIN_MITER,
+				10.0F,
+				D2D1_DASH_STYLE_DASH,
+				0.0f),
+			nullptr, 0,
+			cache.dash_stroke.reset_and_get_address());
 
 		cache.theme_font_collection.from_font_data(
 			resource_loader::load(MAKEINTRESOURCEW(IDR_Exo2_Regular), L"OTF"));
@@ -450,6 +468,15 @@ class main_window : public window
 				15.0 * x,
 				cache.text_format_total_keys.reset_and_get_address());
 			cache.text_format_total_keys->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+		}
+		// text_format_graph
+		{
+			create_text_format(
+				cache.theme_font_collection.get_family_names()[0].c_str(),
+				cache.theme_font_collection.get(),
+				11.0 * x,
+				cache.text_format_graph.reset_and_get_address());
+			cache.text_format_graph->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR);
 		}
 
 		// graph_brush
@@ -846,6 +873,13 @@ void main_window::OnPaint(HWND)
 			draw_rect.top += stroke_width / 2;
 			draw_rect.bottom -= stroke_width / 2;
 
+			auto text_rect = draw_rect; // 文字矩形。
+
+			auto value = kps.calc_kps_recent(k_manager.get_keys());
+			double max_value = *std::max_element(value.begin(), value.end());
+			double ceil_height = std::max(5.0,
+				1.25 * std::max(k_manager.get_max_kps(), max_value)); // 最高点对应的值。
+
 			// 具体图形。
 			{
 				com_ptr<ID2D1PathGeometry> geometry;
@@ -858,10 +892,6 @@ void main_window::OnPaint(HWND)
 						D2D1_FIGURE_BEGIN_FILLED
 					);
 					sink->AddLine(D2D1::Point2F(draw_rect.left, draw_rect.bottom));
-					auto value = kps.calc_kps_recent(k_manager.get_keys());
-					double ceil_height = std::max(5.0,
-						1.2 * std::max(k_manager.get_max_kps(),
-							*std::max_element(value.begin(), value.end())));
 					double graph_width = draw_rect.right - draw_rect.left;
 					double graph_height = draw_rect.bottom - draw_rect.top;
 					for (size_t i = 0; i < value.size(); i++)
@@ -877,6 +907,27 @@ void main_window::OnPaint(HWND)
 				sink->Close();
 
 				pRenderTarget->FillGeometry(geometry, cache.graph_brush);
+			}
+			// 最大值指示。
+			{
+				double y = draw_rect.bottom - (draw_rect.bottom - draw_rect.top) *
+					(max_value / ceil_height);
+				pRenderTarget->DrawLine(
+					D2D1::Point2F(draw_rect.left, y),
+					D2D1::Point2F(draw_rect.right, y),
+					cache.theme_brush,
+					0.75 * x,
+					cache.dash_stroke
+				);
+
+				text_rect.left += 2 * x;
+				text_rect.bottom = y - 2 * x;
+				wchar_t buffer[256];
+				std::swprintf(buffer, std::size(buffer),
+					L"%.1f max KPS in recent 5 minutes.",
+					max_value);
+				pRenderTarget->DrawTextW(buffer, std::wcslen(buffer),
+					cache.text_format_graph, text_rect, cache.theme_half_trans_brush);
 			}
 			// 外边框。
 			{

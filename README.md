@@ -67,7 +67,7 @@ Graphics: Direct2D.
   - [x] revise the code in drawing the graph --- use `size()` instead of `history_count`.
   - [x] add `&` for button count menu.
   - [x] correct the size when the buttons are hidden.
-  - [ ] draw more aux. info. in the graph.
+  - [x] draw more aux. info. in the graph.
   - [ ] perfect the behavior when resizing.
 
 - [ ] tool header for config system.
