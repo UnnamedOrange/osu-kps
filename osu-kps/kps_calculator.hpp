@@ -235,25 +235,26 @@ namespace kps
 		}
 		virtual history_array calc_kps_recent_implement(int key) override
 		{
-			auto get_time = [&](size_t idx) {return std::get<1>(src->records_individual[key][idx]); };
+			// TODO: 修复奇怪的抖动。
+			history_array ret{};
+			auto get_time = [&](size_t idx) { return std::get<1>(src->records_individual[key][idx]); };
 			auto now = clock::now();
 			long long integral_second = std::ceil(
 				std::chrono::duration_cast<std::chrono::duration<double>>(now.time_since_epoch()).count());
 			now = clock::time_point(
 				std::chrono::duration_cast<clock::duration>(std::chrono::seconds(integral_second)));
 			while (recent_pivot[key] < src->records_individual[key].size() &&
-				now - get_time(recent_pivot[key]) > 1s * (history_count + 1)) // 对答案有贡献的点的最远位置。
+				now - get_time(recent_pivot[key]) > 1s * (ret.size() + 1)) // 对答案有贡献的点的最远位置。
 				recent_pivot[key]++;
-			history_array ret{};
 			// 双指针法。
 			size_t left = recent_pivot[key];
 			size_t right = recent_pivot[key];
 			while (right < src->records_individual[key].size() &&
-				get_time(right) < now - std::chrono::seconds(history_count))
+				get_time(right) < now - std::chrono::seconds(ret.size()))
 				right++;
-			for (size_t crt_time = 0; crt_time < history_count; crt_time++)
+			for (size_t crt_time = 0; crt_time < ret.size(); crt_time++)
 			{
-				auto real_time_point_left = now - std::chrono::seconds(history_count - crt_time);
+				auto real_time_point_left = now - std::chrono::seconds(ret.size() - crt_time);
 				auto real_time_point_right = real_time_point_left + 1s;
 				// 初始条件：hard KPS 区间的右端点为当前时间区间的左端点。
 				// 注意此时假设 right 在不处于当前时间区间的最右边。
