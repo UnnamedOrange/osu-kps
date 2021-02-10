@@ -182,9 +182,13 @@ class main_window : public window
 		// menus_button_count
 		{
 			HMENU menus_button_count = CreateMenu();
-			for (int i = 1; i <= id_max_button_count; i++)
+			for (int i = 1, to = std::min(static_cast<int>(id_max_button_count), 9);
+				i <= to; i++)
 				AppendMenuW(menus_button_count, MF_STRING, i,
 					std::to_wstring(i).c_str());
+			if (id_max_button_count >= 10)
+				AppendMenuW(menus_button_count, MF_STRING, 10,
+					L"1&0");
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_button_count), L"Button count");
 		}
