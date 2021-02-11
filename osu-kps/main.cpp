@@ -594,8 +594,12 @@ class main_window : public window
 		int top_shift{};
 		if (left() > rWorkArea.right)
 			left_shift = left() - rWorkArea.right;
+		else if (left() < rWorkArea.left)
+			left_shift = left() - rWorkArea.left;
 		if (top() > rWorkArea.bottom)
 			top_shift = top() - rWorkArea.bottom;
+		else if (top() < rWorkArea.top)
+			top_shift = top() - rWorkArea.top;
 		SetWindowPos(hwnd, nullptr,
 			left() - left_shift, top() - top_shift,
 			0, 0, SWP_NOSIZE | SWP_NOZORDER);
