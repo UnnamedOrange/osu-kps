@@ -361,7 +361,7 @@ class main_window : public window
 		com_ptr<IDWriteTextFormat> text_format_key_name_MDL2;
 		com_ptr<IDWriteTextFormat> text_format_number;
 		com_ptr<IDWriteTextFormat> text_format_statistics;
-		com_ptr<IDWriteTextFormat> text_format_total_keys;
+		com_ptr<IDWriteTextFormat> text_format_statistics_small;
 		com_ptr<IDWriteTextFormat> text_format_graph;
 
 		com_ptr<ID2D1LinearGradientBrush> graph_brush;
@@ -455,7 +455,7 @@ class main_window : public window
 			cache.text_format_key_name_MDL2->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
 			cache.text_format_key_name_MDL2->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 		}
-		// text_format_statistics, text_format_total_keys
+		// text_format_statistics, text_format_statistics_small
 		{
 			create_text_format(
 				cache.theme_font_collection.get_family_names()[0].c_str(),
@@ -466,8 +466,7 @@ class main_window : public window
 				cache.theme_font_collection.get_family_names()[0].c_str(),
 				cache.theme_font_collection.get(),
 				15.0 * x,
-				cache.text_format_total_keys.reset_and_get_address());
-			cache.text_format_total_keys->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+				cache.text_format_statistics_small.reset_and_get_address());
 		}
 		// text_format_graph
 		{
@@ -509,7 +508,7 @@ class main_window : public window
 			InvalidateRect(hwnd, nullptr, FALSE);
 			UpdateWindow(hwnd);
 		}
-	}, 1000 / 60 };
+	}, 1000 / 144 };
 	/// <summary>
 	/// 将颜色根据参数进行插值。
 	/// crt 从 0 到 threshold 1 之间，总是 from。
@@ -547,11 +546,11 @@ class main_window : public window
 	inline static double cx_gap = 8.0;
 	inline static double cy_separator = 8.0;
 	inline static double cx_statistics = 232.0;
-	inline static double cx_kps_number = 24.0;
-	inline static double cx_kps_text = 45.0;
+	inline static double cx_kps_number = 33.0;
+	inline static double cx_kps_text = 30.0;
 	inline static double cx_total_number = 40.0;
 	inline static double cy_statistics = 20.0;
-	inline static double cy_total_keys = 15.0;
+	inline static double cy_statistics_small = 15.0;
 	inline static double cy_graph = 80.0;
 	bool show_buttons{ true };
 	bool show_statistics{ true };
@@ -790,7 +789,7 @@ void main_window::OnPaint(HWND)
 				(cx_gap + cx_kps_number) * x,
 				cy_statistics * x); // kps 数值矩形。
 			auto kps_text_rect = D2D1::RectF(
-				kps_number_rect.right + cx_gap * x, 0,
+				kps_number_rect.right + cx_gap * x, (cy_statistics - cy_statistics_small) * x,
 				kps_number_rect.right + (cx_gap + cx_kps_text) * x,
 				cy_statistics * x); // kps 文字矩形。
 			auto max_number_rect = D2D1::RectF(
@@ -798,11 +797,11 @@ void main_window::OnPaint(HWND)
 				kps_text_rect.right + (cx_gap + cx_kps_number) * x,
 				cy_statistics * x); // 最大 kps 数值矩形。
 			auto max_text_rect = D2D1::RectF(
-				max_number_rect.right + cx_gap * x, 0,
+				max_number_rect.right + cx_gap * x, (cy_statistics - cy_statistics_small) * x,
 				max_number_rect.right + (cx_gap + cx_kps_text) * x,
 				cy_statistics * x); // 最大 kps 文字矩形。
 			auto total_number_rect = D2D1::RectF(
-				max_text_rect.right + cx_gap * x, (cy_statistics - cy_total_keys) * x,
+				max_text_rect.right + cx_gap * x, (cy_statistics - cy_statistics_small) * x,
 				(cx_statistics - cx_gap) * x,
 				cy_statistics * x); // 总按键数值矩形。
 
@@ -824,8 +823,8 @@ void main_window::OnPaint(HWND)
 				std::swprintf(buffer, std::size(buffer), L"KPS");
 				auto str = std::wstring(buffer);
 
-				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
-				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics,
+				cache.text_format_statistics_small->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics_small,
 					kps_text_rect, cache.theme_brush);
 			}
 			{
@@ -841,8 +840,8 @@ void main_window::OnPaint(HWND)
 				std::swprintf(buffer, std::size(buffer), L"max");
 				auto str = std::wstring(buffer);
 
-				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
-				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics,
+				cache.text_format_statistics_small->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics_small,
 					max_text_rect, cache.theme_brush);
 			}
 			{
@@ -850,7 +849,8 @@ void main_window::OnPaint(HWND)
 					k_manager.get_total_count());
 				auto str = std::wstring(buffer);
 
-				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_total_keys,
+				cache.text_format_statistics_small->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics_small,
 					total_number_rect, cache.theme_brush);
 			}
 
