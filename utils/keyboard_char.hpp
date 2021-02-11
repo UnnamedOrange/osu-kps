@@ -51,6 +51,8 @@ public:
 		vk_lalt,
 		vk_ralt,
 		vk_semicolon = 0xBA, // ;:
+		vk_comma = 0xBC, // ,
+		vk_period = 0xBE, // .
 		vk_slash = 0xBF, // /?
 		vk_lsbracket = 0xDB, // [{
 		vk_backslash, // \|'
@@ -84,6 +86,8 @@ public:
 		int_to_short[vk_lalt] = { false, false, u8"lAlt" };
 		int_to_short[vk_ralt] = { false, false, u8"rAlt" };
 		int_to_short[vk_semicolon] = { false, true, u8";" };
+		int_to_short[vk_comma] = { false, true, u8"," };
+		int_to_short[vk_period] = { false, true, u8"." };
 		int_to_short[vk_slash] = { false, true, u8"/" };
 		int_to_short[vk_lsbracket] = { false, true, u8"[" };
 		int_to_short[vk_backslash] = { false, true, u8"\\" };
