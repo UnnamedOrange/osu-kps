@@ -305,6 +305,8 @@ namespace kps
 				implement = std::make_shared<kps_implement_hard>(this);
 				break;
 			}
+			default:
+				throw std::invalid_argument("invalid type.");
 			}
 		}
 	public:

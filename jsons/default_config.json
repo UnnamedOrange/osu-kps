@@ -1,3 +1,8 @@
 {
+	"kps.button_count": 4,
+	"kps.method": 0,
+	"show.buttons": true,
+	"show.statistics": true,
+	"show.graph": true,
 	"scale": 1.0
 }

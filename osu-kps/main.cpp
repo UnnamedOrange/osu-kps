@@ -81,6 +81,10 @@ class main_window : public window
 		{
 			// 读取配置失败。
 		}
+		cfg.regulate();
+
+		// 应用配置。
+		init_options();
 
 		// 窗口信息相关。
 		caption(L"osu-kps");
@@ -270,11 +274,11 @@ class main_window : public window
 		}
 		}
 		// 勾选当前显示内容。
-		if (show_buttons)
+		if (cfg.show_buttons())
 			CheckMenuItem(hMenu, id_show_buttons, MF_CHECKED);
-		if (show_statistics)
+		if (cfg.show_statistics())
 			CheckMenuItem(hMenu, id_show_statistics, MF_CHECKED);
-		if (show_graph)
+		if (cfg.show_graph())
 			CheckMenuItem(hMenu, id_show_graph, MF_CHECKED);
 		// 勾选当前缩放比例。
 		{
@@ -341,17 +345,17 @@ class main_window : public window
 				}
 				case id_show_buttons:
 				{
-					change_show_buttons(!show_buttons);
+					change_show_buttons(!cfg.show_buttons());
 					break;
 				}
 				case id_show_statistics:
 				{
-					change_show_statistics(!show_statistics);
+					change_show_statistics(!cfg.show_statistics());
 					break;
 				}
 				case id_show_graph:
 				{
-					change_show_graph(!show_graph);
+					change_show_graph(!cfg.show_graph());
 					break;
 				}
 				case id_exit:
@@ -579,9 +583,6 @@ class main_window : public window
 	inline static double cy_statistics = 20.0;
 	inline static double cy_statistics_small = 15.0;
 	inline static double cy_graph = 80.0;
-	bool show_buttons{ true };
-	bool show_statistics{ true };
-	bool show_graph{ true };
 	/// <summary>
 	/// 计算窗口应有的大小。<remarks>计算时不考虑缩放，最后再乘以缩放。</remarks>
 	/// </summary>
@@ -589,16 +590,16 @@ class main_window : public window
 	std::tuple<double, double> calc_size() const
 	{
 		double cx = 0;
-		if (show_buttons)
+		if (cfg.show_buttons())
 			cx = std::max(cx, cx_button * k_manager.get_button_count() +
 				cx_gap * (k_manager.get_button_count() - 1));
 		cx = std::max(cx, cx_statistics);
 		double cy = 0;
-		if (show_buttons)
+		if (cfg.show_buttons())
 			cy += cy_button + cy_separator;
-		if (show_statistics)
+		if (cfg.show_statistics())
 			cy += cy_statistics + 0.5 * cy_separator + cy_separator;
-		if (show_graph)
+		if (cfg.show_graph())
 			cy += cy_graph + cy_separator;
 		cy -= cy_separator;
 
@@ -642,11 +643,18 @@ public:
 	// 选项。
 public:
 	config cfg;
+	void init_options()
+	{
+		k_manager.set_button_count(cfg.button_count());
+		kps.change_implement_type(cfg.kps_method());
+	}
 	/// <summary>
 	/// 改变当前按键个数。
 	/// </summary>
 	void change_button_count(int new_count)
 	{
+		cfg.button_count(new_count);
+
 		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_UNCHECKED);
 		k_manager.set_button_count(new_count);
 		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_CHECKED);
@@ -679,6 +687,8 @@ public:
 	/// <param name="new_type"></param>
 	void change_implement(kps::kps_implement_type new_type)
 	{
+		cfg.kps_method(new_type);
+
 		kps.change_implement_type(new_type);
 
 		for (int i = id_method_hard; i <= id_method_hard; i++)
@@ -695,30 +705,30 @@ public:
 	}
 	bool is_any_shown()
 	{
-		return show_buttons || show_statistics || show_graph;
+		return cfg.show_buttons() || cfg.show_statistics() || cfg.show_graph();
 	}
 	void change_show_buttons(bool show)
 	{
-		show_buttons = show;
+		cfg.show_buttons(show);
 		if (!is_any_shown())
-			show_buttons = true;
-		CheckMenuItem(hMenu, id_show_buttons, show_buttons ? MF_CHECKED : MF_UNCHECKED);
+			cfg.show_buttons(true);
+		CheckMenuItem(hMenu, id_show_buttons, cfg.show_buttons() ? MF_CHECKED : MF_UNCHECKED);
 		resize();
 	}
 	void change_show_statistics(bool show)
 	{
-		show_statistics = show;
+		cfg.show_statistics(show);
 		if (!is_any_shown())
-			show_statistics = true;
-		CheckMenuItem(hMenu, id_show_statistics, show_statistics ? MF_CHECKED : MF_UNCHECKED);
+			cfg.show_statistics(true);
+		CheckMenuItem(hMenu, id_show_statistics, cfg.show_statistics() ? MF_CHECKED : MF_UNCHECKED);
 		resize();
 	}
 	void change_show_graph(bool show)
 	{
-		show_graph = show;
+		cfg.show_graph(show);
 		if (!is_any_shown())
-			show_graph = true;
-		CheckMenuItem(hMenu, id_show_graph, show_graph ? MF_CHECKED : MF_UNCHECKED);
+			cfg.show_graph(true);
+		CheckMenuItem(hMenu, id_show_graph, cfg.show_graph() ? MF_CHECKED : MF_UNCHECKED);
 		resize();
 	}
 };
@@ -731,7 +741,7 @@ void main_window::OnPaint(HWND)
 	double x = dpi() * cfg.scale(); // 总比例因子。
 	{
 		// 画按键框。
-		if (show_buttons)
+		if (cfg.show_buttons())
 		{
 			for (int i = 0; i < k_manager.get_button_count(); i++)
 			{
@@ -809,7 +819,7 @@ void main_window::OnPaint(HWND)
 		}
 
 		// 画统计信息。
-		if (show_statistics)
+		if (cfg.show_statistics())
 		{
 			auto kps_number_rect = D2D1::RectF(
 				cx_gap * x, 0,
@@ -891,7 +901,7 @@ void main_window::OnPaint(HWND)
 		}
 
 		// 画图
-		if (show_graph)
+		if (cfg.show_graph())
 		{
 			auto graph_rect = D2D1::RectF(
 				cx_gap * x, 0,
