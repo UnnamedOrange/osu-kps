@@ -171,6 +171,7 @@
     <ClInclude Include="..\third-party\jsoncpp\include\json\value.h" />
     <ClInclude Include="..\third-party\jsoncpp\include\json\version.h" />
     <ClInclude Include="..\third-party\jsoncpp\include\json\writer.h" />
+    <ClInclude Include="config.hpp" />
     <ClInclude Include="integrated_kps.hpp" />
     <ClInclude Include="keys_manager.hpp" />
     <ClInclude Include="key_monitor_async.hpp" />

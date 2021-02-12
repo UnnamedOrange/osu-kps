@@ -14,8 +14,8 @@
 #include <utils/d2d_helper.hpp>
 #include <utils/resource_loader.hpp>
 #include <utils/keyboard_char.hpp>
-#include <utils/config_manager.hpp>
 
+#include "config.hpp"
 #include "integrated_kps.hpp"
 #include "keys_manager.hpp"
 
@@ -278,7 +278,7 @@ class main_window : public window
 			CheckMenuItem(hMenu, id_show_graph, MF_CHECKED);
 		// 勾选当前缩放比例。
 		{
-			auto scale = std::get<double>(cfg.get_value(u8"scale"));
+			auto scale = cfg.scale();
 			if (scale == 1)
 				CheckMenuItem(hMenu, id_zoom_1, MF_CHECKED);
 			else if (scale == 2)
@@ -428,7 +428,7 @@ class main_window : public window
 	}
 	void build_scale_dep_resource()
 	{
-		double x = dpi() * std::get<double>(cfg.get_value(u8"scale"));
+		double x = dpi() * cfg.scale();
 
 		auto create_text_format = [&](
 			const wchar_t* font_family_name,
@@ -602,7 +602,7 @@ class main_window : public window
 			cy += cy_graph + cy_separator;
 		cy -= cy_separator;
 
-		double scale = std::get<double>(cfg.get_value(u8"scale"));
+		double scale = cfg.scale();
 		return { cx * dpi() * scale, cy * dpi() * scale };
 	}
 	/// <summary>
@@ -641,7 +641,7 @@ public:
 	kps::kps kps{ std::bind(&keys_manager::update_on_key_down, &k_manager, std::placeholders::_1, std::placeholders::_2) };
 	// 选项。
 public:
-	config_manager cfg;
+	config cfg;
 	/// <summary>
 	/// 改变当前按键个数。
 	/// </summary>
@@ -658,7 +658,7 @@ public:
 	void change_scale(double scale)
 	{
 		constexpr double t[]{ 0.75, 1, 2, 3 };
-		cfg[u8"scale"] = scale;
+		cfg.scale(scale);
 		build_scale_dep_resource();
 		resize();
 
@@ -728,7 +728,7 @@ void main_window::OnPaint(HWND)
 	pRenderTarget->BeginDraw();
 	pRenderTarget->SetTransform(D2D1::IdentityMatrix());
 	pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::Black));
-	double x = dpi() * std::get<double>(cfg.get_value(u8"scale")); // 总比例因子。
+	double x = dpi() * cfg.scale(); // 总比例因子。
 	{
 		// 画按键框。
 		if (show_buttons)
