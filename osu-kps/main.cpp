@@ -14,6 +14,7 @@
 #include <utils/d2d_helper.hpp>
 #include <utils/resource_loader.hpp>
 #include <utils/keyboard_char.hpp>
+#include <utils/config_manager.hpp>
 
 #include "integrated_kps.hpp"
 #include "keys_manager.hpp"
@@ -66,6 +67,16 @@ class main_window : public window
 	}
 	BOOL OnCreate(HWND, LPCREATESTRUCT)
 	{
+		// 读取配置。
+		try
+		{
+			cfg.update(std::filesystem::path("osu-kps-config.json"));
+		}
+		catch (const std::runtime_error&)
+		{
+			// 读取配置失败。
+		}
+
 		// 窗口信息相关。
 		caption(L"osu-kps");
 		SetWindowLongW(hwnd, GWL_STYLE, WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_POPUP | WS_SYSMENU); // 无边框窗口。
@@ -612,6 +623,7 @@ public:
 	kps::kps kps{ std::bind(&keys_manager::update_on_key_down, &k_manager, std::placeholders::_1, std::placeholders::_2) };
 	// 选项。
 public:
+	config_manager cfg;
 	/// <summary>
 	/// 改变当前按键个数。
 	/// </summary>
