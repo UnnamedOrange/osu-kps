@@ -75,7 +75,7 @@ class main_window : public window
 		}
 		try
 		{
-			cfg.update(std::filesystem::path("osu-kps-config.json"));
+			cfg.update(std::filesystem::path("osu-kps-config.json"), false);
 		}
 		catch (const std::runtime_error&)
 		{
