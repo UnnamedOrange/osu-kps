@@ -69,15 +69,18 @@ public:
 	};
 private:
 	std::map<int, short_form> int_to_short;
+	std::map<int, std::u8string> int_to_full;
+	std::map<std::u8string, int> full_to_int;
 public:
 	keyboard_char()
 	{
+		int_to_short[0] = { false, true, u8" " };
 		for (char8_t ch = u8'0'; ch <= u8'9'; ch++)
 			int_to_short[ch] = { false, true, std::u8string(1, ch) };
 		for (char8_t ch = u8'A'; ch <= u8'Z'; ch++)
 			int_to_short[ch] = { false, true, std::u8string(1, ch) };
 		for (int ch = vk_numpad0; ch <= vk_numpad9; ch++)
-			int_to_short[ch] = { false, true, std::u8string(1, u8'0' + (ch - vk_numpad0)) };
+			int_to_short[ch] = { false, true, std::u8string(1, u8'0' + static_cast<char8_t>(ch - vk_numpad0)) };
 		int_to_short[vk_space] = { true, true, u8"\xE75D" };
 		int_to_short[vk_lshift] = { false, false, u8"lShift" };
 		int_to_short[vk_rshift] = { false, false, u8"rShift" };
@@ -95,8 +98,52 @@ public:
 		int_to_short[vk_quotes] = { false, true, u8"\'" };
 		int_to_short[vk_lbutton] = { true, true, u8"\xE962" };
 		int_to_short[vk_rbutton] = { true, true, u8"\xE962" };
+
+		int_to_full[0] = u8"null";
+		for (char8_t ch = u8'0'; ch <= u8'9'; ch++)
+			int_to_full[ch] = std::u8string(1, ch);
+		for (char8_t ch = u8'A'; ch <= u8'Z'; ch++)
+			int_to_full[ch] = std::u8string(1, ch);
+		for (int ch = vk_numpad0; ch <= vk_numpad9; ch++)
+			int_to_full[ch] = u8"Numpad " + std::u8string(1, u8'0' + static_cast<char8_t>(ch - vk_numpad0));
+		int_to_full[vk_space] = u8"Space";
+		int_to_full[vk_lshift] = u8"left Shift";
+		int_to_full[vk_rshift] = u8"right Shift";
+		int_to_full[vk_lcontrol] = u8"left Ctrl";
+		int_to_full[vk_rcontrol] = u8"right Ctrl";
+		int_to_full[vk_lalt] = u8"left Alt";
+		int_to_full[vk_ralt] = u8"right Alt";
+		int_to_full[vk_semicolon] = u8";";
+		int_to_full[vk_comma] = u8",";
+		int_to_full[vk_period] = u8".";
+		int_to_full[vk_slash] = u8"/";
+		int_to_full[vk_lsbracket] = u8"[";
+		int_to_full[vk_backslash] = u8"\\";
+		int_to_full[vk_rsbracket] = u8"]";
+		int_to_full[vk_quotes] = u8"\'";
+		int_to_full[vk_lbutton] = u8"left mouse button";
+		int_to_full[vk_rbutton] = u8"right mouse button";
+
+		for (const auto& [key, value] : int_to_full)
+			full_to_int[value] = key;
 	}
 public:
+	/// <summary>
+	/// 检查按键是否被该头文件支持。
+	/// </summary>
+	/// <param name="vk">按键虚拟码。</param>
+	bool is_supported(int vk) const
+	{
+		return int_to_full.count(vk);
+	}
+	/// <summary>
+	/// 检查按键是否被该头文件支持。
+	/// </summary>
+	/// <param name="full">按键全称。</param>
+	bool is_supported(const std::u8string full) const
+	{
+		return full_to_int.count(full);
+	}
 	/// <summary>
 	/// 获取按键的简写。
 	/// </summary>
@@ -105,5 +152,22 @@ public:
 	auto to_short(int vk) const
 	{
 		return int_to_short.at(vk);
+	}
+	/// <summary>
+	/// 获取按键的全称。
+	/// </summary>
+	/// <param name="vk">按键虚拟码。</param>
+	/// <returns>一个 u8string。</returns>
+	auto to_full(int vk) const
+	{
+		return int_to_full.at(vk);
+	}
+	/// <summary>
+	/// 获取按键的虚拟码
+	/// </summary>
+	/// <param name="full">按键全称。</param>
+	auto to_int(const std::u8string& full) const
+	{
+		return full_to_int.at(full);
 	}
 };
