@@ -27,7 +27,7 @@ public:
 			for (int j = 0; j < i; j++)
 			{
 				auto key = key_keyname(i, j);
-				if (!kc.is_supported(key))
+				if (!kc.is_supported(std::get<std::u8string>(get_value(key))))
 					(*this)[key] = u8"null";
 			}
 	}
@@ -90,8 +90,8 @@ public:
 	static std::u8string key_keyname(int total, int which)
 	{
 		using namespace std::literals;
-		return reinterpret_cast<const char8_t*>(
-			("keys." + std::to_string(total) + "k.k" + std::to_string(which)).c_str());
+		return std::u8string(reinterpret_cast<const char8_t*>(
+			("key." + std::to_string(total) + "k.k" + std::to_string(which)).c_str()));
 	}
 	int key_map(int total, int which) const
 	{

@@ -75,12 +75,13 @@ public:
 	void update(std::u8string_view json_content, bool is_base = true)
 	{
 		Json::CharReaderBuilder builder;
-		std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+		std::unique_ptr<Json::CharReader> const reader(builder.newCharReader());
 		Json::Value json_template;
+		Json::String error;
 		if (!reader->parse(
 			reinterpret_cast<const char*>(json_content.data()),
 			reinterpret_cast<const char*>(json_content.data() + json_content.length()),
-			&json_template, nullptr))
+			&json_template, &error) || error.size())
 			throw std::runtime_error("parse error.");
 		update(json_template, is_base);
 	}

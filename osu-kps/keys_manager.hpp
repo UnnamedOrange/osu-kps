@@ -106,6 +106,16 @@ public:
 	{
 		return keys[static_cast<size_t>(crt_button_count) - 1];
 	}
+	/// <summary>
+	/// 修改其中的某个按键。只有主线程才应在外部调用该函数。该函数不加锁。
+	/// </summary>
+	/// <param name="button_count">几键。从 1 开始。</param>
+	/// <param name="which">从左到右第几个键。从 0 开始。</param>
+	/// <param name="new_key">新的键位。需自行保证 keyboard_char 支持，不做额外检查。</param>
+	void modify_key(int button_count, int which, int new_key)
+	{
+		keys[static_cast<size_t>(button_count) - 1][static_cast<size_t>(which)] = new_key;
+	}
 
 public:
 	/// <returns>总按键次数。</returns>

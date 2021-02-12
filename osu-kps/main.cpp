@@ -647,6 +647,9 @@ public:
 	{
 		k_manager.set_button_count(cfg.button_count());
 		kps.change_implement_type(cfg.kps_method());
+		for (int i = 1; i <= keys_manager::max_key_count; i++)
+			for (int j = 0; j < i; j++)
+				k_manager.modify_key(i, j, cfg.key_map(i, j));
 	}
 	/// <summary>
 	/// 改变当前按键个数。
