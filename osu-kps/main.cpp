@@ -68,6 +68,11 @@ class main_window : public window
 	BOOL OnCreate(HWND, LPCREATESTRUCT)
 	{
 		// 读取配置。
+		{
+			auto default_cfg = resource_loader::load(MAKEINTRESOURCEW(IDR_JSON_DEFAULT_CFG), L"JSON");
+			cfg.update(std::u8string_view(
+				reinterpret_cast<const char8_t*>(default_cfg.data())));
+		}
 		try
 		{
 			cfg.update(std::filesystem::path("osu-kps-config.json"));
@@ -80,10 +85,14 @@ class main_window : public window
 		// 窗口信息相关。
 		caption(L"osu-kps");
 		SetWindowLongW(hwnd, GWL_STYLE, WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_POPUP | WS_SYSMENU); // 无边框窗口。
-		while (!(GetWindowLongW(hwnd, GWL_EXSTYLE) & WS_EX_TOPMOST))
 		{
-			SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-			std::this_thread::yield();
+			LONG ex_style;
+			while (!((ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE)) & WS_EX_TOPMOST))
+			{
+				SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+				SetWindowLongW(hwnd, GWL_EXSTYLE, ex_style | WS_EX_TOPMOST);
+				std::this_thread::yield();
+			}
 		}
 
 		// 右键菜单。
@@ -268,14 +277,17 @@ class main_window : public window
 		if (show_graph)
 			CheckMenuItem(hMenu, id_show_graph, MF_CHECKED);
 		// 勾选当前缩放比例。
-		if (scale == 1)
-			CheckMenuItem(hMenu, id_zoom_1, MF_CHECKED);
-		else if (scale == 2)
-			CheckMenuItem(hMenu, id_zoom_2, MF_CHECKED);
-		else if (scale == 3)
-			CheckMenuItem(hMenu, id_zoom_3, MF_CHECKED);
-		else
-			CheckMenuItem(hMenu, id_zoom_half, MF_CHECKED);
+		{
+			auto scale = std::get<double>(cfg.get_value(u8"scale"));
+			if (scale == 1)
+				CheckMenuItem(hMenu, id_zoom_1, MF_CHECKED);
+			else if (scale == 2)
+				CheckMenuItem(hMenu, id_zoom_2, MF_CHECKED);
+			else if (scale == 3)
+				CheckMenuItem(hMenu, id_zoom_3, MF_CHECKED);
+			else
+				CheckMenuItem(hMenu, id_zoom_half, MF_CHECKED);
+		}
 	}
 	void OnRButtonDown(HWND, BOOL fDoubleClick, int x, int y, UINT keyFlags)
 	{
@@ -416,7 +428,7 @@ class main_window : public window
 	}
 	void build_scale_dep_resource()
 	{
-		double x = dpi() * scale;
+		double x = dpi() * std::get<double>(cfg.get_value(u8"scale"));
 
 		auto create_text_format = [&](
 			const wchar_t* font_family_name,
@@ -589,6 +601,8 @@ class main_window : public window
 		if (show_graph)
 			cy += cy_graph + cy_separator;
 		cy -= cy_separator;
+
+		double scale = std::get<double>(cfg.get_value(u8"scale"));
 		return { cx * dpi() * scale, cy * dpi() * scale };
 	}
 	/// <summary>
@@ -641,10 +655,10 @@ public:
 	/// <summary>
 	/// 改变当前缩放比例。
 	/// </summary>
-	void change_scale(double new_scale)
+	void change_scale(double scale)
 	{
 		constexpr double t[]{ 0.75, 1, 2, 3 };
-		scale = new_scale;
+		cfg[u8"scale"] = scale;
 		build_scale_dep_resource();
 		resize();
 
@@ -707,9 +721,6 @@ public:
 		CheckMenuItem(hMenu, id_show_graph, show_graph ? MF_CHECKED : MF_UNCHECKED);
 		resize();
 	}
-
-private:
-	double scale{ 1 }; // 绘图时的额外比例因子。
 };
 
 void main_window::OnPaint(HWND)
@@ -717,7 +728,7 @@ void main_window::OnPaint(HWND)
 	pRenderTarget->BeginDraw();
 	pRenderTarget->SetTransform(D2D1::IdentityMatrix());
 	pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::Black));
-	double x = dpi() * scale; // 总比例因子。
+	double x = dpi() * std::get<double>(cfg.get_value(u8"scale")); // 总比例因子。
 	{
 		// 画按键框。
 		if (show_buttons)

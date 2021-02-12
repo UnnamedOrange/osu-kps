@@ -91,6 +91,14 @@ END
 
 IDR_Exo2_Regular        OTF                     "..\\resources\\exo2-regular.otf"
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// JSON
+//
+
+IDR_JSON_DEFAULT_CFG    JSON                    "..\\jsons\\default_config.json"
+
 #endif    // 中文(简体，中国) resources
 /////////////////////////////////////////////////////////////////////////////
 

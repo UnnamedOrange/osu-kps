@@ -100,4 +100,7 @@
       <Filter>资源文件</Filter>
     </Font>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\jsons\default_config.json" />
+  </ItemGroup>
 </Project>

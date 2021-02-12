@@ -22,6 +22,7 @@ public:
 	{
 		root.clear();
 	}
+	// TODO: 增加类型检查。
 	void update(const Json::Value& json_template)
 	{
 		if (!json_template.isObject())
@@ -30,39 +31,49 @@ public:
 		for (auto it = json_template.begin(); it != json_template.end(); it++)
 			root[it.name()] = *it;
 	}
+	void update(std::u8string_view json_content)
+	{
+		Json::CharReaderBuilder builder;
+		std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+		Json::Value json_template;
+		if (!reader->parse(
+			reinterpret_cast<const char*>(json_content.data()),
+			reinterpret_cast<const char*>(json_content.data() + json_content.length()),
+			&json_template, nullptr))
+			throw std::runtime_error("parse error.");
+		update(json_template);
+	}
 	void update(const std::filesystem::path& json_file_path)
 	{
 		std::ifstream ifs(json_file_path);
 		std::string str{ std::istreambuf_iterator<char>(ifs),
 			std::istreambuf_iterator<char>() }; // UTF-8
-		Json::CharReaderBuilder builder;
-		std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-		Json::Value json_template;
-		if (!reader->parse(str.c_str(), str.c_str() + str.length(),
-			&json_template, nullptr))
-			throw std::runtime_error("parse error.");
-		update(json_template);
+		update(std::u8string_view(
+			reinterpret_cast<const char8_t*>(str.data())));
 	}
 
 public:
 	using value_t = std::variant<std::nullopt_t, bool, int64_t, uint64_t, double, std::u8string>;
-	value_t get_value(std::u8string_view key)
+	value_t get_value(std::u8string_view key) const
 	{
 		auto value = root[reinterpret_cast<const char*>(key.data())];
-		if (value.isNull())
+		switch (value.type())
+		{
+		case Json::ValueType::nullValue:
 			return std::nullopt;
-		else if (value.isBool())
+		case Json::ValueType::booleanValue:
 			return value.asBool();
-		else if (value.isInt64())
+		case Json::ValueType::intValue:
 			return value.asInt64();
-		else if (value.isUInt64())
+		case Json::ValueType::uintValue:
 			return value.asUInt64();
-		else if (value.isDouble())
+		case Json::ValueType::realValue:
 			return value.asDouble();
-		else if (value.isString())
+		case Json::ValueType::stringValue:
 			return std::u8string(reinterpret_cast<const char8_t*>(value.asCString()));
-		// else
-		throw std::runtime_error("type not supported.");
+		default:
+			throw std::runtime_error("type not supported.");
+		}
 	}
 	Json::Value& operator[](std::u8string_view key)
 	{
