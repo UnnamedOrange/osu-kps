@@ -73,6 +73,13 @@ class main_window : public window
 			cfg.update(std::u8string_view(
 				reinterpret_cast<const char8_t*>(default_cfg.data())));
 		}
+		if (!std::filesystem::exists("osu-kps-config.json"))
+		{
+			MessageBoxW(hwnd, L"osu-kps will create a config file named osu-kps-config.json in the current directory.",
+				L"Information",
+				MB_ICONINFORMATION);
+			cfg.write_to_file("osu-kps-config.json");
+		}
 		try
 		{
 			cfg.update(std::filesystem::path("osu-kps-config.json"), false);
