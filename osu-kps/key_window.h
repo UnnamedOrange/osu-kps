@@ -8,6 +8,7 @@
 #include <utils/window.hpp>
 #include <utils/d2d_helper.hpp>
 #include <utils/keyboard_char.hpp>
+#include <utils/resource_loader.hpp>
 
 #include "config.hpp"
 
@@ -19,6 +20,10 @@ class key_window : public window
 		{
 			HANDLE_MSG(hwnd, WM_CREATE, OnCreate);
 			HANDLE_MSG(hwnd, WM_DESTROY, OnDestroy);
+
+			HANDLE_MSG(hwnd, WM_KEYDOWN, OnKey);
+			HANDLE_MSG(hwnd, WM_LBUTTONDOWN, OnLButtonDown);
+			HANDLE_MSG(hwnd, WM_RBUTTONDOWN, OnRButtonDown);
 
 			HANDLE_MSG(hwnd, WM_PAINT, OnPaint);
 
@@ -55,6 +60,9 @@ class key_window : public window
 		resize();
 		move_to_cursor();
 
+		// 初始化按键。
+		keys.clear();
+
 		return TRUE;
 	}
 	void OnDestroy(HWND)
@@ -62,8 +70,33 @@ class key_window : public window
 		EnableWindow(GetParent(hwnd), true);
 	}
 
+	void OnKey(HWND hwnd, UINT vk, BOOL fDown, int cRepeat, UINT flags)
+	{
+		if (fDown && cRepeat == 1)
+		{
+			if (vk == VK_ESCAPE)
+			{
+				SendMessageW(hwnd, WM_CLOSE, 0, 0);
+			}
+			else if (cache.kc.is_supported(vk))
+			{
+				next(vk);
+			}
+		}
+	}
+	void OnLButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT keyFlags)
+	{
+		next(VK_LBUTTON);
+	}
+	void OnRButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT keyFlags)
+	{
+		next(VK_RBUTTON);
+	}
+
 	// 绘图。
-	d2d_helper::com_ptr<ID2D1HwndRenderTarget> pRenderTarget{};
+	template <typename T>
+	using com_ptr = d2d_helper::com_ptr<T>;
+	com_ptr<ID2D1HwndRenderTarget> pRenderTarget{};
 	struct cache_type
 	{
 		// indep
@@ -72,10 +105,17 @@ class key_window : public window
 		static constexpr auto light_active_color = d2d_helper::color(227u, 172u, 181u);
 		static constexpr auto active_color = d2d_helper::color(255u, 104u, 143u);
 
+		com_ptr<ID2D1SolidColorBrush> theme_brush;
+		com_ptr<ID2D1SolidColorBrush> active_brush;
+
+		d2d_helper::private_font_collection theme_font_collection;
+
 		keyboard_char kc;
 
 		// scale_dep
-
+		com_ptr<IDWriteTextFormat> text_format_key_name;
+		com_ptr<IDWriteTextFormat> text_format_key_name_small;
+		com_ptr<IDWriteTextFormat> text_format_key_name_MDL2;
 	} cache;
 	void init_d2d();
 	void build_indep_resource();
@@ -141,6 +181,22 @@ private:
 	config* cfg;
 	keys_manager* k_manager;
 	int crt_keys{ 4 };
+private:
+	std::vector<int> keys;
+	void next(int key)
+	{
+		keys.push_back(key);
+		InvalidateRect(hwnd, nullptr, FALSE);
+		if (keys.size() == crt_keys)
+		{
+			for (unsigned i = 0; i < keys.size(); i++)
+			{
+				cfg->key_map(crt_keys, i, keys[i]);
+				k_manager->modify_key(crt_keys, i, keys[i]);
+			}
+			SendMessageW(hwnd, WM_CLOSE, 0, 0);
+		}
+	}
 
 public:
 	key_window(config* cfg, keys_manager* k_manager) :
