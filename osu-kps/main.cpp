@@ -86,7 +86,7 @@ class main_window : public window
 		}
 		if (!std::filesystem::exists("osu-kps-config.json"))
 		{
-			MessageBoxW(hwnd, L"osu-kps will create a config file named osu-kps-config.json in the current directory.",
+			MessageBoxW(hwnd, L"osu-kps will create a config file named osu-kps-config.json in the current directory. However, it's recommanded that you never modify the config file. Instead, you should use the menu to set the config.",
 				L"Information",
 				MB_ICONINFORMATION);
 			cfg.write_to_file("osu-kps-config.json");
@@ -230,6 +230,7 @@ class main_window : public window
 		hMenu = CreateMenu();
 		HMENU hMenuPopup = CreateMenu();
 		AppendMenuW(hMenu, MF_POPUP, reinterpret_cast<UINT_PTR>(hMenuPopup), nullptr);
+		AppendMenuW(hMenuPopup, MF_POPUP | MF_DISABLED, 0, L"Double click the buttons to set the key map.");
 		// menus_button_count
 		{
 			HMENU menus_button_count = CreateMenu();
