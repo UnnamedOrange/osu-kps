@@ -375,7 +375,10 @@ private:
 		semaphore_register.acquire();
 		auto name = get_class_name();
 		if (registered.count(name))
+		{
+			semaphore_register.release();
 			return;
+		}
 
 		WNDCLASSEXW wcex{ sizeof(WNDCLASSEXW) };
 		wcex.style = CS_HREDRAW | CS_VREDRAW;

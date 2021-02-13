@@ -9,6 +9,8 @@
 #include <utils/d2d_helper.hpp>
 #include <utils/keyboard_char.hpp>
 
+#include "config.hpp"
+
 class key_window : public window
 {
 	virtual INT_PTR WindowProc(HWND, UINT message, WPARAM wParam, LPARAM lParam) override
@@ -26,6 +28,13 @@ class key_window : public window
 	{
 		EnableWindow(GetParent(hwnd), false);
 
+		// 窗口设置相关。
+		{
+			wchar_t buffer[256];
+			std::swprintf(buffer, std::size(buffer), L"Set keys for %dk", crt_keys);
+			caption(buffer);
+		}
+		SetWindowLongW(hwnd, GWL_STYLE, WS_POPUPWINDOW | WS_CAPTION);
 		{
 			LONG ex_style;
 			while (!((ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE)) & WS_EX_TOPMOST))
@@ -41,5 +50,21 @@ class key_window : public window
 	void OnDestroy(HWND)
 	{
 		EnableWindow(GetParent(hwnd), true);
+	}
+
+private:
+	config* cfg;
+	keys_manager* k_manager;
+	int crt_keys{ 4 };
+
+public:
+	key_window(config* cfg, keys_manager* k_manager) :
+		cfg(cfg), k_manager(k_manager) {}
+
+public:
+	void set_crt_keys(int keys)
+	{
+		keys = std::max(1, std::min(static_cast<int>(keys_manager::max_key_count), keys));
+		crt_keys = keys;
 	}
 };

@@ -147,6 +147,7 @@ class main_window : public window
 		{
 			if (cfg.show_buttons() && y <= cy_button * dpi() * cfg.scale())
 			{
+				key_wnd.set_crt_keys(k_manager.get_button_count());
 				key_wnd.create(hwnd);
 			}
 		}
@@ -759,7 +760,7 @@ public:
 
 	// 选项窗口
 public:
-	key_window key_wnd;
+	key_window key_wnd{ &cfg, &k_manager };
 };
 
 void main_window::OnPaint(HWND)
