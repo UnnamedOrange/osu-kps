@@ -990,7 +990,7 @@ void main_window::OnPaint(HWND)
 
 				pRenderTarget->FillGeometry(geometry, cache.graph_brush);
 			}
-			// 最大值指示。
+			// 最大值指示和键数指示。
 			{
 				double y = draw_rect.bottom - (draw_rect.bottom - draw_rect.top) *
 					(max_value / ceil_height);
@@ -1004,10 +1004,20 @@ void main_window::OnPaint(HWND)
 
 				text_rect.left += 2 * x;
 				text_rect.bottom = y - 2 * x;
+				text_rect.right -= 2 * x;
 				wchar_t buffer[256];
+
 				std::swprintf(buffer, std::size(buffer),
 					L"%.1f max KPS in recent 5 minutes.",
 					max_value);
+				cache.text_format_graph->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+				pRenderTarget->DrawTextW(buffer, std::wcslen(buffer),
+					cache.text_format_graph, text_rect, cache.theme_half_trans_brush);
+
+				std::swprintf(buffer, std::size(buffer),
+					L"(%d keys)",
+					k_manager.get_button_count());
+				cache.text_format_graph->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 				pRenderTarget->DrawTextW(buffer, std::wcslen(buffer),
 					cache.text_format_graph, text_rect, cache.theme_half_trans_brush);
 			}
