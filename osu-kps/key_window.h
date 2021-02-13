@@ -19,6 +19,9 @@ class key_window : public window
 		{
 			HANDLE_MSG(hwnd, WM_CREATE, OnCreate);
 			HANDLE_MSG(hwnd, WM_DESTROY, OnDestroy);
+
+			HANDLE_MSG(hwnd, WM_PAINT, OnPaint);
+
 		default:
 			return DefWindowProcW(hwnd, message, wParam, lParam);
 		}
@@ -45,11 +48,93 @@ class key_window : public window
 			}
 		}
 
+		// 绘图。
+		init_d2d();
+
+		// 调整窗口大小。
+		resize();
+		move_to_cursor();
+
 		return TRUE;
 	}
 	void OnDestroy(HWND)
 	{
 		EnableWindow(GetParent(hwnd), true);
+	}
+
+	// 绘图。
+	d2d_helper::com_ptr<ID2D1HwndRenderTarget> pRenderTarget{};
+	struct cache_type
+	{
+		// indep
+		static constexpr auto theme_color = d2d_helper::color(203u, 237u, 238u);
+		static constexpr auto theme_color_half_trans = d2d_helper::color(203u, 237u, 238u, 191u);
+		static constexpr auto light_active_color = d2d_helper::color(227u, 172u, 181u);
+		static constexpr auto active_color = d2d_helper::color(255u, 104u, 143u);
+
+		keyboard_char kc;
+
+		// scale_dep
+
+	} cache;
+	void init_d2d();
+	void build_indep_resource();
+	void build_scale_dep_resource();
+	void OnPaint(HWND);
+
+	// 绘图位置参数。
+	inline static double cx_button = 52.0;
+	inline static double cy_button = 72.0;
+	inline static double cx_gap = 8.0;
+	/// <summary>
+	/// 计算窗口应有的大小。<remarks>计算时不考虑缩放，最后再乘以缩放。</remarks>
+	/// </summary>
+	/// <returns>(cx, cy)</returns>
+	std::tuple<double, double> calc_size() const
+	{
+		double cx = cx_button * crt_keys + cx_gap * (crt_keys - 1);
+		double cy = cy_button;
+		double x = dpi();
+		return { cx * x, cy * x };
+	}
+	/// <summary>
+	/// 根据计算出的窗口大小重设窗口大小。
+	/// </summary>
+	void resize()
+	{
+		auto size = calc_size();
+		auto window_rect = get_window_rect();
+		auto client_rect = get_client_rect();
+		int extra_width = (window_rect.right - window_rect.left) - (client_rect.right - client_rect.left);
+		int extra_height = (window_rect.bottom - window_rect.top) - (client_rect.bottom - client_rect.top);
+		width(std::get<0>(size) + extra_width);
+		height(std::get<1>(size) + extra_height);
+		pRenderTarget->Resize(D2D1::SizeU(cwidth(), cheight()));
+
+		InvalidateRect(hwnd, nullptr, FALSE);
+	}
+	void move_to_cursor()
+	{
+		POINT p;
+		GetCursorPos(&p);
+		auto rect = get_window_rect();
+		int left_shift = p.x - (rect.left + rect.right) / 2;
+		int top_shift = p.y - (rect.top + rect.bottom) / 2;
+
+		RECT rWorkArea = work_area();
+		rWorkArea.right -= rect.right - rect.left;
+		rWorkArea.bottom -= rect.bottom - rect.top;
+		if (rect.left + left_shift > rWorkArea.right)
+			left_shift = rWorkArea.right - rect.left;
+		else if (rect.left + left_shift < rWorkArea.left)
+			left_shift = rWorkArea.left - rect.left;
+		if (rect.top + top_shift > rWorkArea.bottom)
+			top_shift = rWorkArea.bottom - rect.top;
+		else if (rect.top + top_shift < rWorkArea.top)
+			top_shift = rWorkArea.top - rect.top;
+		SetWindowPos(hwnd, nullptr,
+			left() + left_shift, top() + top_shift,
+			0, 0, SWP_NOSIZE | SWP_NOZORDER);
 	}
 
 private:

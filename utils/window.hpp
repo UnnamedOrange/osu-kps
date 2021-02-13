@@ -57,7 +57,7 @@ public:
 		return *this;
 	}
 
-private:
+public:
 	RECT get_window_rect() const
 	{
 		if (!hwnd)
@@ -175,7 +175,7 @@ public:
 		r.bottom = r.top + cy;
 		set_window_rect(r);
 	}
-private:
+public:
 	/// <returns>
 	/// 窗口客户区在屏幕上对应的矩形。
 	/// </returns>
