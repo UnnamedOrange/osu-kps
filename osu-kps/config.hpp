@@ -14,6 +14,12 @@ class config : public config_manager
 	keyboard_char kc;
 
 public:
+	~config()
+	{
+		write_to_file("osu-kps-config.json");
+	}
+
+public:
 	/// <summary>
 	/// 将所有参数合法化。调用时首先假设所有参数的类型正确。
 	/// </summary>

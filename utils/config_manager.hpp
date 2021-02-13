@@ -95,6 +95,22 @@ public:
 	}
 
 public:
+	bool write_to_file(const std::filesystem::path& json_file_path)
+	{
+		auto str = root.toStyledString();
+		try
+		{
+			std::ofstream ofs(json_file_path);
+			ofs << str;
+		}
+		catch (...)
+		{
+			return false;
+		}
+		return true;
+	}
+
+public:
 	using value_t = std::variant<std::nullopt_t, bool, int64_t, uint64_t, double, std::u8string>;
 	/// <summary>
 	/// 获取配置系统中的值。
