@@ -146,61 +146,36 @@ namespace d2d_helper
 		}
 	};
 
-	/// <summary>
-	/// 自定义 COM 对象。用于指明数据的生命周期。
-	/// 实质上不存放数据！只是一个标记。
-	/// 需要使用静态方法 create() 进行构造。
-	/// 建议使用 com_ptr 进行管理。
-	/// </summary>
-	class life_indicator : public IUnknown // COM 对象。
+	class _memory_font_file_loader
 	{
-	private:
-		std::atomic<ULONG> ref_count{ 1 };
+		com_ptr<IDWriteInMemoryFontFileLoader> in_memory_font_file_loader;
 	public:
-		ULONG STDMETHODCALLTYPE AddRef() override
+		_memory_font_file_loader()
 		{
-			return ++ref_count;
+			factory::dwrite()->CreateInMemoryFontFileLoader(in_memory_font_file_loader.reset_and_get_address());
+			factory::dwrite()->RegisterFontFileLoader(in_memory_font_file_loader);
 		}
-		HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, _COM_Outptr_ void** object) override
+		~_memory_font_file_loader()
 		{
-			*object = nullptr;
-			if (riid == __uuidof(IUnknown))
-			{
-				AddRef();
-				*object = this;
-				return S_OK;
-			}
-			return E_NOINTERFACE;
+			factory::dwrite()->UnregisterFontFileLoader(in_memory_font_file_loader);
 		}
-		ULONG STDMETHODCALLTYPE Release() override
+		void reset()
 		{
-			ULONG ret = --ref_count;
-			if (!ret)
-				delete this;
-			return ret;
+			this->~_memory_font_file_loader();
+			new(this) _memory_font_file_loader();
 		}
-
-	private:
-		life_indicator() = default;
-	public:
-		static bool create(life_indicator** p)
+		auto operator->() const
 		{
-			return *p = new life_indicator;
+			return in_memory_font_file_loader.operator->();
 		}
-		life_indicator(const life_indicator&) = delete;
-		life_indicator(life_indicator&&) = delete;
-		life_indicator& operator=(const life_indicator&) = delete;
-		life_indicator& operator=(life_indicator&&) = delete;
 	};
 
 	/// <summary>
-	/// 私有字体序列。不要重复调用，否则会出现内存泄漏问题。
+	/// 私有字体序列。一个该对象只能加载一个私有字体。
 	/// </summary>
 	class private_font_collection
 	{
-		inline static com_ptr<IDWriteInMemoryFontFileLoader> in_memory_font_file_loader;
-		std::vector<BYTE> font;
-		com_ptr<life_indicator> _life;
+		_memory_font_file_loader in_memory_font_file_loader;
 		com_ptr<IDWriteFontCollection1> collection;
 		std::vector<std::wstring> family_names;
 	public:
@@ -214,23 +189,17 @@ namespace d2d_helper
 		void from_font_data(const std::vector<BYTE>& font_data)
 		{
 			collection.reset();
-			life_indicator::create(_life.reset_and_get_address());
-			font = font_data;
+			in_memory_font_file_loader.reset();
 
-			if (!in_memory_font_file_loader)
-			{
-				factory::dwrite()->CreateInMemoryFontFileLoader(in_memory_font_file_loader.reset_and_get_address());
-				factory::dwrite()->RegisterFontFileLoader(in_memory_font_file_loader);
-			}
 			com_ptr<IDWriteFontSetBuilder2> font_set_builder;
 			factory::dwrite()->CreateFontSetBuilder(font_set_builder.reset_and_get_address());
 			{
 				com_ptr<IDWriteFontFile> font_file_reference;
 				in_memory_font_file_loader->CreateInMemoryFontFileReference(
 					factory::dwrite(),
-					font.data(),
-					font.size(),
-					_life.get(),
+					font_data.data(),
+					font_data.size(),
+					nullptr,
 					font_file_reference.reset_and_get_address()
 				);
 				font_set_builder->AddFontFile(font_file_reference);

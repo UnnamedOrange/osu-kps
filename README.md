@@ -77,7 +77,7 @@ Graphics: Direct2D.
 
 - [ ] fix critical bugs.
 
-  - [ ] memory leak of private font.
+  - [x] memory leak of private font.
   - [ ] low performance of hooks.
 
 - [ ] implement "soft" KPS method.
