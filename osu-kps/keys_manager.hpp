@@ -65,16 +65,8 @@ public:
 	keys_manager()
 	{
 		using vk = keyboard_char::vk;
-		keys[0] = { vk::vk_lbutton };
-		keys[1] = { vk::vk_lbutton, vk::vk_rbutton };
-		keys[2] = { 'Z', 'X', 'C' };
-		keys[3] = { 'D', 'F', 'J', 'K' };
-		keys[4] = { 'D', 'F', vk::vk_space, 'J', 'K' };
-		keys[5] = { 'S', 'D', 'F', 'J', 'K', 'L' };
-		keys[6] = { 'S', 'D', 'F', vk::vk_space, 'J', 'K', 'L' };
-		keys[7] = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', vk::vk_semicolon };
-		keys[8] = { 'A', 'S', 'D', 'F', vk::vk_space, 'J', 'K', 'L', vk::vk_semicolon };
-		keys[9] = { 'D', 'F', vk::vk_space, 'J', 'K', 'E', 'R', vk::vk_ralt, 'U', 'I' };
+		for (unsigned i = 0; i < max_key_count; i++)
+			keys[i].resize(i + 1);
 	}
 	keys_manager(kps::kps* source) : keys_manager()
 	{
