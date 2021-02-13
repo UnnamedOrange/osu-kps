@@ -19,6 +19,8 @@
 #include "integrated_kps.hpp"
 #include "keys_manager.hpp"
 
+#include "key_window.h"
+
 #if defined _M_IX86
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #elif defined _M_X64
@@ -45,6 +47,7 @@ class main_window : public window
 			HANDLE_MSG(hwnd, WM_DESTROY, OnDestroy);
 
 			HANDLE_MSG(hwnd, WM_LBUTTONDOWN, OnLButtonDown);
+			HANDLE_MSG(hwnd, WM_LBUTTONDBLCLK, OnLButtonDown);
 			HANDLE_MSG(hwnd, WM_NCLBUTTONDOWN, OnNCLButtonDown);
 			HANDLE_MSG(hwnd, WM_MOVING, OnMoving);
 
@@ -103,6 +106,7 @@ class main_window : public window
 
 		// 窗口信息相关。
 		caption(L"osu-kps");
+		SetClassLongW(hwnd, GCL_STYLE, GetClassLongW(hwnd, GCL_STYLE) | CS_DBLCLKS);
 		SetWindowLongW(hwnd, GWL_STYLE, WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_POPUP | WS_SYSMENU); // 无边框窗口。
 		{
 			LONG ex_style;
@@ -141,7 +145,10 @@ class main_window : public window
 		UNREFERENCED_PARAMETER(keyFlags);
 		if (fDoubleClick)
 		{
-			// TODO: 实现双击修改配置等功能。
+			if (cfg.show_buttons() && y <= cy_button * dpi() * cfg.scale())
+			{
+				key_wnd.create(hwnd);
+			}
 		}
 		else
 		{
@@ -749,6 +756,10 @@ public:
 		CheckMenuItem(hMenu, id_show_graph, cfg.show_graph() ? MF_CHECKED : MF_UNCHECKED);
 		resize();
 	}
+
+	// 选项窗口
+public:
+	key_window key_wnd;
 };
 
 void main_window::OnPaint(HWND)

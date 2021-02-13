@@ -158,6 +158,7 @@
     <ClCompile Include="..\third-party\jsoncpp\src\lib_json\json_reader.cpp" />
     <ClCompile Include="..\third-party\jsoncpp\src\lib_json\json_value.cpp" />
     <ClCompile Include="..\third-party\jsoncpp\src\lib_json\json_writer.cpp" />
+    <ClCompile Include="key_window.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +178,7 @@
     <ClInclude Include="key_monitor_async.hpp" />
     <ClInclude Include="key_monitor_base.hpp" />
     <ClInclude Include="key_monitor_hook.hpp" />
+    <ClInclude Include="key_window.h" />
     <ClInclude Include="kps_calculator.hpp" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

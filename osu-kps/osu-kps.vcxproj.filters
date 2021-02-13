@@ -42,6 +42,9 @@
     <ClCompile Include="..\third-party\jsoncpp\src\lib_json\json_writer.cpp">
       <Filter>源文件\jsoncpp</Filter>
     </ClCompile>
+    <ClCompile Include="key_window.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="kps_calculator.hpp">
@@ -96,6 +99,9 @@
       <Filter>头文件\jsoncpp</Filter>
     </ClInclude>
     <ClInclude Include="config.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="key_window.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
