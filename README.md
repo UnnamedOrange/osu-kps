@@ -69,23 +69,28 @@ Graphics: Direct2D.
   - [x] correct the size when the buttons are hidden.
   - [x] draw more aux. info. in the graph.
   
-- [ ] tool header for config system.
+- [x] tool header for config system.
 
   I may use json.
 
   After this step the project can be pre-released.
 
-- [ ] add more keys in keyboard_char.
+- [ ] fix critical bugs.
 
-- [ ] add keyboard shortcut.
-
-- [ ] do the documents.
+  - [ ] memory leak of private font.
+  - [ ] low performance of hooks.
 
 - [ ] implement "soft" KPS method.
 
 - [ ] tool header for multi-language support.
 
   I may use json.
+
+- [ ] add more keys in keyboard_char.
+
+- [ ] add keyboard shortcut.
+
+- [ ] do the documents.
 
   After this step the project can be released.
 
