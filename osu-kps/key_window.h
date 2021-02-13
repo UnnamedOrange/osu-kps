@@ -22,6 +22,7 @@ class key_window : public window
 			HANDLE_MSG(hwnd, WM_DESTROY, OnDestroy);
 
 			HANDLE_MSG(hwnd, WM_KEYDOWN, OnKey);
+			HANDLE_MSG(hwnd, WM_SYSKEYDOWN, OnKey);
 			HANDLE_MSG(hwnd, WM_LBUTTONDOWN, OnLButtonDown);
 			HANDLE_MSG(hwnd, WM_RBUTTONDOWN, OnRButtonDown);
 
@@ -81,6 +82,30 @@ class key_window : public window
 			else if (cache.kc.is_supported(vk))
 			{
 				next(vk);
+			}
+			else
+			{
+				bool ok = true;
+				switch (vk)
+				{
+				case VK_CONTROL:
+					vk = VK_LCONTROL;
+					break;
+				case VK_SHIFT:
+					vk = VK_LSHIFT;
+					break;
+				case VK_MENU:
+					vk = VK_LMENU;
+					break;
+				default:
+					ok = false;
+				}
+				if (ok)
+				{
+					if (flags & (1 << 8))
+						vk++;
+					next(vk);
+				}
 			}
 		}
 	}
