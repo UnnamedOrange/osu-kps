@@ -146,10 +146,7 @@ class main_window : public window
 		if (fDoubleClick)
 		{
 			if (cfg.show_buttons() && y <= cy_button * dpi() * cfg.scale())
-			{
-				key_wnd.set_crt_keys(k_manager.get_button_count());
-				key_wnd.create(hwnd);
-			}
+				modify_keys();
 		}
 		else
 		{
@@ -218,6 +215,7 @@ class main_window : public window
 		id_show_buttons,
 		id_show_statistics,
 		id_show_graph,
+		id_modify_keys,
 	};
 	/// <summary>
 	/// 创建或重建菜单。
@@ -230,7 +228,8 @@ class main_window : public window
 		hMenu = CreateMenu();
 		HMENU hMenuPopup = CreateMenu();
 		AppendMenuW(hMenu, MF_POPUP, reinterpret_cast<UINT_PTR>(hMenuPopup), nullptr);
-		AppendMenuW(hMenuPopup, MF_POPUP | MF_DISABLED, 0, L"Double click the buttons to set the key map.");
+
+		AppendMenuW(hMenuPopup, MF_STRING, id_modify_keys, L"Modify keys");
 		// menus_button_count
 		{
 			HMENU menus_button_count = CreateMenu();
@@ -380,6 +379,11 @@ class main_window : public window
 				case id_show_graph:
 				{
 					change_show_graph(!cfg.show_graph());
+					break;
+				}
+				case id_modify_keys:
+				{
+					modify_keys();
 					break;
 				}
 				case id_exit:
@@ -757,6 +761,11 @@ public:
 			cfg.show_graph(true);
 		CheckMenuItem(hMenu, id_show_graph, cfg.show_graph() ? MF_CHECKED : MF_UNCHECKED);
 		resize();
+	}
+	void modify_keys()
+	{
+		key_wnd.set_crt_keys(k_manager.get_button_count());
+		key_wnd.create(hwnd);
 	}
 
 	// 选项窗口
