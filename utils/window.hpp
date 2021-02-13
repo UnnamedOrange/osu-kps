@@ -434,6 +434,9 @@ public:
 	/// </returns>
 	HWND create(HWND hwndParent = nullptr)
 	{
+		if (hwnd)
+			DestroyWindow(hwnd);
+
 		semaphore_create.acquire();
 		storage = this;
 
