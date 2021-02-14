@@ -178,6 +178,12 @@ namespace kps
 		std::array<int, 256> sum{}; // 计算当前 KPS 时，各按键按键次数总和。
 
 		size_t recent_pivot{}; // 要考虑的历史 KPS 内最靠前的下标。
+
+		history_array cache{};
+		std::unordered_set<int> cache_keys;
+		clock::time_point cache_stamp{};
+		clock::time_point record_stamp{};
+
 	public:
 		virtual kps_implement_type type() const override
 		{
@@ -224,13 +230,17 @@ namespace kps
 		}
 		virtual history_array calc_kps_recent_implement(const std::unordered_set<int> keys) override
 		{
-			history_array ret{};
 			auto get_time = [&](size_t idx) { return std::get<1>(src->records[idx]); };
 			auto now = clock::now();
 			long long integral_second = std::ceil(
 				std::chrono::duration_cast<std::chrono::duration<double>>(now.time_since_epoch()).count());
 			now = clock::time_point(
 				std::chrono::duration_cast<clock::duration>(std::chrono::seconds(integral_second)));
+			if (src->records.size() && record_stamp == get_time(src->records.size() - 1)
+				&& cache_stamp == now && keys == cache_keys)
+				return cache;
+
+			history_array ret{};
 			while (recent_pivot < src->records.size() &&
 				now - get_time(recent_pivot) > 1s * (ret.size() + 1)) // 对答案有贡献的点的最远位置。
 				recent_pivot++;
@@ -275,6 +285,12 @@ namespace kps
 						ret[crt_time] = std::max(ret[crt_time], static_cast<double>(count));
 				}
 			}
+
+			if (src->records.size())
+				record_stamp = get_time(src->records.size() - 1);
+			cache_stamp = now;
+			cache_keys = keys;
+			cache = ret;
 			return ret;
 		}
 	};
