@@ -678,6 +678,7 @@ public:
 		for (int i = 1; i <= keys_manager::max_key_count; i++)
 			for (int j = 0; j < i; j++)
 				k_manager.modify_key(i, j, cfg.key_map(i, j));
+		kps.change_monitor_implement_type(static_cast<kps::key_monitor_implement_type>(cfg.key_monitor_implement()));
 	}
 	/// <summary>
 	/// 改变当前按键个数。

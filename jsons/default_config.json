@@ -69,5 +69,7 @@
 	"show.buttons": true,
 	"show.statistics": true,
 	"show.graph": true,
-	"scale": 1.0
+	"scale": 1.0,
+
+	"advanced.key_monitor_method": 1
 }

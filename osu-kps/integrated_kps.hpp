@@ -7,44 +7,65 @@
 #include <functional>
 
 #include "kps_calculator.hpp"
+#include "key_monitor.hpp"
 #include "key_monitor_hook.hpp"
 #include "key_monitor_async.hpp"
 
 namespace kps
 {
-	template<bool hook_implement = false>
-	class integrated_kps : public kps_calculator,
-		public std::conditional_t<hook_implement, key_monitor_hook, key_monitor_async>
+	enum key_monitor_implement_type
 	{
-	protected:
-		virtual void on_key_down(int key, time_point time)
+		monitor_implement_type_async,
+		monitor_implement_type_hook,
+	};
+
+	class kps final : public kps_calculator
+	{
+	public:
+		using callback_t = key_monitor::callback_t;
+	private:
+		callback_t callback;
+		key_monitor monitor;
+	private:
+		void on_key_down(int key, time_point time)
 		{
-			s_constructor.acquire();
 			notify_key_down(key, time);
 			if (callback)
 				callback(key, time);
-			s_constructor.release();
 		}
 	private:
-		using callback_t = std::function<void(int, time_point)>;
-		callback_t callback;
-		// TODO: 潜在的线程安全问题。有可能 on_key_down 被调用时 s_constructor 尚未构造完成。
-		std::binary_semaphore s_constructor{ 0 }; // 仅保证 callback 在被调用时状态正确。
-	public:
-		integrated_kps()
+		void change_monitor_implement_type(std::shared_ptr<key_monitor_base> p)
 		{
-			s_constructor.release();
+			monitor.set_implement(p);
 		}
-		integrated_kps(callback_t callback) : callback(callback)
+	public:
+		void change_monitor_implement_type(key_monitor_implement_type type)
 		{
-			s_constructor.release();
+			switch (type)
+			{
+			case monitor_implement_type_async:
+				change_monitor_implement_type(std::make_shared<key_monitor_async>());
+				break;
+			case monitor_implement_type_hook:
+				change_monitor_implement_type(std::make_shared<key_monitor_hook>());
+				break;
+			default:
+				throw std::invalid_argument("type not supported.");
+			}
+		}
+
+	public:
+		kps(callback_t callback) : callback(callback)
+		{
+			monitor.set_callback(std::bind(&kps::on_key_down,
+				this,
+				std::placeholders::_1,
+				std::placeholders::_2));
+#ifdef _DEBUG
+			change_monitor_implement_type(monitor_implement_type_async);
+#else
+			change_monitor_implement_type(monitor_implement_type_hook);
+#endif
 		}
 	};
-	using kps_debug = integrated_kps<false>;
-	using kps_release = integrated_kps<true>;
-#ifdef _DEBUG
-	using kps = kps_debug;
-#else
-	using kps = kps_release;
-#endif
 }

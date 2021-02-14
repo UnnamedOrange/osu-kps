@@ -36,6 +36,8 @@ public:
 				if (!kc.is_supported(std::get<std::u8string>(get_value(key))))
 					(*this)[key] = u8"null";
 			}
+
+		key_monitor_implement(static_cast<kps::key_monitor_implement_type>(std::max(0, std::min(1, static_cast<int>(key_monitor_implement())))));
 	}
 
 public:
@@ -106,5 +108,15 @@ public:
 	void key_map(int total, int which, int key)
 	{
 		(*this)[key_keyname(total, which)] = reinterpret_cast<const char*>(kc.to_full(key).c_str());
+	}
+
+public:
+	kps::key_monitor_implement_type key_monitor_implement() const
+	{
+		return static_cast<kps::key_monitor_implement_type>(std::get<int64_t>(get_value(u8"advanced.key_monitor_method")));
+	}
+	void key_monitor_implement(kps::key_monitor_implement_type type)
+	{
+		(*this)[u8"advanced.key_monitor_method"] = static_cast<int>(type);
 	}
 };

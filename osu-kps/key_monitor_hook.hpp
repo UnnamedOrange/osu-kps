@@ -20,7 +20,7 @@ namespace kps
 	/// <summary>
 	/// 使用钩子实现的按键监视器。
 	/// </summary>
-	class key_monitor_hook : public key_monitor_base
+	class key_monitor_hook final : public key_monitor_base
 	{
 	private:
 		using key_monitor_base::_on_llkey_down;

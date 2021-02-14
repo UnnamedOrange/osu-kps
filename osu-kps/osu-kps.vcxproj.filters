@@ -104,6 +104,9 @@
     <ClInclude Include="key_window.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="key_monitor.hpp">
+      <Filter>头文件\kps</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">

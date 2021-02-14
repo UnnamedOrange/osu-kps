@@ -21,7 +21,7 @@ namespace kps
 	/// <summary>
 	/// 使用 GetAsyncKeyState 实现的按键监视器。
 	/// </summary>
-	class key_monitor_async : public key_monitor_base
+	class key_monitor_async final : public key_monitor_base
 	{
 	private:
 		using key_monitor_base::_on_llkey_down;
@@ -43,7 +43,6 @@ namespace kps
 		std::thread t{ &key_monitor_async::thread_proc, this };
 		void thread_proc()
 		{
-			// TODO: 潜在的线程安全问题。有可能线程已经开始运行，但子类尚未构造完成。
 			while (true)
 			{
 				if (s_exit.try_acquire_for(10ms))
@@ -57,15 +56,10 @@ namespace kps
 		}
 
 	public:
-		key_monitor_async() = default;
 		~key_monitor_async()
 		{
 			s_exit.release();
 			t.join();
 		}
-		key_monitor_async(const key_monitor_async&) = delete;
-		key_monitor_async(key_monitor_async&&) = delete;
-		key_monitor_async& operator=(const key_monitor_async&) = delete;
-		key_monitor_async& operator=(key_monitor_async&&) = delete;
 	};
 }
