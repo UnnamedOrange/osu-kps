@@ -80,7 +80,7 @@ Graphics: Direct2D.
   - [x] memory leak of private font.
   - [x] low performance of hooks.
 
-- [ ] allow the user to choose key monitor.
+- [x] allow the user to choose key monitor.
 
 - [ ] implement "soft" KPS method.
 
