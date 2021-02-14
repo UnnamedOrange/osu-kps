@@ -75,10 +75,12 @@ Graphics: Direct2D.
 
   After this step the project can be pre-released.
 
-- [ ] fix critical bugs.
+- [x] fix critical bugs.
 
   - [x] memory leak of private font.
-  - [ ] low performance of hooks.
+  - [x] low performance of hooks.
+
+- [ ] allow the user to choose key monitor.
 
 - [ ] implement "soft" KPS method.
 
