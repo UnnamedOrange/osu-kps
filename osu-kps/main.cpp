@@ -975,6 +975,21 @@ void main_window::OnPaint(HWND)
 			double ceil_height = std::max(5.0,
 				1.25 * std::max(k_manager.get_max_kps(), max_value)); // 最高点对应的值。
 
+			// 刻度。
+			{
+				for (double v = 5; v < max_value; v += 5)
+				{
+					double y = draw_rect.bottom - (draw_rect.bottom - draw_rect.top) *
+						(v / ceil_height);
+					pRenderTarget->DrawLine(
+						D2D1::Point2F(draw_rect.left, y),
+						D2D1::Point2F(draw_rect.right, y),
+						cache.theme_half_trans_brush,
+						0.75 * x,
+						cache.dash_stroke
+					);
+				}
+			}
 			// 具体图形。
 			{
 				com_ptr<ID2D1PathGeometry> geometry;
