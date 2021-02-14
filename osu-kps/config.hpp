@@ -27,7 +27,7 @@ public:
 	{
 		scale(std::max(0.5, std::min(3.0, scale())));
 		button_count(std::max(1, std::min(static_cast<int>(keys_manager::max_key_count), button_count())));
-		kps_method(static_cast<kps::kps_implement_type>(std::max(0, std::min(0, static_cast<int>(kps_method())))));
+		kps_method(static_cast<kps::kps_implement_type>(std::max(0, std::min(1, static_cast<int>(kps_method())))));
 
 		for (int i = 1; i <= keys_manager::max_key_count; i++)
 			for (int j = 0; j < i; j++)

@@ -212,6 +212,7 @@ class main_window : public window
 		id_zoom_2,
 		id_zoom_3,
 		id_method_hard,
+		id_method_soft,
 		id_show_buttons,
 		id_show_statistics,
 		id_show_graph,
@@ -257,6 +258,7 @@ class main_window : public window
 		{
 			HMENU menus_kps_method = CreateMenu();
 			AppendMenuW(menus_kps_method, MF_STRING, id_method_hard, L"Hard");
+			AppendMenuW(menus_kps_method, MF_STRING, id_method_soft, L"Soft");
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_kps_method), L"KPS method");
 		}
@@ -293,6 +295,11 @@ class main_window : public window
 		case kps::kps_implement_type::kps_implement_type_hard:
 		{
 			CheckMenuItem(hMenu, id_method_hard, MF_CHECKED);
+			break;
+		}
+		case kps::kps_implement_type::kps_implement_type_soft:
+		{
+			CheckMenuItem(hMenu, id_method_soft, MF_CHECKED);
 			break;
 		}
 		}
@@ -339,7 +346,7 @@ class main_window : public window
 				constexpr double t[]{ 0.75, 1, 2, 3 };
 				change_scale(t[id - id_zoom_half]);
 			}
-			else if (id_method_hard <= id && id <= id_method_hard)
+			else if (id_method_hard <= id && id <= id_method_soft)
 				change_implement(static_cast<kps::kps_implement_type>(id - id_method_hard));
 			else
 				switch (id)
@@ -723,7 +730,7 @@ public:
 
 		kps.change_implement_type(new_type);
 
-		for (int i = id_method_hard; i <= id_method_hard; i++)
+		for (int i = id_method_hard; i <= id_method_soft; i++)
 			CheckMenuItem(hMenu, i, MF_UNCHECKED);
 
 		switch (kps.implement_type())
@@ -731,6 +738,11 @@ public:
 		case kps::kps_implement_type::kps_implement_type_hard:
 		{
 			CheckMenuItem(hMenu, id_method_hard, MF_CHECKED);
+			break;
+		}
+		case kps::kps_implement_type::kps_implement_type_soft:
+		{
+			CheckMenuItem(hMenu, id_method_soft, MF_CHECKED);
 			break;
 		}
 		}

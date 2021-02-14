@@ -105,11 +105,13 @@ namespace kps
 
 		friend class kps_implement_base;
 		friend class kps_implement_hard;
+		friend class kps_implement_soft;
 	};
 
 	enum class kps_implement_type
 	{
 		kps_implement_type_hard,
+		kps_implement_type_soft,
 	};
 
 	inline constexpr size_t history_count = 300; // 历史记录个数，一秒记录一次。
@@ -279,6 +281,50 @@ namespace kps
 		}
 	};
 
+	// TODO: implement this.
+	class kps_implement_soft : public kps_implement_base
+	{
+	public:
+		virtual kps_implement_type type() const override
+		{
+			return kps_implement_type::kps_implement_type_soft;
+		}
+
+	public:
+		kps_implement_soft(kps_interface* src) : kps_implement_base(src)
+		{
+			src->register_callback(
+				std::bind(&kps_implement_soft::on_key_down, this,
+					std::placeholders::_1, std::placeholders::_2),
+				reinterpret_cast<kps_interface::id_t>(this));
+
+			std::lock_guard _(src->m);
+
+		}
+		~kps_implement_soft()
+		{
+			src->unregister_callback(reinterpret_cast<kps_interface::id_t>(this));
+		}
+	private:
+		void on_key_down(int key, time_point)
+		{
+
+		}
+		virtual void clear_implement() override
+		{
+
+		}
+		virtual double calc_kps_now_implement(int key) override
+		{
+			return 0.0;
+		}
+		virtual history_array calc_kps_recent_implement(const std::unordered_set<int> keys) override
+		{
+			history_array ret{};
+			return ret;
+		}
+	};
+
 	class kps_calculator : public kps_interface
 	{
 	private:
@@ -303,6 +349,11 @@ namespace kps
 			case kps_implement_type::kps_implement_type_hard:
 			{
 				implement = std::make_shared<kps_implement_hard>(this);
+				break;
+			}
+			case kps_implement_type::kps_implement_type_soft:
+			{
+				implement = std::make_shared<kps_implement_soft>(this);
 				break;
 			}
 			default:
