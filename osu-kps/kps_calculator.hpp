@@ -253,7 +253,7 @@ namespace kps
 
 			history_array ret{};
 			while (recent_pivot < src->records.size() &&
-				now - get_time(recent_pivot) > 1s * (ret.size() + 1)) // 对答案有贡献的点的最远位置。
+				now - get_time(recent_pivot) > 1s * ret.size() + frame_length) // 对答案有贡献的点的最远位置。
 				recent_pivot++;
 			// 双指针法。
 			size_t left = recent_pivot;
@@ -269,10 +269,10 @@ namespace kps
 			for (size_t crt_time = 0; crt_time < ret.size(); crt_time++)
 			{
 				auto real_time_point_left = now - std::chrono::seconds(ret.size() - crt_time);
-				auto real_time_point_right = real_time_point_left + 1s;
+				auto real_time_point_right = real_time_point_left + frame_length;
 				// 初始条件：hard KPS 区间的右端点为当前时间区间的左端点。
 				// 注意此时假设 right 在不处于当前时间区间的最右边。
-				while (left < right && real_time_point_left - get_time(left) > 1s)
+				while (left < right && real_time_point_left - get_time(left) > frame_length)
 				{
 					if (keys.count(std::get<0>(src->records[left])))
 						count--;
@@ -286,7 +286,7 @@ namespace kps
 					if (keys.count(std::get<0>(src->records[right])))
 						count++;
 					right++;
-					while (left < right && get_time(right - 1) - get_time(left) > 1s)
+					while (left < right && get_time(right - 1) - get_time(left) > frame_length)
 					{
 						if (keys.count(std::get<0>(src->records[left])))
 							count--;
