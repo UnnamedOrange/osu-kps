@@ -306,9 +306,17 @@ namespace kps
 		}
 	};
 
-	// TODO: implement this.
 	class kps_implement_soft : public kps_implement_base
 	{
+		static constexpr auto frame_length = 2500ms; // 计算 KPS 的最远长度。
+
+		size_t recent_pivot{}; // 要考虑的历史 KPS 内最靠前的下标。
+
+		history_array cache{};
+		std::unordered_set<int> cache_keys;
+		clock::time_point cache_stamp{};
+		clock::time_point record_stamp{};
+
 	public:
 		virtual kps_implement_type type() const override
 		{
@@ -337,19 +345,139 @@ namespace kps
 		}
 		virtual void clear_implement() override
 		{
-
+			recent_pivot = size_t();
 		}
 		virtual double calc_kps_now_implement(int key) override
 		{
-			return 0.0;
+			auto now = clock::now();
+			const auto& r = src->records_individual[key];
+
+			double ret = 0;
+			size_t farthest = r.size() - 1;
+			size_t crt_count = 0;
+			for (; ~farthest && now - std::get<1>(r[farthest]) <= frame_length; farthest--)
+			{
+				crt_count++;
+				double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - std::get<1>(r[farthest])).count();
+				double crt_kps = std::min(crt_count * 1.5, crt_count / elapsed);
+				if (crt_kps >= ret)
+					ret = crt_kps;
+				else
+					break;
+			}
+
+			return ret;
 		}
 		virtual double calc_kps_now_implement(const std::vector<int>& keys) override
 		{
-			return 0.0;
+			auto now = clock::now();
+			const auto& r = src->records;
+			std::unordered_set<int> keys_set(keys.begin(), keys.end());
+
+			double ret = 0;
+			size_t farthest = r.size() - 1;
+			size_t crt_count = 0;
+			for (; ~farthest && now - std::get<1>(r[farthest]) <= frame_length; farthest--)
+			{
+				if (keys_set.count(std::get<0>(r[farthest])))
+				{
+					crt_count++;
+					double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - std::get<1>(r[farthest])).count();
+					double crt_kps = std::min(crt_count * 1.5, crt_count / elapsed);
+					if (crt_kps >= ret)
+						ret = crt_kps;
+					else
+						break;
+				}
+			}
+
+			return ret;
 		}
 		virtual history_array calc_kps_recent_implement(const std::unordered_set<int> keys) override
 		{
+			// TODO: optimize performance.
+			const auto& r = src->records;
+			auto get_time = [&](size_t idx) { return std::get<1>(r[idx]); };
+			auto now = clock::now();
+
+			long long integral_second = std::ceil(
+				std::chrono::duration_cast<std::chrono::duration<double>>(now.time_since_epoch()).count());
+			now = clock::time_point(
+				std::chrono::duration_cast<clock::duration>(std::chrono::seconds(integral_second)));
+			if (src->records.size() && record_stamp == get_time(r.size() - 1)
+				&& cache_stamp == now && keys == cache_keys)
+				return cache;
+
 			history_array ret{};
+			while (recent_pivot < r.size() &&
+				now - get_time(recent_pivot) > 1s * ret.size() + frame_length) // 对答案有贡献的点的最远位置。
+				recent_pivot++;
+
+			size_t crt = recent_pivot;
+			while (crt < r.size() &&
+				get_time(crt) < now - std::chrono::seconds(ret.size()))
+			{
+				crt++;
+			}
+
+			for (size_t crt_time = 0; crt_time < ret.size(); crt_time++)
+			{
+				auto real_time_point_left = now - std::chrono::seconds(ret.size() - crt_time);
+				auto real_time_point_right = real_time_point_left + frame_length;
+				// 初始条件：区间的右端点为当前时间区间的左端点。
+				// 注意此时假设 right 在不处于当前时间区间的最右边。
+				{
+					double temp{};
+					size_t farthest = crt - 1;
+					size_t crt_count = 0;
+					for (; ~farthest && real_time_point_left - std::get<1>(r[farthest]) <= frame_length; farthest--)
+					{
+						if (keys.count(std::get<0>(r[farthest])))
+						{
+							crt_count++;
+							double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(real_time_point_left - get_time(farthest)).count();
+							double crt_kps = std::min(crt_count * 1.5, crt_count / elapsed);
+							if (crt_kps >= temp)
+								temp = crt_kps;
+							else
+								break;
+						}
+					}
+					ret[crt_time] = temp;
+				}
+				// 用当前时间区间内的点更新。
+				while (crt < r.size() &&
+					get_time(crt) < real_time_point_right)
+				{
+					if (keys.count(std::get<0>(r[crt])))
+					{
+						double temp{};
+						size_t farthest = crt - 1;
+						size_t crt_count = 1;
+						for (; ~farthest && get_time(crt) - std::get<1>(r[farthest]) <= frame_length; farthest--)
+						{
+							if (keys.count(std::get<0>(r[farthest])))
+							{
+								crt_count++;
+								double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(get_time(crt) - get_time(farthest)).count();
+								double crt_kps = std::min(crt_count * 1.5, crt_count / elapsed);
+								if (crt_kps >= temp)
+									temp = crt_kps;
+								else
+									break;
+							}
+						}
+						ret[crt_time] = std::max(ret[crt_time], static_cast<double>(temp));
+					}
+					crt++;
+				}
+			}
+
+			if (src->records.size())
+				record_stamp = get_time(src->records.size() - 1);
+			cache_stamp = now;
+			cache_keys = keys;
+			cache = ret;
 			return ret;
 		}
 	};
