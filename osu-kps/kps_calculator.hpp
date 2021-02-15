@@ -149,6 +149,16 @@ namespace kps
 		/// <returns></returns>
 		virtual double calc_kps_now_implement(int key) = 0;
 		/// <summary>
+		/// 计算当前 kps。通过 src 访问数据。保证在被调用时 src 不会发生写操作。默认直接将各键 KPS 相加。
+		/// </summary>
+		/// <param name="key"></param>
+		/// <returns></returns>
+		virtual double calc_kps_now_implement(const std::vector<int>& keys)
+		{
+			return std::accumulate(keys.begin(), keys.end(), 0.0,
+				[this](double pre, int key) { return pre + calc_kps_now_implement(key); });
+		}
+		/// <summary>
 		/// 计算最近的 kps。通过 src 访问数据。保证在被调用时 src 不会发生写操作。
 		/// </summary>
 		/// <param name="key"></param>
@@ -163,8 +173,7 @@ namespace kps
 		double calc_kps_now(const std::vector<int>& keys)
 		{
 			std::lock_guard _(src->m);
-			return std::accumulate(keys.begin(), keys.end(), 0.0,
-				[this](double pre, int key) { return pre + calc_kps_now_implement(key); });
+			return calc_kps_now_implement(keys);
 		}
 		history_array calc_kps_recent(const std::unordered_set<int>& keys)
 		{
@@ -331,6 +340,10 @@ namespace kps
 
 		}
 		virtual double calc_kps_now_implement(int key) override
+		{
+			return 0.0;
+		}
+		virtual double calc_kps_now_implement(const std::vector<int>& keys) override
 		{
 			return 0.0;
 		}
