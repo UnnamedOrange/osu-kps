@@ -847,7 +847,7 @@ void main_window::OnPaint(HWND)
 				}
 				{
 					double k_now = kps.calc_kps_now(k_manager.get_keys()[i]); // 当前框对应 kps。
-					auto str = std::to_wstring(static_cast<int>(k_now + 0.5));
+					auto str = std::to_wstring(static_cast<int>(k_now));
 
 					pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_number,
 						number_rect, cache.theme_brush);
@@ -899,7 +899,7 @@ void main_window::OnPaint(HWND)
 			{
 				double kps_now = kps.calc_kps_now(k_manager.get_keys());
 				std::swprintf(buffer, std::size(buffer), L"%d",
-					static_cast<int>(kps_now + 0.5));
+					static_cast<int>(kps_now));
 				auto str = std::wstring(buffer);
 
 				color text_color = _interpolate(cache.theme_color, cache.active_color, kps_now, 6.0, 13.0);
@@ -919,7 +919,7 @@ void main_window::OnPaint(HWND)
 			}
 			{
 				std::swprintf(buffer, std::size(buffer), L"%d",
-					static_cast<int>(k_manager.get_max_kps() + 0.5));
+					static_cast<int>(k_manager.get_max_kps()));
 				auto str = std::wstring(buffer);
 
 				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
@@ -1072,7 +1072,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int)
 	// 设置高 DPI 支持。
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 	// 单例。
+#ifdef _DEBUG
 	HANDLE hMutex = CreateMutexW(nullptr, FALSE, L"Global\\osu!kps-302F3137-DEA2-472F-9BC5-F078331E5576");
+#else
+	HANDLE hMutex = CreateMutexW(nullptr, FALSE, L"Global\\osu!kps-1CC423F8-38A4-46F4-9711-AD98F13A76D8");
+#endif
 	DWORD last_error = GetLastError();
 	if (last_error == ERROR_ALREADY_EXISTS ||
 		last_error == ERROR_ACCESS_DENIED && !hMutex)
