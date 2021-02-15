@@ -6,6 +6,8 @@
 #include <Windows.h>
 #undef min
 #undef max
+#include <shellapi.h>
+#pragma comment(lib, "shell32.lib")
 #include "resource.h"
 
 #include <utils/code_conv.hpp>
@@ -217,6 +219,7 @@ class main_window : public window
 		id_show_statistics,
 		id_show_graph,
 		id_modify_keys,
+		id_about,
 	};
 	/// <summary>
 	/// 创建或重建菜单。
@@ -230,7 +233,7 @@ class main_window : public window
 		HMENU hMenuPopup = CreateMenu();
 		AppendMenuW(hMenu, MF_POPUP, reinterpret_cast<UINT_PTR>(hMenuPopup), nullptr);
 
-		AppendMenuW(hMenuPopup, MF_STRING, id_modify_keys, L"Modify keys");
+		AppendMenuW(hMenuPopup, MF_STRING, id_modify_keys, L"Modify keys...");
 		// menus_button_count
 		{
 			HMENU menus_button_count = CreateMenu();
@@ -282,10 +285,9 @@ class main_window : public window
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_zoom), L"Zoom");
 		}
-		// exit
-		{
-			AppendMenuW(hMenuPopup, MF_STRING, id_exit, L"Exit");
-		}
+		AppendMenuW(hMenuPopup, MF_SEPARATOR, NULL, nullptr);
+		AppendMenuW(hMenuPopup, MF_STRING, id_about, L"About...");
+		AppendMenuW(hMenuPopup, MF_STRING, id_exit, L"Exit");
 
 		// 勾选当前按键数量。
 		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_CHECKED);
@@ -391,6 +393,12 @@ class main_window : public window
 				case id_modify_keys:
 				{
 					modify_keys();
+					break;
+				}
+				case id_about:
+				{
+					ShellExecuteW(nullptr, L"open", L"https://github.com/UnnamedOrange/osu-kps#license",
+						nullptr, nullptr, SW_SHOW);
 					break;
 				}
 				case id_exit:

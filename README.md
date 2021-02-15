@@ -114,6 +114,14 @@ Copyright (c) UnnamedOrange. Licensed under the MIT License.
 
 See the [LICENSE](./LICENSE) file in the repository root for full license text.
 
+## Special thanks
+
+Thanks to the following guys that tried this project out. This helped me a lot. The list is in no particular order.
+
+- (osu ID) InabaMeguruSama
+- (osu ID) Induction
+- (osu ID) frankeskybr
+
 ## Credits
 
 ### Exo 2
