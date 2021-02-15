@@ -6,6 +6,7 @@
 #include <vector>
 #include <deque>
 #include <algorithm>
+#include <map>
 #include <unordered_set>
 #include <numeric>
 #include <array>
@@ -313,6 +314,7 @@ namespace kps
 		size_t recent_pivot{}; // 要考虑的历史 KPS 内最靠前的下标。
 
 		history_array cache{};
+		std::map<clock::time_point, double> cache_map;
 		std::unordered_set<int> cache_keys;
 		clock::time_point cache_stamp{};
 		clock::time_point record_stamp{};
@@ -346,6 +348,7 @@ namespace kps
 		virtual void clear_implement() override
 		{
 			recent_pivot = size_t();
+			cache_map.clear();
 		}
 		virtual double calc_kps_now_implement(int key) override
 		{
@@ -395,18 +398,19 @@ namespace kps
 		}
 		virtual history_array calc_kps_recent_implement(const std::unordered_set<int> keys) override
 		{
-			// TODO: optimize performance.
 			const auto& r = src->records;
 			auto get_time = [&](size_t idx) { return std::get<1>(r[idx]); };
 			auto now = clock::now();
-
 			long long integral_second = std::ceil(
 				std::chrono::duration_cast<std::chrono::duration<double>>(now.time_since_epoch()).count());
 			now = clock::time_point(
 				std::chrono::duration_cast<clock::duration>(std::chrono::seconds(integral_second)));
+
 			if (src->records.size() && record_stamp == get_time(r.size() - 1)
 				&& cache_stamp == now && keys == cache_keys)
 				return cache;
+			if (keys != cache_keys || cache_map.size() > 3600u)
+				cache_map.clear();
 
 			history_array ret{};
 			while (recent_pivot < r.size() &&
@@ -426,6 +430,16 @@ namespace kps
 				auto real_time_point_right = real_time_point_left + frame_length;
 				// 初始条件：区间的右端点为当前时间区间的左端点。
 				// 注意此时假设 right 在不处于当前时间区间的最右边。
+				if (cache_map.count(real_time_point_right))
+				{
+					ret[crt_time] = cache_map[real_time_point_right];
+					while (crt < r.size() &&
+						get_time(crt) < real_time_point_right)
+					{
+						crt++;
+					}
+				}
+				else
 				{
 					double temp{};
 					size_t farthest = crt - 1;
@@ -444,32 +458,34 @@ namespace kps
 						}
 					}
 					ret[crt_time] = temp;
-				}
-				// 用当前时间区间内的点更新。
-				while (crt < r.size() &&
-					get_time(crt) < real_time_point_right)
-				{
-					if (keys.count(std::get<0>(r[crt])))
+					// 用当前时间区间内的点更新。
+					while (crt < r.size() &&
+						get_time(crt) < real_time_point_right)
 					{
-						double temp{};
-						size_t farthest = crt - 1;
-						size_t crt_count = 1;
-						for (; ~farthest && get_time(crt) - std::get<1>(r[farthest]) <= frame_length; farthest--)
+						if (keys.count(std::get<0>(r[crt])))
 						{
-							if (keys.count(std::get<0>(r[farthest])))
+							double temp{};
+							size_t farthest = crt - 1;
+							size_t crt_count = 1;
+							for (; ~farthest && get_time(crt) - std::get<1>(r[farthest]) <= frame_length; farthest--)
 							{
-								crt_count++;
-								double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(get_time(crt) - get_time(farthest)).count();
-								double crt_kps = std::min(crt_count * 1.5, crt_count / elapsed);
-								if (crt_kps >= temp)
-									temp = crt_kps;
-								else
-									break;
+								if (keys.count(std::get<0>(r[farthest])))
+								{
+									crt_count++;
+									double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(get_time(crt) - get_time(farthest)).count();
+									double crt_kps = std::min(crt_count * 1.5, crt_count / elapsed);
+									if (crt_kps >= temp)
+										temp = crt_kps;
+									else
+										break;
+								}
 							}
+							ret[crt_time] = std::max(ret[crt_time], static_cast<double>(temp));
 						}
-						ret[crt_time] = std::max(ret[crt_time], static_cast<double>(temp));
+						crt++;
 					}
-					crt++;
+					if (now - real_time_point_right > frame_length)
+						cache_map[real_time_point_right] = ret[crt_time];
 				}
 			}
 
