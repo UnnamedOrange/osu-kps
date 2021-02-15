@@ -120,7 +120,7 @@ class main_window : public window
 			}
 			if (!((ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE)) & WS_EX_TOPMOST))
 			{
-				MessageBoxW(hwnd, L"Fail to make the window top most. Please relaunch this application.",
+				MessageBoxW(nullptr, L"Fail to make the window top most. Please relaunch this application.",
 					L"Error", MB_ICONERROR);
 				return FALSE;
 			}
