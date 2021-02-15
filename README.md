@@ -82,7 +82,7 @@ Graphics: Direct2D.
 
 - [x] allow the user to choose key monitor.
 
-- [ ] implement "soft" KPS method.
+- [x] implement "sensitive" KPS method.
 
 - [ ] tool header for multi-language support.
 
@@ -102,13 +102,17 @@ Graphics: Direct2D.
 
 ### The "hard" method to calculate KPS
 
-I just save all the pressed keys, and based on it, calculate KPS. The KPS equals to the total times you press in recent 1 second.  
+I just save all the pressed keys, and based on it, calculate KPS. The KPS equals to the total times you press in recent 1 second.
+
+### The "sensitive" method to calculate KPS
+
+This method allow the situation that KPS is higher than the number of keys you stroke in recent 1 second.
 
 ## License
 
-Copyright (c) UnnamedOrange. Licensed under the MIT Licence.
+Copyright (c) UnnamedOrange. Licensed under the MIT License.
 
-See the [LICENSE](./LICENSE) file in the repository root for full licence text.
+See the [LICENSE](./LICENSE) file in the repository root for full license text.
 
 ## Credits
 

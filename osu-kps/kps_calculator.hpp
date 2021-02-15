@@ -106,13 +106,13 @@ namespace kps
 
 		friend class kps_implement_base;
 		friend class kps_implement_hard;
-		friend class kps_implement_soft;
+		friend class kps_implement_sensitive;
 	};
 
 	enum class kps_implement_type
 	{
 		kps_implement_type_hard,
-		kps_implement_type_soft,
+		kps_implement_type_sensitive,
 	};
 
 	inline constexpr size_t history_count = 300; // 历史记录个数，一秒记录一次。
@@ -307,7 +307,7 @@ namespace kps
 		}
 	};
 
-	class kps_implement_soft : public kps_implement_base
+	class kps_implement_sensitive : public kps_implement_base
 	{
 		static constexpr auto frame_length = 2500ms; // 计算 KPS 的最远长度。
 
@@ -322,21 +322,21 @@ namespace kps
 	public:
 		virtual kps_implement_type type() const override
 		{
-			return kps_implement_type::kps_implement_type_soft;
+			return kps_implement_type::kps_implement_type_sensitive;
 		}
 
 	public:
-		kps_implement_soft(kps_interface* src) : kps_implement_base(src)
+		kps_implement_sensitive(kps_interface* src) : kps_implement_base(src)
 		{
 			src->register_callback(
-				std::bind(&kps_implement_soft::on_key_down, this,
+				std::bind(&kps_implement_sensitive::on_key_down, this,
 					std::placeholders::_1, std::placeholders::_2),
 				reinterpret_cast<kps_interface::id_t>(this));
 
 			std::lock_guard _(src->m);
 
 		}
-		~kps_implement_soft()
+		~kps_implement_sensitive()
 		{
 			src->unregister_callback(reinterpret_cast<kps_interface::id_t>(this));
 		}
@@ -524,9 +524,9 @@ namespace kps
 				implement = std::make_shared<kps_implement_hard>(this);
 				break;
 			}
-			case kps_implement_type::kps_implement_type_soft:
+			case kps_implement_type::kps_implement_type_sensitive:
 			{
-				implement = std::make_shared<kps_implement_soft>(this);
+				implement = std::make_shared<kps_implement_sensitive>(this);
 				break;
 			}
 			default:
