@@ -8,6 +8,7 @@
 
 #include "integrated_kps.hpp"
 #include "keys_manager.hpp"
+#include "my_multi_language.hpp"
 
 class config : public config_manager
 {
@@ -38,9 +39,21 @@ public:
 			}
 
 		key_monitor_implement(static_cast<kps::key_monitor_implement_type>(std::max(0, std::min(1, static_cast<int>(key_monitor_implement())))));
+
+		if (language() && !lang.is_language_supported(language()))
+			language(0);
 	}
 
 public:
+	int language() const
+	{
+		return std::get<int64_t>(get_value(u8"language"));
+	}
+	void language(int new_language)
+	{
+		(*this)[u8"language"] = new_language;
+	}
+
 	double scale() const
 	{
 		return std::get<double>(get_value(u8"scale"));

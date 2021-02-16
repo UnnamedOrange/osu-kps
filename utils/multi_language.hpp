@@ -122,6 +122,14 @@ public:
 		return false;
 	}
 	/// <summary>
+	/// Check whether the language specified by id is supported by this multi_language object.
+	/// </summary>
+	bool is_language_supported(int id) const
+	{
+		std::lock_guard _(m);
+		return langs.count(id);
+	}
+	/// <summary>
 	/// Get the name of a language according to the locale name.
 	/// The name of a language equals to the value of the key "language_name".
 	/// </summary>

@@ -712,7 +712,13 @@ public:
 	config cfg;
 	void init_options()
 	{
-		lang.set_current_language_to_system_default();
+		if (!cfg.language())
+		{
+			lang.set_current_language_to_system_default();
+			cfg.language(lang.query_current_language_id());
+		}
+		else
+			lang.set_current_language(cfg.language());
 		k_manager.set_button_count(cfg.button_count());
 		kps.change_implement_type(cfg.kps_method());
 		for (int i = 1; i <= keys_manager::max_key_count; i++)
@@ -816,6 +822,7 @@ public:
 	void change_language(int id)
 	{
 		lang.set_current_language(id);
+		cfg.language(lang.query_current_language_id());
 		create_menu();
 	}
 
