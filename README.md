@@ -2,7 +2,7 @@
 
 KPS (keys per second) indicator for osu! in C++.
 
-This project is under development. \_(:3」∠)\_
+This project is under occasional maintenance.
 
 ## Motivation
 
@@ -16,77 +16,26 @@ IDE: Visual Studio® 2019.
 
 Language: C++20.
 
-Graphics: Direct2D.
+Graphics: Direct2D and DirectWrite.
+
+## How to get the executable
+
+If you are a developer, it's strongly recommended that you deploy this project on your own. Just follow the steps below.
+
+1. Make sure your PC runs Windows® 10, which should not be too old.
+2. Install Visual Studio® 2019, with toolkits of Windows desktop applications in C++.
+3. Clone this repository.
+4. Open the solution file with VS.
+5. Select "Release" and "x64", and build the project.
+6. Runs the executable.
+
+If you are not familiar with programming, you can go to the release page, and download the latest version of it (osu-kps-x64.exe) and run.
 
 ## Roadmap
 
-- [x] tool header for code page conversion, especially on Windows®.
+The remaining targets won't be updated recently.
 
-- [x] tool header for window class on Windows®.
-
-- [x] class of KPS calculator, independent of operating system.
-
-  Key methods:
-
-  ```cpp
-  void clear();
-  void notify_key_down(int key, time_point time); // key should be defined in this header, and should be compatible with those in Windows. Whether this method should be PostMessage-like is under consideration.
-  int calc_kps_now(int key) const;
-  int calc_kps_now(const std::vector<int>& keys) const; // Sum up the kps. This should be quick.
-  ```
-  
-  The constructor and `operator=` should also be considered.
-  
-- [x] class of key monitor, on Windows®.
-
-  There are two options:
-
-  1. Use `GetAsyncKeyState`.
-  2. Use `SetWindowsHookEx`.
-
-  It's RAII style.
-
-- [x] class of wrapped KPS calculator, using key monitor to call notify_key_down. It's a descendant class of KPS calculator.
-
-  It's RAII style. By the mean time, it should implement a method that notifies an external function when a key is pressed.
-
-- [x] menu to choose the number of keys.
-
-  However, it's after implementing the config system that the keys can be modified.
-
-- [x] use Direct2D to draw a UI.
-
-  And more:
-
-  - [x] support different implementation of KPS calculator.
-  - [x] draw the key correctly.
-  - [x] draw the graph.
-
-- [x] details.
-
-  - [x] revise the code in drawing the graph --- use `size()` instead of `history_count`.
-  - [x] add `&` for button count menu.
-  - [x] correct the size when the buttons are hidden.
-  - [x] draw more aux. info. in the graph.
-  
-- [x] tool header for config system.
-
-  I may use json.
-
-  After this step the project can be pre-released.
-
-- [x] fix critical bugs.
-
-  - [x] memory leak of private font.
-  - [x] low performance of hooks.
-
-- [x] allow the user to choose key monitor.
-
-- [x] implement "sensitive" KPS method.
-
-- [x] tool header for multi-language support.
-
-  I may use json.
+- [x] first beta release.
 
 - [ ] add more keys in keyboard_char.
 
@@ -102,11 +51,11 @@ Graphics: Direct2D.
 
 ### The "hard" method to calculate KPS
 
-I just save all the pressed keys, and based on it, calculate KPS. The KPS equals to the total times you press in recent 1 second.
+It just saves all key strokes, and based on it, calculates KPS. The KPS equals to the total times you stroke in recent 1 second.
 
 ### The "sensitive" method to calculate KPS
 
-This method allow the situation that KPS is higher than the number of keys you stroke in recent 1 second.
+This method allows the situation that KPS is higher than the number of keys you stroke in recent 1 second. Details will be written in the documents (not ready yet).
 
 ## License
 
