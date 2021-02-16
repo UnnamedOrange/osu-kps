@@ -29,7 +29,21 @@ If you are a developer, it's strongly recommended that you deploy this project o
 5. Select "Release" and "x64", and build the project.
 6. Runs the executable.
 
-If you are not familiar with programming, you can go to the release page, and download the latest version of it (osu-kps-x64.exe) and run.
+If you are not familiar with programming, you can go to the [release page](https://github.com/UnnamedOrange/osu-kps/releases), and download the latest version of it (osu-kps-x64.exe) and run. Before this, you should also make sure your PC runs Windows® 10 that is not too old.
+
+## How to translate for this project
+
+Supporting languages right now:
+
+- English (by UnnamedOrange)
+- 简体中文 / Simplified Chinese (by UnnamedOrange)
+
+If you want to translate, follow the steps below.
+
+1. Fork this repository and clone the forked.
+2. Make a copy of [en-us.json](jsons/language/en-us.json), and translate based on it. Ignore "id", "locale" in the json file. If you think some things should remain English, just delete those items in the json file; they will be presented in English automatically.
+3. Make a pull request.
+4. The remaining work can be done by UnnamedOrange.
 
 ## Roadmap
 
