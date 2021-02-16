@@ -119,7 +119,7 @@ public:
 	/// <returns>值。类型是 value_t 中支持的类型之一。如果不支持，将会抛出错误。</returns>
 	value_t get_value(std::u8string_view key) const
 	{
-		auto value = root[reinterpret_cast<const char*>(key.data())];
+		const auto& value = root[reinterpret_cast<const char*>(key.data())];
 		switch (value.type())
 		{
 		case Json::ValueType::nullValue:
