@@ -18,6 +18,10 @@ public:
 			if (!load_language(std::string_view(reinterpret_cast<const char*>(t.data()))))
 				throw std::runtime_error("fail to load_language.");
 		}
+		{
+			auto t = resource_loader::load(MAKEINTRESOURCEW(IDR_JSON_ZH_CN), L"JSON");
+			load_language(std::string_view(reinterpret_cast<const char*>(t.data())));
+		}
 	}
 
 public:

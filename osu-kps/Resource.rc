@@ -101,6 +101,8 @@ IDR_JSON_DEFAULT_CFG    JSON                    "..\\jsons\\default_config.json"
 
 IDR_JSON_EN_US          JSON                    "..\\jsons\\language\\en-us.json"
 
+IDR_JSON_ZH_CN          JSON                    "..\\jsons\\language\\zh-cn.json"
+
 #endif    // 中文(简体，中国) resources
 /////////////////////////////////////////////////////////////////////////////
 
