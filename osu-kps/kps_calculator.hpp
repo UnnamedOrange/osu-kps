@@ -309,12 +309,19 @@ namespace kps
 
 	class kps_implement_sensitive : public kps_implement_base
 	{
-		static constexpr auto frame_length = 2500ms; // 计算 KPS 的最远长度。
+		static constexpr auto frame_length = 1s; // 每一帧的长度。
+		static constexpr auto considered_length = 2500ms; // 计算 KPS 的最远长度。
+
+		std::array<size_t, 256> pre_farthest{}; // 上一次算的最远按键。
+
+		std::unordered_set<int> pre_multi_keys;
+		size_t pre_farthest_multi; // 计算多键时，上一次算的最远按键。
 
 		size_t recent_pivot{}; // 要考虑的历史 KPS 内最靠前的下标。
 
 		history_array cache{};
 		std::map<clock::time_point, double> cache_map;
+		std::map<clock::time_point, size_t> cache_farthest;
 		std::unordered_set<int> cache_keys;
 		clock::time_point cache_stamp{};
 		clock::time_point record_stamp{};
@@ -347,8 +354,13 @@ namespace kps
 		}
 		virtual void clear_implement() override
 		{
+			std::fill(pre_farthest.begin(), pre_farthest.end(), size_t());
+			pre_farthest_multi = size_t();
+			pre_multi_keys.clear();
+
 			recent_pivot = size_t();
 			cache_map.clear();
+			cache_farthest.clear();
 		}
 		virtual double calc_kps_now_implement(int key) override
 		{
@@ -358,7 +370,9 @@ namespace kps
 			double ret = 0;
 			size_t farthest = r.size() - 1;
 			size_t crt_count = 0;
-			for (; ~farthest && now - std::get<1>(r[farthest]) <= frame_length; farthest--)
+			for (; ~farthest &&
+				now - std::get<1>(r[farthest]) <= considered_length &&
+				farthest >= pre_farthest[key]; farthest--)
 			{
 				crt_count++;
 				double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - std::get<1>(r[farthest])).count();
@@ -368,6 +382,7 @@ namespace kps
 				else
 					break;
 			}
+			pre_farthest[key] = ++farthest;
 
 			return ret;
 		}
@@ -377,10 +392,17 @@ namespace kps
 			const auto& r = src->records;
 			std::unordered_set<int> keys_set(keys.begin(), keys.end());
 
+			size_t true_pre_farthest = pre_farthest_multi;
+			if (pre_multi_keys != keys_set)
+			{
+				pre_multi_keys = keys_set;
+				true_pre_farthest = 0;
+			}
+
 			double ret = 0;
 			size_t farthest = r.size() - 1;
 			size_t crt_count = 0;
-			for (; ~farthest && now - std::get<1>(r[farthest]) <= frame_length; farthest--)
+			for (; ~farthest && now - std::get<1>(r[farthest]) <= considered_length && farthest >= true_pre_farthest; farthest--)
 			{
 				if (keys_set.count(std::get<0>(r[farthest])))
 				{
@@ -393,6 +415,7 @@ namespace kps
 						break;
 				}
 			}
+			pre_farthest_multi = ++farthest;
 
 			return ret;
 		}
@@ -410,14 +433,18 @@ namespace kps
 				&& cache_stamp == now && keys == cache_keys)
 				return cache;
 			if (keys != cache_keys || cache_map.size() > 3600u)
+			{
 				cache_map.clear();
+				cache_farthest.clear();
+			}
 
 			history_array ret{};
 			while (recent_pivot < r.size() &&
-				now - get_time(recent_pivot) > 1s * ret.size() + frame_length) // 对答案有贡献的点的最远位置。
+				now - get_time(recent_pivot) > 1s * ret.size() + considered_length) // 对答案有贡献的点的最远位置。
 				recent_pivot++;
 
 			size_t crt = recent_pivot;
+			size_t crt_pre_farthest = recent_pivot;
 			while (crt < r.size() &&
 				get_time(crt) < now - std::chrono::seconds(ret.size()))
 			{
@@ -433,6 +460,7 @@ namespace kps
 				if (cache_map.count(real_time_point_right))
 				{
 					ret[crt_time] = cache_map[real_time_point_right];
+					crt_pre_farthest = cache_farthest[real_time_point_right];
 					while (crt < r.size() &&
 						get_time(crt) < real_time_point_right)
 					{
@@ -441,33 +469,40 @@ namespace kps
 				}
 				else
 				{
-					double temp{};
-					size_t farthest = crt - 1;
-					size_t crt_count = 0;
-					for (; ~farthest && real_time_point_left - std::get<1>(r[farthest]) <= frame_length; farthest--)
 					{
-						if (keys.count(std::get<0>(r[farthest])))
+						double temp{};
+						size_t farthest = crt - 1;
+						size_t crt_count = 0;
+						for (; ~farthest &&
+							real_time_point_left - std::get<1>(r[farthest]) <= considered_length &&
+							farthest >= crt_pre_farthest; farthest--)
 						{
-							crt_count++;
-							double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(real_time_point_left - get_time(farthest)).count();
-							double crt_kps = std::min(crt_count * 1.5, crt_count / elapsed);
-							if (crt_kps >= temp)
-								temp = crt_kps;
-							else
-								break;
+							if (keys.count(std::get<0>(r[farthest])))
+							{
+								crt_count++;
+								double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(real_time_point_left - get_time(farthest)).count();
+								double crt_kps = std::min(crt_count * 1.5, crt_count / elapsed);
+								if (crt_kps >= temp)
+									temp = crt_kps;
+								else
+									break;
+							}
 						}
+						crt_pre_farthest = ++farthest;
+						ret[crt_time] = temp;
 					}
-					ret[crt_time] = temp;
 					// 用当前时间区间内的点更新。
 					while (crt < r.size() &&
 						get_time(crt) < real_time_point_right)
 					{
 						if (keys.count(std::get<0>(r[crt])))
 						{
-							double temp{};
+							double temp = 1.5; // 注意此处和 crt_count 均有初始值。
 							size_t farthest = crt - 1;
 							size_t crt_count = 1;
-							for (; ~farthest && get_time(crt) - std::get<1>(r[farthest]) <= frame_length; farthest--)
+							for (; ~farthest &&
+								get_time(crt) - std::get<1>(r[farthest]) <= considered_length &&
+								farthest >= crt_pre_farthest; farthest--)
 							{
 								if (keys.count(std::get<0>(r[farthest])))
 								{
@@ -480,12 +515,17 @@ namespace kps
 										break;
 								}
 							}
+							crt_pre_farthest = ++farthest;
 							ret[crt_time] = std::max(ret[crt_time], static_cast<double>(temp));
 						}
 						crt++;
 					}
-					if (now - real_time_point_right > frame_length)
+
+					if (now > real_time_point_right)
+					{
 						cache_map[real_time_point_right] = ret[crt_time];
+						cache_farthest[real_time_point_right] = crt_pre_farthest;
+					}
 				}
 			}
 
