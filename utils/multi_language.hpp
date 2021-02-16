@@ -26,6 +26,7 @@ class multi_language
 private:
 	mutable std::recursive_mutex m;
 	std::map<int, Json::Value> langs;
+	int base{};
 	int current_language{};
 
 private:
@@ -64,7 +65,7 @@ public:
 			return false;
 
 		if (langs.empty())
-			current_language = loaded_json["id"].asInt();
+			base = current_language = loaded_json["id"].asInt();
 		langs[loaded_json["id"].asInt()] = loaded_json;
 		return true;
 	}
@@ -208,7 +209,10 @@ public:
 		std::lock_guard _(m);
 		if (!langs.count(id))
 			throw language_not_exists_error("");
-		return string(langs.at(id)[key.data()]);
+		if (langs.at(id).isMember(key.data()))
+			return string(langs.at(id)[key.data()]);
+		else
+			return string(langs.at(base)[key.data()]);
 	}
 	/// <summary>
 	/// Get the text according to the key. The current language will be used.

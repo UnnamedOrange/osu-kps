@@ -11,7 +11,7 @@
 	"menu.kps_graph": "KPS 图 (&G)",
 	"menu.all": "以上所有 (&A)",
 	"menu.kps_method": "KPS 计算方式 (&K)",
-	"menu.hard": "Hard (&H)",
+	"menu.hard": "硬算 (&H)",
 	"menu.sensitive": "灵敏 (&S)",
 
 	"menu.show": "显示 (&S)",
