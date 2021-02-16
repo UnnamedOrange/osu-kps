@@ -3,6 +3,11 @@
 
 #pragma once
 
+#include <cctype>
+
+#include <Windows.h>
+#undef min
+#undef max
 #include "resource.h"
 
 #include <utils/resource_loader.hpp>
@@ -28,6 +33,12 @@ public:
 	std::wstring operator[](std::string_view key) const
 	{
 		return code_conv<char8_t, wchar_t>::convert(multi_language::operator[](key));
+	}
+	void set_current_language_to_system_default()
+	{
+		wchar_t locale[LOCALE_NAME_MAX_LENGTH];
+		GetUserDefaultLocaleName(locale, LOCALE_NAME_MAX_LENGTH);
+		set_current_language(code_conv<wchar_t, char8_t>::convert(locale));
 	}
 };
 

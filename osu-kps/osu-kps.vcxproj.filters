@@ -125,10 +125,10 @@
     <None Include="..\jsons\default_config.json">
       <Filter>资源文件\JSON</Filter>
     </None>
-    <None Include="..\jsons\language\en-us.json">
+    <None Include="..\jsons\language\zh-CN.json">
       <Filter>资源文件\JSON</Filter>
     </None>
-    <None Include="..\jsons\language\zh-cn.json">
+    <None Include="..\jsons\language\en-US.json">
       <Filter>资源文件\JSON</Filter>
     </None>
   </ItemGroup>

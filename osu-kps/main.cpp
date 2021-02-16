@@ -712,6 +712,7 @@ public:
 	config cfg;
 	void init_options()
 	{
+		lang.set_current_language_to_system_default();
 		k_manager.set_button_count(cfg.button_count());
 		kps.change_implement_type(cfg.kps_method());
 		for (int i = 1; i <= keys_manager::max_key_count; i++)
