@@ -292,6 +292,18 @@ class main_window : public window
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_zoom), lang["menu.zoom"].c_str());
 		}
+		// menus_language
+		{
+			HMENU menus_language = CreateMenu();
+			auto langs = lang.enumerate_supported_language();
+			for (const auto& locale : langs)
+			{
+				AppendMenuW(menus_language, MF_STRING, lang.query_language_id(locale),
+					code_conv<char8_t, wchar_t>::convert(lang.query_language_name(locale)).c_str());
+			}
+
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_language), lang["menu.language"].c_str());
+		}
 		AppendMenuW(hMenuPopup, MF_SEPARATOR, NULL, nullptr);
 		AppendMenuW(hMenuPopup, MF_STRING, id_about, lang["menu.about"].c_str());
 		AppendMenuW(hMenuPopup, MF_STRING, id_exit, lang["menu.exit"].c_str());
@@ -331,6 +343,8 @@ class main_window : public window
 			else
 				CheckMenuItem(hMenu, id_zoom_half, MF_CHECKED);
 		}
+		// 勾选当前语言。
+		CheckMenuItem(hMenu, lang.query_current_language_id(), MF_CHECKED);
 	}
 	void OnRButtonDown(HWND, BOOL fDoubleClick, int x, int y, UINT keyFlags)
 	{
@@ -413,8 +427,11 @@ class main_window : public window
 					PostMessageW(hwnd, WM_CLOSE, 0, 0);
 					break;
 				}
-				default:
+				default: // 语言。
+				{
+					change_language(id);
 					break;
+				}
 				}
 		}
 	}
@@ -794,6 +811,11 @@ public:
 	{
 		key_wnd.set_crt_keys(k_manager.get_button_count());
 		key_wnd.create(hwnd);
+	}
+	void change_language(int id)
+	{
+		lang.set_current_language(id);
+		create_menu();
 	}
 
 	// 选项窗口

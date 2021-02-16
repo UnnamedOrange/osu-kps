@@ -124,7 +124,7 @@ public:
 	/// Get the name of a language according to the locale name.
 	/// The name of a language equals to the value of the key "language_name".
 	/// </summary>
-	std::u8string query_language_name(const std::u8string& locale) const
+	std::u8string query_language_name(std::u8string_view locale) const
 	{
 		std::lock_guard _(m);
 		for (const auto& [k, v] : langs)
