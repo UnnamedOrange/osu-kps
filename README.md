@@ -84,7 +84,7 @@ Graphics: Direct2D.
 
 - [x] implement "sensitive" KPS method.
 
-- [ ] tool header for multi-language support.
+- [x] tool header for multi-language support.
 
   I may use json.
 
