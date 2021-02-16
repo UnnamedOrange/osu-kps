@@ -16,6 +16,7 @@
 #include <utils/d2d_helper.hpp>
 #include <utils/resource_loader.hpp>
 #include <utils/keyboard_char.hpp>
+#include "my_multi_language.hpp"
 
 #include "config.hpp"
 #include "integrated_kps.hpp"
@@ -239,7 +240,7 @@ class main_window : public window
 		HMENU hMenuPopup = CreateMenu();
 		AppendMenuW(hMenu, MF_POPUP, reinterpret_cast<UINT_PTR>(hMenuPopup), nullptr);
 
-		AppendMenuW(hMenuPopup, MF_STRING, id_modify_keys, L"Modify keys...");
+		AppendMenuW(hMenuPopup, MF_STRING, id_modify_keys, lang["menu.modify_keys"].c_str());
 		// menus_button_count
 		{
 			HMENU menus_button_count = CreateMenu();
@@ -251,35 +252,35 @@ class main_window : public window
 				AppendMenuW(menus_button_count, MF_STRING, 10,
 					L"1&0");
 
-			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_button_count), L"Button count");
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_button_count), lang["menu.button_count"].c_str());
 		}
 		// menus_reset
 		{
 			HMENU menus_reset = CreateMenu();
-			AppendMenuW(menus_reset, MF_STRING, id_reset_total, L"Total keys");
-			AppendMenuW(menus_reset, MF_STRING, id_reset_max, L"Max KPS");
-			AppendMenuW(menus_reset, MF_STRING, id_reset_graph, L"KPS graph");
-			AppendMenuW(menus_reset, MF_STRING, id_reset_all, L"All");
+			AppendMenuW(menus_reset, MF_STRING, id_reset_total, lang["menu.total_keys"].c_str());
+			AppendMenuW(menus_reset, MF_STRING, id_reset_max, lang["menu.max_kps"].c_str());
+			AppendMenuW(menus_reset, MF_STRING, id_reset_graph, lang["menu.kps_graph"].c_str());
+			AppendMenuW(menus_reset, MF_STRING, id_reset_all, lang["menu.all"].c_str());
 
-			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_reset), L"Reset");
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_reset), lang["menu.reset"].c_str());
 		}
 		// menus_kps_method
 		{
 			HMENU menus_kps_method = CreateMenu();
-			AppendMenuW(menus_kps_method, MF_STRING, id_method_hard, L"Hard");
-			AppendMenuW(menus_kps_method, MF_STRING, id_method_sensitive, L"Sensitive");
+			AppendMenuW(menus_kps_method, MF_STRING, id_method_hard, lang["menu.hard"].c_str());
+			AppendMenuW(menus_kps_method, MF_STRING, id_method_sensitive, lang["menu.sensitive"].c_str());
 
-			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_kps_method), L"KPS method");
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_kps_method), lang["menu.kps_method"].c_str());
 		}
 		AppendMenuW(hMenuPopup, MF_SEPARATOR, NULL, nullptr);
 		// menus_show
 		{
 			HMENU menus_show = CreateMenu();
-			AppendMenuW(menus_show, MF_STRING, id_show_buttons, L"Buttons");
-			AppendMenuW(menus_show, MF_STRING, id_show_statistics, L"Statistics");
-			AppendMenuW(menus_show, MF_STRING, id_show_graph, L"Graph");
+			AppendMenuW(menus_show, MF_STRING, id_show_buttons, lang["menu.buttons"].c_str());
+			AppendMenuW(menus_show, MF_STRING, id_show_statistics, lang["menu.statistics"].c_str());
+			AppendMenuW(menus_show, MF_STRING, id_show_graph, lang["menu.graph"].c_str());
 
-			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_show), L"Show");
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_show), lang["menu.show"].c_str());
 		}
 		// menus_zoom
 		{
@@ -289,11 +290,11 @@ class main_window : public window
 			AppendMenuW(menus_zoom, MF_STRING, id_zoom_2, L"2x");
 			AppendMenuW(menus_zoom, MF_STRING, id_zoom_3, L"3x");
 
-			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_zoom), L"Zoom");
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_zoom), lang["menu.zoom"].c_str());
 		}
 		AppendMenuW(hMenuPopup, MF_SEPARATOR, NULL, nullptr);
-		AppendMenuW(hMenuPopup, MF_STRING, id_about, L"About...");
-		AppendMenuW(hMenuPopup, MF_STRING, id_exit, L"Exit");
+		AppendMenuW(hMenuPopup, MF_STRING, id_about, lang["menu.about"].c_str());
+		AppendMenuW(hMenuPopup, MF_STRING, id_exit, lang["menu.exit"].c_str());
 
 		// 勾选当前按键数量。
 		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_CHECKED);

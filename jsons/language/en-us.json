@@ -1,0 +1,25 @@
+{
+	"id": 1033,
+	"locale": "en-us",
+	"language_name": "English",
+
+	"menu.modify_keys": "Modify keys...",
+	"menu.button_count": "Button count",
+	"menu.reset": "Reset",
+	"menu.total_keys": "Total keys",
+	"menu.max_kps": "Max KPS",
+	"menu.kps_graph": "KPS graph",
+	"menu.all": "All",
+
+	"menu.kps_method": "KPS method",
+	"menu.hard": "Hard",
+	"menu.sensitive": "Sensitive",
+	"menu.show": "Show",
+	"menu.buttons": "Buttons",
+	"menu.statistics": "Statistics",
+	"menu.graph": "Graph",
+
+	"menu.zoom": "Zoom",
+	"menu.about": "About...",
+	"menu.exit": "Exit"
+}
