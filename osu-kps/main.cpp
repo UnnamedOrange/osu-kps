@@ -89,6 +89,7 @@ class main_window : public window
 		}
 		if (!std::filesystem::exists("osu-kps-config.json"))
 		{
+			lang.set_current_language_to_system_default();
 			MessageBoxW(hwnd, lang["messagebox.first_run.text"].c_str(),
 				lang["messagebox.first_run.caption"].c_str(),
 				MB_ICONINFORMATION);
