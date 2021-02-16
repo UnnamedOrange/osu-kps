@@ -16,9 +16,9 @@
 #include <utils/d2d_helper.hpp>
 #include <utils/resource_loader.hpp>
 #include <utils/keyboard_char.hpp>
-#include "my_multi_language.hpp"
 
 #include "config.hpp"
+#include "my_multi_language.hpp"
 #include "integrated_kps.hpp"
 #include "keys_manager.hpp"
 
@@ -89,8 +89,8 @@ class main_window : public window
 		}
 		if (!std::filesystem::exists("osu-kps-config.json"))
 		{
-			MessageBoxW(hwnd, L"osu-kps will create a config file named osu-kps-config.json in the current directory. However, it's recommanded that you never modify the config file. Instead, you should use the menu to set the config.",
-				L"Information",
+			MessageBoxW(hwnd, lang["messagebox.first_run.text"].c_str(),
+				lang["messagebox.first_run.caption"].c_str(),
 				MB_ICONINFORMATION);
 			cfg.write_to_file("osu-kps-config.json");
 		}
@@ -121,8 +121,8 @@ class main_window : public window
 			}
 			if (!((ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE)) & WS_EX_TOPMOST))
 			{
-				MessageBoxW(nullptr, L"Fail to make the window top most. Please relaunch this application.",
-					L"Error", MB_ICONERROR);
+				MessageBoxW(nullptr, lang["messagebox.topmost.text"].c_str(),
+					lang["messagebox.topmost.error"].c_str(), MB_ICONERROR);
 				return FALSE;
 			}
 		}
@@ -942,7 +942,7 @@ void main_window::OnPaint(HWND)
 					max_number_rect, cache.theme_brush);
 			}
 			{
-				std::swprintf(buffer, std::size(buffer), L"max");
+				std::swprintf(buffer, std::size(buffer), lang["draw.statistics.max"].c_str());
 				auto str = std::wstring(buffer);
 
 				cache.text_format_statistics_small->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
@@ -1051,14 +1051,14 @@ void main_window::OnPaint(HWND)
 				wchar_t buffer[256];
 
 				std::swprintf(buffer, std::size(buffer),
-					L"%.1f max KPS in recent 5 minutes.",
+					lang["draw.graph.recent"].c_str(),
 					max_value);
 				cache.text_format_graph->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
 				pRenderTarget->DrawTextW(buffer, std::wcslen(buffer),
 					cache.text_format_graph, text_rect, cache.theme_half_trans_brush);
 
 				std::swprintf(buffer, std::size(buffer),
-					L"(%d keys)",
+					lang["draw.graph.keys"].c_str(),
 					k_manager.get_button_count());
 				cache.text_format_graph->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 				pRenderTarget->DrawTextW(buffer, std::wcslen(buffer),

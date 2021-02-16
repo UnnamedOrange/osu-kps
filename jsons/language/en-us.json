@@ -21,5 +21,17 @@
 
 	"menu.zoom": "Zoom",
 	"menu.about": "About...",
-	"menu.exit": "Exit"
+	"menu.exit": "Exit",
+
+	"draw.statistics.max": "max",
+	"draw.graph.recent": "%.1f max KPS in recent 5 minutes.",
+	"draw.graph.keys": "(%d keys)",
+
+	"key_window.caption": "Set keys for %dk",
+
+	"messagebox.topmost.text": "Fail to make the window top most. Please relaunch this application.",
+	"messagebox.topmost.caption": "Error",
+
+	"messagebox.first_run.text": "osu-kps will create a config file named osu-kps-config.json in the current directory. However, it's recommanded that you never modify the config file. Instead, you should use the menu to set the config.",
+	"messagebox.first_run.caption": "Information"
 }
