@@ -181,6 +181,7 @@
     <ClInclude Include="key_monitor_hook.hpp" />
     <ClInclude Include="key_window.h" />
     <ClInclude Include="kps_calculator.hpp" />
+    <ClInclude Include="my_multi_language.hpp" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
@@ -191,6 +192,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\jsons\default_config.json" />
+    <None Include="..\jsons\language\en-US.json" />
+    <None Include="..\jsons\language\zh-CN.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -107,6 +107,9 @@
     <ClInclude Include="key_monitor.hpp">
       <Filter>头文件\kps</Filter>
     </ClInclude>
+    <ClInclude Include="my_multi_language.hpp">
+      <Filter>头文件\kps</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
@@ -120,6 +123,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\jsons\default_config.json">
+      <Filter>资源文件\JSON</Filter>
+    </None>
+    <None Include="..\jsons\language\zh-CN.json">
+      <Filter>资源文件\JSON</Filter>
+    </None>
+    <None Include="..\jsons\language\en-US.json">
       <Filter>资源文件\JSON</Filter>
     </None>
   </ItemGroup>

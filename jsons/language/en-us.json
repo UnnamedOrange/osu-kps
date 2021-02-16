@@ -1,0 +1,37 @@
+{
+	"id": 1033,
+	"locale": "en-US",
+	"language_name": "English",
+
+	"menu.modify_keys": "Modify keys...",
+	"menu.button_count": "Button count",
+	"menu.reset": "Reset",
+	"menu.total_keys": "Total keys",
+	"menu.max_kps": "Max KPS",
+	"menu.kps_graph": "KPS graph",
+	"menu.all": "All",
+	"menu.kps_method": "KPS method",
+	"menu.hard": "Hard",
+	"menu.sensitive": "Sensitive",
+
+	"menu.show": "Show",
+	"menu.buttons": "Buttons",
+	"menu.statistics": "Statistics",
+	"menu.graph": "Graph",
+	"menu.zoom": "Zoom",
+	"menu.about": "About...",
+	"menu.exit": "Exit",
+	"menu.language": "Language",
+
+	"draw.statistics.max": "max",
+	"draw.graph.recent": "%.1f max KPS in recent 5 minutes.",
+	"draw.graph.keys": "(%d keys)",
+
+	"key_window.caption": "Set keys for %dk",
+
+	"messagebox.topmost.text": "Fail to make the window top most. Please relaunch this application.",
+	"messagebox.topmost.caption": "Error",
+
+	"messagebox.first_run.text": "osu-kps will create a config file named osu-kps-config.json in the current directory. However, it's recommanded that you never modify the config file. Instead, you should use the menu to set the config.",
+	"messagebox.first_run.caption": "Information"
+}

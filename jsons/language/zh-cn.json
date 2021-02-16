@@ -1,0 +1,37 @@
+{
+	"id": 2052,
+	"locale": "zh-CN",
+	"language_name": "简体中文 / &Simplified Chinese",
+
+	"menu.modify_keys": "修改按键... (&M)",
+	"menu.button_count": "按键数量 (&B)",
+	"menu.reset": "重置 (&R)",
+	"menu.total_keys": "按键总次数 (&T)",
+	"menu.max_kps": "最大 KPS (&M)",
+	"menu.kps_graph": "KPS 图 (&G)",
+	"menu.all": "以上所有 (&A)",
+	"menu.kps_method": "KPS 计算方式 (&K)",
+	"menu.hard": "硬算 (&H)",
+	"menu.sensitive": "灵敏 (&S)",
+
+	"menu.show": "显示 (&S)",
+	"menu.buttons": "按键 (&B)",
+	"menu.statistics": "统计信息 (&S)",
+	"menu.graph": "KPS 图 (&G)",
+	"menu.zoom": "缩放 (&Z)",
+	"menu.about": "关于... (&A)",
+	"menu.exit": "退出 (&E)",
+	"menu.language": "语言 / &Language",
+
+	"draw.statistics.max": "最大",
+	"draw.graph.recent": "%.1f 最大 KPS（近 5 分钟内）",
+	"draw.graph.keys": "（%d 键）",
+
+	"key_window.caption": "为 %dk 设置按键",
+
+	"messagebox.topmost.text": "窗口置顶失败。请重启本应用。",
+	"messagebox.topmost.caption": "错误",
+
+	"messagebox.first_run.text": "osu-kps 将在当前目录创建一个名为 osu-kps-config.json 的文件。但请最好不要手动修改该配置文件，敬请直接通过右键菜单进行设置。",
+	"messagebox.first_run.caption": "提示"
+}

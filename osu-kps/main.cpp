@@ -18,6 +18,7 @@
 #include <utils/keyboard_char.hpp>
 
 #include "config.hpp"
+#include "my_multi_language.hpp"
 #include "integrated_kps.hpp"
 #include "keys_manager.hpp"
 
@@ -88,8 +89,9 @@ class main_window : public window
 		}
 		if (!std::filesystem::exists("osu-kps-config.json"))
 		{
-			MessageBoxW(hwnd, L"osu-kps will create a config file named osu-kps-config.json in the current directory. However, it's recommanded that you never modify the config file. Instead, you should use the menu to set the config.",
-				L"Information",
+			lang.set_current_language_to_system_default();
+			MessageBoxW(hwnd, lang["messagebox.first_run.text"].c_str(),
+				lang["messagebox.first_run.caption"].c_str(),
 				MB_ICONINFORMATION);
 			cfg.write_to_file("osu-kps-config.json");
 		}
@@ -120,8 +122,8 @@ class main_window : public window
 			}
 			if (!((ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE)) & WS_EX_TOPMOST))
 			{
-				MessageBoxW(nullptr, L"Fail to make the window top most. Please relaunch this application.",
-					L"Error", MB_ICONERROR);
+				MessageBoxW(nullptr, lang["messagebox.topmost.text"].c_str(),
+					lang["messagebox.topmost.error"].c_str(), MB_ICONERROR);
 				return FALSE;
 			}
 		}
@@ -239,7 +241,7 @@ class main_window : public window
 		HMENU hMenuPopup = CreateMenu();
 		AppendMenuW(hMenu, MF_POPUP, reinterpret_cast<UINT_PTR>(hMenuPopup), nullptr);
 
-		AppendMenuW(hMenuPopup, MF_STRING, id_modify_keys, L"Modify keys...");
+		AppendMenuW(hMenuPopup, MF_STRING, id_modify_keys, lang["menu.modify_keys"].c_str());
 		// menus_button_count
 		{
 			HMENU menus_button_count = CreateMenu();
@@ -251,35 +253,35 @@ class main_window : public window
 				AppendMenuW(menus_button_count, MF_STRING, 10,
 					L"1&0");
 
-			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_button_count), L"Button count");
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_button_count), lang["menu.button_count"].c_str());
 		}
 		// menus_reset
 		{
 			HMENU menus_reset = CreateMenu();
-			AppendMenuW(menus_reset, MF_STRING, id_reset_total, L"Total keys");
-			AppendMenuW(menus_reset, MF_STRING, id_reset_max, L"Max KPS");
-			AppendMenuW(menus_reset, MF_STRING, id_reset_graph, L"KPS graph");
-			AppendMenuW(menus_reset, MF_STRING, id_reset_all, L"All");
+			AppendMenuW(menus_reset, MF_STRING, id_reset_total, lang["menu.total_keys"].c_str());
+			AppendMenuW(menus_reset, MF_STRING, id_reset_max, lang["menu.max_kps"].c_str());
+			AppendMenuW(menus_reset, MF_STRING, id_reset_graph, lang["menu.kps_graph"].c_str());
+			AppendMenuW(menus_reset, MF_STRING, id_reset_all, lang["menu.all"].c_str());
 
-			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_reset), L"Reset");
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_reset), lang["menu.reset"].c_str());
 		}
 		// menus_kps_method
 		{
 			HMENU menus_kps_method = CreateMenu();
-			AppendMenuW(menus_kps_method, MF_STRING, id_method_hard, L"Hard");
-			AppendMenuW(menus_kps_method, MF_STRING, id_method_sensitive, L"Sensitive");
+			AppendMenuW(menus_kps_method, MF_STRING, id_method_hard, lang["menu.hard"].c_str());
+			AppendMenuW(menus_kps_method, MF_STRING, id_method_sensitive, lang["menu.sensitive"].c_str());
 
-			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_kps_method), L"KPS method");
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_kps_method), lang["menu.kps_method"].c_str());
 		}
 		AppendMenuW(hMenuPopup, MF_SEPARATOR, NULL, nullptr);
 		// menus_show
 		{
 			HMENU menus_show = CreateMenu();
-			AppendMenuW(menus_show, MF_STRING, id_show_buttons, L"Buttons");
-			AppendMenuW(menus_show, MF_STRING, id_show_statistics, L"Statistics");
-			AppendMenuW(menus_show, MF_STRING, id_show_graph, L"Graph");
+			AppendMenuW(menus_show, MF_STRING, id_show_buttons, lang["menu.buttons"].c_str());
+			AppendMenuW(menus_show, MF_STRING, id_show_statistics, lang["menu.statistics"].c_str());
+			AppendMenuW(menus_show, MF_STRING, id_show_graph, lang["menu.graph"].c_str());
 
-			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_show), L"Show");
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_show), lang["menu.show"].c_str());
 		}
 		// menus_zoom
 		{
@@ -289,11 +291,23 @@ class main_window : public window
 			AppendMenuW(menus_zoom, MF_STRING, id_zoom_2, L"2x");
 			AppendMenuW(menus_zoom, MF_STRING, id_zoom_3, L"3x");
 
-			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_zoom), L"Zoom");
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_zoom), lang["menu.zoom"].c_str());
+		}
+		// menus_language
+		{
+			HMENU menus_language = CreateMenu();
+			auto langs = lang.enumerate_supported_language();
+			for (const auto& locale : langs)
+			{
+				AppendMenuW(menus_language, MF_STRING, lang.query_language_id(locale),
+					code_conv<char8_t, wchar_t>::convert(lang.query_language_name(locale)).c_str());
+			}
+
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_language), lang["menu.language"].c_str());
 		}
 		AppendMenuW(hMenuPopup, MF_SEPARATOR, NULL, nullptr);
-		AppendMenuW(hMenuPopup, MF_STRING, id_about, L"About...");
-		AppendMenuW(hMenuPopup, MF_STRING, id_exit, L"Exit");
+		AppendMenuW(hMenuPopup, MF_STRING, id_about, lang["menu.about"].c_str());
+		AppendMenuW(hMenuPopup, MF_STRING, id_exit, lang["menu.exit"].c_str());
 
 		// 勾选当前按键数量。
 		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_CHECKED);
@@ -330,6 +344,8 @@ class main_window : public window
 			else
 				CheckMenuItem(hMenu, id_zoom_half, MF_CHECKED);
 		}
+		// 勾选当前语言。
+		CheckMenuItem(hMenu, lang.query_current_language_id(), MF_CHECKED);
 	}
 	void OnRButtonDown(HWND, BOOL fDoubleClick, int x, int y, UINT keyFlags)
 	{
@@ -412,8 +428,11 @@ class main_window : public window
 					PostMessageW(hwnd, WM_CLOSE, 0, 0);
 					break;
 				}
-				default:
+				default: // 语言。
+				{
+					change_language(id);
 					break;
+				}
 				}
 		}
 	}
@@ -694,6 +713,13 @@ public:
 	config cfg;
 	void init_options()
 	{
+		if (!cfg.language())
+		{
+			lang.set_current_language_to_system_default();
+			cfg.language(lang.query_current_language_id());
+		}
+		else
+			lang.set_current_language(cfg.language());
 		k_manager.set_button_count(cfg.button_count());
 		kps.change_implement_type(cfg.kps_method());
 		for (int i = 1; i <= keys_manager::max_key_count; i++)
@@ -793,6 +819,12 @@ public:
 	{
 		key_wnd.set_crt_keys(k_manager.get_button_count());
 		key_wnd.create(hwnd);
+	}
+	void change_language(int id)
+	{
+		lang.set_current_language(id);
+		cfg.language(lang.query_current_language_id());
+		create_menu();
 	}
 
 	// 选项窗口
@@ -941,7 +973,7 @@ void main_window::OnPaint(HWND)
 					max_number_rect, cache.theme_brush);
 			}
 			{
-				std::swprintf(buffer, std::size(buffer), L"max");
+				std::swprintf(buffer, std::size(buffer), lang["draw.statistics.max"].c_str());
 				auto str = std::wstring(buffer);
 
 				cache.text_format_statistics_small->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
@@ -1050,14 +1082,14 @@ void main_window::OnPaint(HWND)
 				wchar_t buffer[256];
 
 				std::swprintf(buffer, std::size(buffer),
-					L"%.1f max KPS in recent 5 minutes.",
+					lang["draw.graph.recent"].c_str(),
 					max_value);
 				cache.text_format_graph->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
 				pRenderTarget->DrawTextW(buffer, std::wcslen(buffer),
 					cache.text_format_graph, text_rect, cache.theme_half_trans_brush);
 
 				std::swprintf(buffer, std::size(buffer),
-					L"(%d keys)",
+					lang["draw.graph.keys"].c_str(),
 					k_manager.get_button_count());
 				cache.text_format_graph->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 				pRenderTarget->DrawTextW(buffer, std::wcslen(buffer),

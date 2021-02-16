@@ -11,6 +11,7 @@
 #include <utils/resource_loader.hpp>
 
 #include "config.hpp"
+#include "my_multi_language.hpp"
 
 class key_window : public window
 {
@@ -40,7 +41,7 @@ class key_window : public window
 		// 窗口设置相关。
 		{
 			wchar_t buffer[256];
-			std::swprintf(buffer, std::size(buffer), L"Set keys for %dk", crt_keys);
+			std::swprintf(buffer, std::size(buffer), lang["key_window.caption"].c_str(), crt_keys);
 			caption(buffer);
 		}
 		SetWindowLongW(hwnd, GWL_STYLE, WS_POPUPWINDOW | WS_CAPTION);
