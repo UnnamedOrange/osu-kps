@@ -65,7 +65,7 @@ VS_VERSION_INFO VERSIONINFO
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "080404b0"
+        BLOCK "000004b0"
         BEGIN
             VALUE "CompanyName", "UnnamdOrange"
             VALUE "FileDescription", "osu-kps"
@@ -79,7 +79,7 @@ BEGIN
     END
     BLOCK "VarFileInfo"
     BEGIN
-        VALUE "Translation", 0x804, 1200
+        VALUE "Translation", 0x0, 1200
     END
 END
 
