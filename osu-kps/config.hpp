@@ -83,7 +83,7 @@ public:
 	}
 	void button_count(int count)
 	{
-		(*this)[u8"button_count"] = count;
+		(*this)[u8"kps.button_count"] = count;
 	}
 
 	kps::kps_implement_type kps_method() const
