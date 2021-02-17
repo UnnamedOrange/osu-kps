@@ -54,7 +54,7 @@ class main_window : public window
 			HANDLE_MSG(hwnd, WM_NCLBUTTONDOWN, OnNCLButtonDown);
 			HANDLE_MSG(hwnd, WM_MOVING, OnMoving);
 
-			HANDLE_MSG(hwnd, WM_RBUTTONDOWN, OnRButtonDown);
+			HANDLE_MSG(hwnd, WM_RBUTTONUP, OnRButtonUp);
 			HANDLE_MSG(hwnd, WM_COMMAND, OnCommand);
 
 			HANDLE_MSG(hwnd, WM_PAINT, OnPaint);
@@ -347,16 +347,13 @@ class main_window : public window
 		// 勾选当前语言。
 		CheckMenuItem(hMenu, lang.query_current_language_id(), MF_CHECKED);
 	}
-	void OnRButtonDown(HWND, BOOL fDoubleClick, int x, int y, UINT keyFlags)
+	void OnRButtonUp(HWND hwnd, int x, int y, UINT flags)
 	{
-		UNREFERENCED_PARAMETER(keyFlags);
-		if (!fDoubleClick)
-		{
-			POINT p{ x, y };
-			ClientToScreen(hwnd, &p);
-			TrackPopupMenu(GetSubMenu(hMenu, 0), TPM_RIGHTBUTTON, p.x, p.y,
-				NULL, hwnd, nullptr);
-		}
+		UNREFERENCED_PARAMETER(flags);
+		POINT p{ x, y };
+		ClientToScreen(hwnd, &p);
+		TrackPopupMenu(GetSubMenu(hMenu, 0), TPM_RIGHTBUTTON, p.x, p.y,
+			NULL, hwnd, nullptr);
 	}
 	void OnCommand(HWND, int id, HWND hwndCtl, UINT codeNotify)
 	{
