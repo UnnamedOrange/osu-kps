@@ -72,5 +72,5 @@
 	"scale": 1.0,
 	"language": 0,
 
-	"advanced.key_monitor_method": 1
+	"advanced.experimental.key_monitor_method": 1,
 }

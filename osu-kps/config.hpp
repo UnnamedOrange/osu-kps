@@ -126,7 +126,7 @@ public:
 public:
 	kps::key_monitor_implement_type key_monitor_implement() const
 	{
-		return static_cast<kps::key_monitor_implement_type>(std::get<int64_t>(get_value(u8"advanced.key_monitor_method")));
+		return static_cast<kps::key_monitor_implement_type>(std::get<int64_t>(get_value(u8"advanced.experimental.key_monitor_method")));
 	}
 	void key_monitor_implement(kps::key_monitor_implement_type type)
 	{
