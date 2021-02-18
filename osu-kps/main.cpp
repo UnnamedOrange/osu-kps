@@ -123,7 +123,7 @@ class main_window : public window
 			if (!((ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE)) & WS_EX_TOPMOST))
 			{
 				MessageBoxW(nullptr, lang["messagebox.topmost.text"].c_str(),
-					lang["messagebox.topmost.error"].c_str(), MB_ICONERROR);
+					lang["messagebox.topmost.caption"].c_str(), MB_ICONERROR);
 				return FALSE;
 			}
 		}
