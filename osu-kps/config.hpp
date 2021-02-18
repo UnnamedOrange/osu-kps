@@ -130,6 +130,15 @@ public:
 	}
 	void key_monitor_implement(kps::key_monitor_implement_type type)
 	{
-		(*this)[u8"advanced.key_monitor_method"] = static_cast<int>(type);
+		(*this)[u8"advanced.experimental.key_monitor_method"] = static_cast<int>(type);
+	}
+
+	bool child_window() const
+	{
+		return std::get<bool>(get_value(u8"advanced.experimental.child_window"));
+	}
+	void child_window(bool is_child_window)
+	{
+		(*this)[u8"advanced.experimental.child_window"] = is_child_window;
 	}
 };

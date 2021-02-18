@@ -32,6 +32,9 @@
 	"messagebox.topmost.text": "窗口置顶失败。请重启本应用。",
 	"messagebox.topmost.caption": "错误",
 
+	"messagebox.child.text": "请先启动游戏再启动本应用。",
+	"messagebox.child.caption": "错误",
+
 	"messagebox.first_run.text": "osu-kps 将在当前目录创建一个名为 osu-kps-config.json 的文件。但请最好不要手动修改该配置文件，敬请直接通过右键菜单进行设置。",
 	"messagebox.first_run.caption": "提示"
 }

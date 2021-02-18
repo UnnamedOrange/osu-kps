@@ -112,6 +112,7 @@ class main_window : public window
 		caption(L"osu-kps");
 		SetClassLongW(hwnd, GCL_STYLE, GetClassLongW(hwnd, GCL_STYLE) | CS_DBLCLKS);
 		SetWindowLongW(hwnd, GWL_STYLE, WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_POPUP | WS_SYSMENU); // 无边框窗口。
+		if (!cfg.child_window())
 		{
 			LONG ex_style;
 			for (int i = 0; !((ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE)) & WS_EX_TOPMOST) && i < 100; i++)
@@ -124,6 +125,18 @@ class main_window : public window
 			{
 				MessageBoxW(nullptr, lang["messagebox.topmost.text"].c_str(),
 					lang["messagebox.topmost.caption"].c_str(), MB_ICONERROR);
+				return FALSE;
+			}
+		}
+		else
+		{
+			auto hwndOsu = FindWindowW(L"WindowsForms10.Window.2b.app.0.358a177_r7_ad1", nullptr);
+			if (hwndOsu && SetParent(hwnd, hwndOsu))
+				SetWindowLongW(hwnd, GWL_STYLE, WS_CHILD | GetWindowLongW(hwnd, GWL_STYLE));
+			else
+			{
+				MessageBoxW(nullptr, lang["messagebox.child.text"].c_str(),
+					lang["messagebox.child.caption"].c_str(), MB_ICONERROR);
 				return FALSE;
 			}
 		}
