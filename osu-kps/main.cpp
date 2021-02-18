@@ -130,7 +130,23 @@ class main_window : public window
 		}
 		else
 		{
-			auto hwndOsu = FindWindowW(L"WindowsForms10.Window.2b.app.0.358a177_r7_ad1", nullptr);
+			HWND hwndOsu = nullptr;
+			{
+				HWND hwndTemp = FindWindowExW(nullptr, nullptr, nullptr, nullptr);
+				do
+				{
+					wchar_t buf[256];
+					int length = GetWindowTextW(hwndTemp, buf, 256);
+					buf[length] = 0;
+					if (!std::wstring(buf).starts_with(L"osu!"))
+						continue;
+					length = GetClassNameW(hwndTemp, buf, 256);
+					if (!std::wstring(buf).starts_with(L"WindowsForms10.Window.2b.app."))
+						continue;
+					hwndOsu = hwndTemp;
+					break;
+				} while (hwndTemp = FindWindowExW(nullptr, hwndTemp, nullptr, nullptr));
+			}
 			if (hwndOsu && SetParent(hwnd, hwndOsu))
 				SetWindowLongW(hwnd, GWL_STYLE, WS_CHILD | GetWindowLongW(hwnd, GWL_STYLE));
 			else
