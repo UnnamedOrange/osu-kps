@@ -195,6 +195,11 @@
     <None Include="..\jsons\language\en-US.json" />
     <None Include="..\jsons\language\zh-CN.json" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\third-party\osu-memory\osu-memory\osu-memory.vcxproj">
+      <Project>{62723a49-43ed-4971-bf4d-3e6e7f7149e2}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
