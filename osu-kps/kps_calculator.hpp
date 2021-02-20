@@ -240,7 +240,14 @@ namespace kps
 			}
 			return sum[key];
 		}
-		virtual history_array calc_kps_recent_implement(const std::unordered_set<int>& keys) override
+		virtual double calc_kps_now_implement(const std::vector<int>& _keys) override
+		{
+			auto keys = _keys;
+			keys.push_back(0);
+			return std::accumulate(keys.begin(), keys.end(), 0.0,
+				[this](double pre, int key) { return pre + calc_kps_now_implement(key); });
+		}
+		virtual history_array calc_kps_recent_implement(const std::unordered_set<int>& _keys) override
 		{
 			auto get_time = [&](size_t idx) { return std::get<1>(src->records[idx]); };
 			auto now = clock::now();
@@ -248,6 +255,10 @@ namespace kps
 				std::chrono::duration_cast<std::chrono::duration<double>>(now.time_since_epoch()).count());
 			now = clock::time_point(
 				std::chrono::duration_cast<clock::duration>(std::chrono::seconds(integral_second)));
+
+			auto keys = _keys;
+			keys.insert(0);
+
 			if (src->records.size() && record_stamp == get_time(src->records.size() - 1)
 				&& cache_stamp == now && keys == cache_keys)
 				return cache;
@@ -391,6 +402,7 @@ namespace kps
 			auto now = clock::now();
 			const auto& r = src->records;
 			std::unordered_set<int> keys_set(keys.begin(), keys.end());
+			keys_set.insert(0);
 
 			size_t true_pre_farthest = pre_farthest_multi;
 			if (pre_multi_keys != keys_set)
@@ -419,7 +431,7 @@ namespace kps
 
 			return ret;
 		}
-		virtual history_array calc_kps_recent_implement(const std::unordered_set<int>& keys) override
+		virtual history_array calc_kps_recent_implement(const std::unordered_set<int>& _keys) override
 		{
 			const auto& r = src->records;
 			auto get_time = [&](size_t idx) { return std::get<1>(r[idx]); };
@@ -428,6 +440,9 @@ namespace kps
 				std::chrono::duration_cast<std::chrono::duration<double>>(now.time_since_epoch()).count());
 			now = clock::time_point(
 				std::chrono::duration_cast<clock::duration>(std::chrono::seconds(integral_second)));
+
+			auto keys = _keys;
+			keys.insert(0);
 
 			if (src->records.size() && record_stamp == get_time(r.size() - 1)
 				&& cache_stamp == now && keys == cache_keys)
