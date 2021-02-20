@@ -978,8 +978,15 @@ void main_window::OnPaint(HWND)
 					max_text_rect, cache.theme_brush);
 			}
 			{
-				std::swprintf(buffer, std::size(buffer), L"%d",
-					k_manager.get_total_count());
+				if (cfg.key_monitor_implement() != kps::key_monitor_implement_type::monitor_implement_type_memory)
+				{
+					std::swprintf(buffer, std::size(buffer), L"%d",
+						k_manager.get_total_count());
+				}
+				else
+				{
+					std::swprintf(buffer, std::size(buffer), L"");
+				}
 				auto str = std::wstring(buffer);
 
 				cache.text_format_statistics_small->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
@@ -1085,9 +1092,16 @@ void main_window::OnPaint(HWND)
 				pRenderTarget->DrawTextW(buffer, std::wcslen(buffer),
 					cache.text_format_graph, text_rect, cache.theme_half_trans_brush);
 
-				std::swprintf(buffer, std::size(buffer),
-					lang["draw.graph.keys"].c_str(),
-					k_manager.get_button_count());
+				if (cfg.key_monitor_implement() != kps::key_monitor_implement_type::monitor_implement_type_memory)
+				{
+					std::swprintf(buffer, std::size(buffer),
+						lang["draw.graph.keys"].c_str(),
+						k_manager.get_button_count());
+				}
+				else
+				{
+					std::swprintf(buffer, std::size(buffer), L"");
+				}
 				cache.text_format_graph->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 				pRenderTarget->DrawTextW(buffer, std::wcslen(buffer),
 					cache.text_format_graph, text_rect, cache.theme_half_trans_brush);
