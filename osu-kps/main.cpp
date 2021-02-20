@@ -226,6 +226,8 @@ class main_window : public window
 		id_modify_keys,
 		id_about,
 		id_auto_reset_max,
+		id_monitor_method_async,
+		id_monitor_method_hook,
 	};
 	/// <summary>
 	/// 创建或重建菜单。
@@ -280,6 +282,13 @@ class main_window : public window
 				AppendMenuW(menus_auto_reset, MF_STRING, id_auto_reset_max, lang["menu.auto_reset_max"].c_str());
 
 				AppendMenuW(menus_advanced, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_auto_reset), lang["menu.auto_reset"].c_str());
+			// menus_monitor_method
+			{
+				HMENU menus_monitor_method = CreateMenu();
+				AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_async, lang["menu.async"].c_str());
+				AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_hook, lang["menu.hook"].c_str());
+
+				AppendMenuW(menus_advanced, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_monitor_method), lang["menu.monitor_method"].c_str());
 			}
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_advanced), lang["menu.advanced"].c_str());
 		}
@@ -337,6 +346,25 @@ class main_window : public window
 			break;
 		}
 		}
+		// 勾选当前键盘监视方式。
+		switch (cfg.key_monitor_implement())
+		{
+		case kps::key_monitor_implement_type::monitor_implement_type_async:
+		{
+			CheckMenuItem(hMenu, id_monitor_method_async, MF_CHECKED);
+			break;
+		}
+		case kps::key_monitor_implement_type::monitor_implement_type_hook:
+		{
+			CheckMenuItem(hMenu, id_monitor_method_hook, MF_CHECKED);
+			break;
+		}
+		case kps::key_monitor_implement_type::monitor_implement_type_memory:
+		{
+			CheckMenuItem(hMenu, id_monitor_method_memory, MF_CHECKED);
+			break;
+		}
+		}
 		// 勾选当前显示内容。
 		if (cfg.show_buttons())
 			CheckMenuItem(hMenu, id_show_buttons, MF_CHECKED);
@@ -385,6 +413,8 @@ class main_window : public window
 			}
 			else if (id_method_hard <= id && id <= id_method_sensitive)
 				change_implement(static_cast<kps::kps_implement_type>(id - id_method_hard));
+			else if (id_monitor_method_async <= id && id <= id_monitor_method_memory)
+				change_monitor_implement(static_cast<kps::key_monitor_implement_type>(id - id_monitor_method_async));
 			else
 				switch (id)
 				{
@@ -859,6 +889,34 @@ public:
 	void change_auto_reset_max(bool whether)
 	{
 		cfg.auto_reset_max(whether);
+	}
+	void change_monitor_implement(kps::key_monitor_implement_type new_type)
+	{
+		cfg.key_monitor_implement(new_type);
+
+		kps.change_monitor_implement_type(new_type);
+
+		for (int i = id_monitor_method_async; i <= id_monitor_method_memory; i++)
+			CheckMenuItem(hMenu, i, MF_UNCHECKED);
+
+		switch (cfg.key_monitor_implement())
+		{
+		case kps::key_monitor_implement_type::monitor_implement_type_async:
+		{
+			CheckMenuItem(hMenu, id_monitor_method_async, MF_CHECKED);
+			break;
+		}
+		case kps::key_monitor_implement_type::monitor_implement_type_hook:
+		{
+			CheckMenuItem(hMenu, id_monitor_method_hook, MF_CHECKED);
+			break;
+		}
+		case kps::key_monitor_implement_type::monitor_implement_type_memory:
+		{
+			CheckMenuItem(hMenu, id_monitor_method_memory, MF_CHECKED);
+			break;
+		}
+		}
 	}
 
 	// 选项窗口
