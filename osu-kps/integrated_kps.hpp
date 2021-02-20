@@ -10,6 +10,7 @@
 #include "key_monitor.hpp"
 #include "key_monitor_hook.hpp"
 #include "key_monitor_async.hpp"
+#include "key_monitor_memory.hpp"
 
 namespace kps
 {
@@ -17,6 +18,7 @@ namespace kps
 	{
 		monitor_implement_type_async,
 		monitor_implement_type_hook,
+		monitor_implement_type_memory,
 	};
 
 	class kps final : public kps_calculator
@@ -48,6 +50,9 @@ namespace kps
 				break;
 			case monitor_implement_type_hook:
 				change_monitor_implement_type(std::make_shared<key_monitor_hook>());
+				break;
+			case monitor_implement_type_memory:
+				change_monitor_implement_type(std::make_shared<key_monitor_memory>());
 				break;
 			default:
 				throw std::invalid_argument("type not supported.");

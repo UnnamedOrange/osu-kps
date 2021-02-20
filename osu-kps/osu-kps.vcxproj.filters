@@ -110,6 +110,9 @@
     <ClInclude Include="my_multi_language.hpp">
       <Filter>头文件\kps</Filter>
     </ClInclude>
+    <ClInclude Include="key_monitor_memory.hpp">
+      <Filter>头文件\kps</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
