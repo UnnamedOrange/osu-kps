@@ -13,6 +13,11 @@
 	"menu.kps_method": "KPS method",
 	"menu.hard": "Hard",
 	"menu.sensitive": "Sensitive",
+	"menu.advanced": "A&dvanced",
+	"menu.monitor_method": "Key monitor method",
+	"menu.async": "Poll (safe)",
+	"menu.hook": "Hook (recommended)",
+	"menu.memory": "Memory (experimental, from osu!)",
 
 	"menu.show": "Show",
 	"menu.buttons": "Buttons",
