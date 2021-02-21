@@ -27,11 +27,12 @@ namespace kps
 		callback_t callback;
 		key_monitor monitor;
 	private:
-		void on_key_down(int key, time_point time)
+		void on_key(int key, time_point time, bool down)
 		{
-			notify_key_down(key, time);
+			if (down)
+				notify_key_down(key, time);
 			if (callback)
-				callback(key, time);
+				callback(key, time, down);
 		}
 	private:
 		void change_monitor_implement_type(std::shared_ptr<key_monitor_base> p)
@@ -57,10 +58,11 @@ namespace kps
 	public:
 		kps(callback_t callback) : callback(callback)
 		{
-			monitor.set_callback(std::bind(&kps::on_key_down,
+			monitor.set_callback(std::bind(&kps::on_key,
 				this,
 				std::placeholders::_1,
-				std::placeholders::_2));
+				std::placeholders::_2,
+				std::placeholders::_3));
 #ifdef _DEBUG
 			change_monitor_implement_type(monitor_implement_type_async);
 #else
