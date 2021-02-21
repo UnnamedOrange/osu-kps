@@ -20,7 +20,7 @@ namespace kps
 		/// <summary>
 		/// 回调函数的类型。使用 set_callback 注册回调函数。
 		/// </summary>
-		using callback_t = std::function<void(int key, time_point time)>;
+		using callback_t = std::function<void(int key, time_point time, bool is_down)>;
 	private:
 		std::mutex mutex_callback;
 		callback_t callback;
@@ -57,16 +57,19 @@ namespace kps
 				is_down[key] = true;
 				std::lock_guard _(mutex_callback);
 				if (callback)
-					callback(key, time);
+					callback(key, time, true);
 			}
 		}
 		/// <summary>
-		/// 由 key_monitor_base 的子类调用。当得知某个键已抬起时，即调用该函数。按键抬起的时间点不重要。
+		/// 由 key_monitor_base 的子类调用。当得知某个键已抬起时，即调用该函数。
 		/// </summary>
 		/// <param name="key">抬起的键。</param>
-		void _on_llkey_up(int key)
+		/// <param name="time">时间。</param>
+		void _on_llkey_up(int key, time_point time)
 		{
 			is_down[key] = false;
+			if (callback)
+				callback(key, time, false);
 		}
 
 	public:

@@ -51,7 +51,7 @@ namespace kps
 					if (msb(GetAsyncKeyState(i)))
 						_on_llkey_down(i, clock::now());
 					else
-						_on_llkey_up(i);
+						_on_llkey_up(i, clock::now());
 			}
 		}
 
