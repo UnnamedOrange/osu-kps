@@ -59,7 +59,7 @@ namespace kps
 						for (int i = 0, to = crt - pre; i < to; i++)
 						{
 							_on_llkey_down(0, clock::now());
-							_on_llkey_up(0);
+							_on_llkey_up(0, clock::now());
 						}
 					pre = crt;
 				}
