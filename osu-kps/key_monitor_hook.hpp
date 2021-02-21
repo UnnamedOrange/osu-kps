@@ -34,7 +34,7 @@ namespace kps
 			if (down)
 				_on_llkey_down(vk, time);
 			else
-				_on_llkey_up(vk);
+				_on_llkey_up(vk, time);
 			return false;
 		}
 		mouse_hook m_hook;
@@ -43,13 +43,13 @@ namespace kps
 			UNREFERENCED_PARAMETER(ms);
 			UNREFERENCED_PARAMETER(time);
 			if (message == WM_LBUTTONDOWN)
-				_on_llkey_down(VK_LBUTTON, clock::now());
+				_on_llkey_down(VK_LBUTTON, time);
 			else if (message == WM_LBUTTONUP)
-				_on_llkey_up(VK_LBUTTON);
+				_on_llkey_up(VK_LBUTTON, time);
 			else if (message == WM_RBUTTONDOWN)
-				_on_llkey_down(VK_RBUTTON, clock::now());
+				_on_llkey_down(VK_RBUTTON, time);
 			else if (message == WM_RBUTTONUP)
-				_on_llkey_up(VK_RBUTTON);
+				_on_llkey_up(VK_RBUTTON, time);
 			return false;
 		}
 	public:

@@ -28,6 +28,7 @@ private:
 	int crt_button_count{ default_key_count };
 	struct key_info
 	{
+		bool down{};
 		kps::time_point previous{};
 		int times{};
 	};
@@ -39,26 +40,39 @@ private:
 
 public:
 	/// <summary>
-	/// 当某个键被按下时调用，用于更新信息。该方法可能运行在主线程或子线程。该方法不能花费过多 CPU 时间。
+	/// 当某个键被按下或放开时调用，用于更新信息。该方法可能运行在主线程或子线程。该方法不能花费过多 CPU 时间。
 	/// </summary>
 	/// <param name="key"></param>
 	/// <param name="time"></param>
-	void update_on_key_down(int key, kps::time_point time)
+	void update_on_key_down(int key, kps::time_point time, bool down)
 	{
 		std::lock_guard _(m);
-		const auto& crt_keys = keys[crt_button_count - 1];
-		for (size_t i = 0; i < crt_keys.size(); i++)
-			if (key == crt_keys[i])
-			{
-				extra_info[i].previous = time;
-				extra_info[i].times++;
-			}
+		if (down)
+		{
+			const auto& crt_keys = keys[crt_button_count - 1];
+			for (size_t i = 0; i < crt_keys.size(); i++)
+				if (key == crt_keys[i])
+				{
+					extra_info[i].down = true;
+					extra_info[i].times++;
+				}
 
-		if (std::count(crt_keys.begin(), crt_keys.end(), key))
-			++total_count;
+			if (std::count(crt_keys.begin(), crt_keys.end(), key))
+				++total_count;
 
-		if (src)
-			max_kps = std::max(max_kps, src->calc_kps_now(crt_keys));
+			if (src)
+				max_kps = std::max(max_kps, src->calc_kps_now(crt_keys));
+		}
+		else
+		{
+			const auto& crt_keys = keys[crt_button_count - 1];
+			for (size_t i = 0; i < crt_keys.size(); i++)
+				if (key == crt_keys[i])
+				{
+					extra_info[i].down = false;
+					extra_info[i].previous = time;
+				}
+		}
 	}
 
 public:
@@ -137,11 +151,19 @@ public:
 		max_kps = 0;
 	}
 	/// <summary>
-	/// 获取第 idx 个按键上一次按下的时间。
+	/// 获取第 idx 个按键上一次放开的时间。
 	/// </summary>
 	/// <param name="idx">从 0 开始的下标。</param>
 	kps::time_point previous_by_index(size_t idx)
 	{
 		return extra_info[idx].previous;
+	}
+	/// <summary>
+	/// 获取第 idx 个按键是否被按下。
+	/// </summary>
+	/// <param name="idx">从 0 开始的下标。</param>
+	bool down_by_index(size_t idx)
+	{
+		return extra_info[idx].down;
 	}
 };

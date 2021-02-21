@@ -742,7 +742,7 @@ class main_window : public window
 	// KPS。
 public:
 	keys_manager k_manager{ &kps };
-	kps::kps kps{ std::bind(&keys_manager::update_on_key_down, &k_manager, std::placeholders::_1, std::placeholders::_2) };
+	kps::kps kps{ std::bind(&keys_manager::update_on_key_down, &k_manager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3) };
 	// 选项。
 public:
 	config cfg;
@@ -935,7 +935,7 @@ void main_window::OnPaint(HWND)
 					color brush_color_transparent = brush_color;
 					brush_color_transparent.a = 0;
 					brush_color = _interpolate(brush_color, brush_color_transparent,
-						alpha_param.count(), (0.1s).count(), (0.5s).count());
+						k_manager.down_by_index(i) ? 0 : alpha_param.count(), (0.05s).count(), (0.45s).count());
 
 					if (brush_color.a > 1e-6)
 					{
