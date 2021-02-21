@@ -164,7 +164,7 @@ namespace kps
 		/// </summary>
 		/// <param name="key"></param>
 		/// <returns></returns>
-		virtual history_array calc_kps_recent_implement(const std::unordered_set<int> keys) = 0;
+		virtual history_array calc_kps_recent_implement(const std::unordered_set<int>& keys) = 0;
 	public:
 		double calc_kps_now(int key)
 		{
@@ -240,7 +240,7 @@ namespace kps
 			}
 			return sum[key];
 		}
-		virtual history_array calc_kps_recent_implement(const std::unordered_set<int> keys) override
+		virtual history_array calc_kps_recent_implement(const std::unordered_set<int>& keys) override
 		{
 			auto get_time = [&](size_t idx) { return std::get<1>(src->records[idx]); };
 			auto now = clock::now();
@@ -419,7 +419,7 @@ namespace kps
 
 			return ret;
 		}
-		virtual history_array calc_kps_recent_implement(const std::unordered_set<int> keys) override
+		virtual history_array calc_kps_recent_implement(const std::unordered_set<int>& keys) override
 		{
 			const auto& r = src->records;
 			auto get_time = [&](size_t idx) { return std::get<1>(r[idx]); };
