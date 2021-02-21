@@ -84,6 +84,7 @@ Thanks to the following guys that tried this project out. This helped me a lot. 
 - (osu ID) InabaMeguruSama
 - (osu ID) Induction
 - (osu ID) frankeskybr
+- (osu ID) 13145200
 
 ## Credits
 
