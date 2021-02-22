@@ -29,7 +29,8 @@ private:
 	struct key_info
 	{
 		bool down{};
-		kps::time_point previous{};
+		kps::time_point previous_down{};
+		kps::time_point previous_up{};
 		int times{};
 	};
 	std::vector<key_info> extra_info{ default_key_count };
@@ -55,6 +56,7 @@ public:
 				{
 					extra_info[i].down = true;
 					extra_info[i].times++;
+					extra_info[i].previous_down = time;
 				}
 
 			if (std::count(crt_keys.begin(), crt_keys.end(), key))
@@ -70,7 +72,7 @@ public:
 				if (key == crt_keys[i])
 				{
 					extra_info[i].down = false;
-					extra_info[i].previous = time;
+					extra_info[i].previous_up = time;
 				}
 		}
 	}
@@ -154,9 +156,17 @@ public:
 	/// 获取第 idx 个按键上一次放开的时间。
 	/// </summary>
 	/// <param name="idx">从 0 开始的下标。</param>
-	kps::time_point previous_by_index(size_t idx)
+	kps::time_point previous_up_by_index(size_t idx)
 	{
-		return extra_info[idx].previous;
+		return extra_info[idx].previous_up;
+	}
+	/// <summary>
+	/// 获取第 idx 个按键上一次按下的时间。
+	/// </summary>
+	/// <param name="idx">从 0 开始的下标。</param>
+	kps::time_point previous_down_by_index(size_t idx)
+	{
+		return extra_info[idx].previous_down;
 	}
 	/// <summary>
 	/// 获取第 idx 个按键是否被按下。

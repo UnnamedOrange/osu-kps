@@ -861,15 +861,37 @@ void main_window::OnPaint(HWND)
 
 				// 按键的发光效果。
 				{
-					auto alpha_param = std::chrono::duration_cast<decltype(0.0s)>(
-						kps::clock::now() - k_manager.previous_by_index(i));
 					color brush_color = _interpolate(cache.theme_color, cache.light_active_color,
 						kps.calc_kps_now(k_manager.get_keys()[i]), 2.0, 4.0);
-					brush_color.a = 0.75;
 					color brush_color_transparent = brush_color;
-					brush_color_transparent.a = 0;
-					brush_color = _interpolate(brush_color, brush_color_transparent,
-						k_manager.down_by_index(i) ? 0 : alpha_param.count(), (0.05s).count(), (0.45s).count());
+					auto now = kps::clock::now();
+					auto down_alpha_param = std::chrono::duration_cast<decltype(0.0s)>(
+						now - k_manager.previous_down_by_index(i));
+					auto up_alpha_param = std::chrono::duration_cast<decltype(0.0s)>(
+						now - k_manager.previous_up_by_index(i));
+					color down_color;
+					{
+						brush_color.a = 0.75;
+						brush_color_transparent.a = 0.675;
+						down_color = _interpolate(brush_color, brush_color_transparent,
+							down_alpha_param.count(), (0.05s).count(), (0.2s).count());
+					}
+					if (k_manager.down_by_index(i))
+					{
+						brush_color = down_color;
+					}
+					else
+					{
+						color up_color;
+						{
+							brush_color.a = brush_color_transparent.a;
+							brush_color_transparent.a = 0;
+							up_color = _interpolate(brush_color, brush_color_transparent,
+								up_alpha_param.count(), (0.05s).count(), (0.45s).count());
+						}
+
+						brush_color = up_color;
+					}
 
 					if (brush_color.a > 1e-6)
 					{
