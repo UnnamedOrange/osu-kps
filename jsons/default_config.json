@@ -72,6 +72,7 @@
 	"scale": 1.0,
 	"language": 0,
 
+	"advanced.experimental.auto_reset_max": true,
 	"advanced.experimental.key_monitor_method": 1,
 	"advanced.experimental.child_window" : false
 }

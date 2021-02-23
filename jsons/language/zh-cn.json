@@ -13,6 +13,9 @@
 	"menu.kps_method": "KPS 计算方式 (&K)",
 	"menu.hard": "硬算 (&H)",
 	"menu.sensitive": "灵敏 (&S)",
+	"menu.advanced": "高级 (&D)",
+	"menu.auto_reset": "新开一局时重置 (&R)",
+	"menu.auto_reset_max": "最大 KPS (&M)",
 
 	"menu.show": "显示 (&S)",
 	"menu.buttons": "按键 (&B)",
