@@ -14,6 +14,8 @@
 	"menu.hard": "硬算 (&H)",
 	"menu.sensitive": "灵敏 (&S)",
 	"menu.advanced": "高级 (&D)",
+	"menu.auto_reset": "新开一局时重置 (&R)",
+	"menu.auto_reset_max": "最大 KPS (&M)",
 	"menu.monitor_method": "按键监视方式 (&K)",
 	"menu.async": "轮询（安全） (&P)",
 	"menu.hook": "钩子（推荐） (&H)",

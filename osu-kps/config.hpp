@@ -124,6 +124,15 @@ public:
 	}
 
 public:
+	bool auto_reset_max() const
+	{
+		return std::get<bool>(get_value(u8"advanced.experimental.auto_reset_max"));
+	}
+	void auto_reset_max(bool whether)
+	{
+		(*this)[u8"advanced.experimental.auto_reset_max"] = whether;
+	}
+
 	kps::key_monitor_implement_type key_monitor_implement() const
 	{
 		return static_cast<kps::key_monitor_implement_type>(std::get<int64_t>(get_value(u8"advanced.experimental.key_monitor_method")));
