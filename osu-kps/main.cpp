@@ -847,7 +847,6 @@ public:
 	void change_auto_reset_max(bool whether)
 	{
 		cfg.auto_reset_max(whether);
-		CheckMenuItem(hMenu, id_auto_reset_max, cfg.auto_reset_max() ? MF_CHECKED : MF_UNCHECKED);
 	}
 
 	// 选项窗口
