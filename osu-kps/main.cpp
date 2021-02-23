@@ -128,9 +128,6 @@ class main_window : public window
 			}
 		}
 
-		// 右键菜单。
-		create_menu();
-
 		// 绘图。
 		init_d2d();
 
@@ -352,6 +349,7 @@ class main_window : public window
 		UNREFERENCED_PARAMETER(flags);
 		POINT p{ x, y };
 		ClientToScreen(hwnd, &p);
+		create_menu();
 		TrackPopupMenu(GetSubMenu(hMenu, 0), TPM_RIGHTBUTTON, p.x, p.y,
 			NULL, hwnd, nullptr);
 	}
@@ -731,9 +729,7 @@ public:
 	{
 		cfg.button_count(new_count);
 
-		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_UNCHECKED);
 		k_manager.set_button_count(new_count);
-		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_CHECKED);
 		resize();
 	}
 	/// <summary>
@@ -745,17 +741,6 @@ public:
 		cfg.scale(scale);
 		build_scale_dep_resource();
 		resize();
-
-		for (int i = id_zoom_half; i <= id_zoom_3; i++)
-			CheckMenuItem(hMenu, i, MF_UNCHECKED);
-		if (scale == 1)
-			CheckMenuItem(hMenu, id_zoom_1, MF_CHECKED);
-		else if (scale == 2)
-			CheckMenuItem(hMenu, id_zoom_2, MF_CHECKED);
-		else if (scale == 3)
-			CheckMenuItem(hMenu, id_zoom_3, MF_CHECKED);
-		else
-			CheckMenuItem(hMenu, id_zoom_half, MF_CHECKED);
 	}
 	/// <summary>
 	/// 改变当前 KPS 计算方式。
@@ -766,23 +751,6 @@ public:
 		cfg.kps_method(new_type);
 
 		kps.change_implement_type(new_type);
-
-		for (int i = id_method_hard; i <= id_method_sensitive; i++)
-			CheckMenuItem(hMenu, i, MF_UNCHECKED);
-
-		switch (kps.implement_type())
-		{
-		case kps::kps_implement_type::kps_implement_type_hard:
-		{
-			CheckMenuItem(hMenu, id_method_hard, MF_CHECKED);
-			break;
-		}
-		case kps::kps_implement_type::kps_implement_type_sensitive:
-		{
-			CheckMenuItem(hMenu, id_method_sensitive, MF_CHECKED);
-			break;
-		}
-		}
 	}
 	bool is_any_shown()
 	{
@@ -793,7 +761,6 @@ public:
 		cfg.show_buttons(show);
 		if (!is_any_shown())
 			cfg.show_buttons(true);
-		CheckMenuItem(hMenu, id_show_buttons, cfg.show_buttons() ? MF_CHECKED : MF_UNCHECKED);
 		resize();
 	}
 	void change_show_statistics(bool show)
@@ -801,7 +768,6 @@ public:
 		cfg.show_statistics(show);
 		if (!is_any_shown())
 			cfg.show_statistics(true);
-		CheckMenuItem(hMenu, id_show_statistics, cfg.show_statistics() ? MF_CHECKED : MF_UNCHECKED);
 		resize();
 	}
 	void change_show_graph(bool show)
@@ -809,7 +775,6 @@ public:
 		cfg.show_graph(show);
 		if (!is_any_shown())
 			cfg.show_graph(true);
-		CheckMenuItem(hMenu, id_show_graph, cfg.show_graph() ? MF_CHECKED : MF_UNCHECKED);
 		resize();
 	}
 	void modify_keys()
@@ -821,7 +786,6 @@ public:
 	{
 		lang.set_current_language(id);
 		cfg.language(lang.query_current_language_id());
-		create_menu();
 	}
 
 	// 选项窗口
