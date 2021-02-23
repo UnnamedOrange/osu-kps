@@ -67,9 +67,13 @@ namespace kps
 		/// <param name="time">时间。</param>
 		void _on_llkey_up(int key, time_point time)
 		{
-			is_down[key] = false;
-			if (callback)
-				callback(key, time, false);
+			if (is_down[key])
+			{
+				is_down[key] = false;
+				std::lock_guard _(mutex_callback);
+				if (callback)
+					callback(key, time, false);
+			}
 		}
 
 	public:
