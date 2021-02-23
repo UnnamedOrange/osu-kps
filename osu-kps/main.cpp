@@ -916,28 +916,6 @@ public:
 		cfg.key_monitor_implement(new_type);
 
 		kps.change_monitor_implement_type(new_type);
-
-		for (int i = id_monitor_method_async; i <= id_monitor_method_memory; i++)
-			CheckMenuItem(hMenu, i, MF_UNCHECKED);
-
-		switch (cfg.key_monitor_implement())
-		{
-		case kps::key_monitor_implement_type::monitor_implement_type_async:
-		{
-			CheckMenuItem(hMenu, id_monitor_method_async, MF_CHECKED);
-			break;
-		}
-		case kps::key_monitor_implement_type::monitor_implement_type_hook:
-		{
-			CheckMenuItem(hMenu, id_monitor_method_hook, MF_CHECKED);
-			break;
-		}
-		case kps::key_monitor_implement_type::monitor_implement_type_memory:
-		{
-			CheckMenuItem(hMenu, id_monitor_method_memory, MF_CHECKED);
-			break;
-		}
-		}
 	}
 
 	// 选项窗口
