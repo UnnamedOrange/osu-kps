@@ -324,6 +324,7 @@ class main_window : public window
 				AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_memory, lang["menu.memory"].c_str());
 
 				AppendMenuW(menus_advanced, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_monitor_method), lang["menu.monitor_method"].c_str());
+			}
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_advanced), lang["menu.advanced"].c_str());
 		}
 		AppendMenuW(hMenuPopup, MF_SEPARATOR, NULL, nullptr);
