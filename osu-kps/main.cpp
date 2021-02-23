@@ -157,9 +157,6 @@ class main_window : public window
 			}
 		}
 
-		// 右键菜单。
-		create_menu();
-
 		// 绘图。
 		init_d2d();
 
@@ -381,6 +378,7 @@ class main_window : public window
 		UNREFERENCED_PARAMETER(flags);
 		POINT p{ x, y };
 		ClientToScreen(hwnd, &p);
+		create_menu();
 		TrackPopupMenu(GetSubMenu(hMenu, 0), TPM_RIGHTBUTTON, p.x, p.y,
 			NULL, hwnd, nullptr);
 	}
@@ -760,9 +758,7 @@ public:
 	{
 		cfg.button_count(new_count);
 
-		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_UNCHECKED);
 		k_manager.set_button_count(new_count);
-		CheckMenuItem(hMenu, k_manager.get_button_count(), MF_CHECKED);
 		resize();
 	}
 	/// <summary>
@@ -774,17 +770,6 @@ public:
 		cfg.scale(scale);
 		build_scale_dep_resource();
 		resize();
-
-		for (int i = id_zoom_half; i <= id_zoom_3; i++)
-			CheckMenuItem(hMenu, i, MF_UNCHECKED);
-		if (scale == 1)
-			CheckMenuItem(hMenu, id_zoom_1, MF_CHECKED);
-		else if (scale == 2)
-			CheckMenuItem(hMenu, id_zoom_2, MF_CHECKED);
-		else if (scale == 3)
-			CheckMenuItem(hMenu, id_zoom_3, MF_CHECKED);
-		else
-			CheckMenuItem(hMenu, id_zoom_half, MF_CHECKED);
 	}
 	/// <summary>
 	/// 改变当前 KPS 计算方式。
@@ -795,23 +780,6 @@ public:
 		cfg.kps_method(new_type);
 
 		kps.change_implement_type(new_type);
-
-		for (int i = id_method_hard; i <= id_method_sensitive; i++)
-			CheckMenuItem(hMenu, i, MF_UNCHECKED);
-
-		switch (kps.implement_type())
-		{
-		case kps::kps_implement_type::kps_implement_type_hard:
-		{
-			CheckMenuItem(hMenu, id_method_hard, MF_CHECKED);
-			break;
-		}
-		case kps::kps_implement_type::kps_implement_type_sensitive:
-		{
-			CheckMenuItem(hMenu, id_method_sensitive, MF_CHECKED);
-			break;
-		}
-		}
 	}
 	bool is_any_shown()
 	{
@@ -822,7 +790,6 @@ public:
 		cfg.show_buttons(show);
 		if (!is_any_shown())
 			cfg.show_buttons(true);
-		CheckMenuItem(hMenu, id_show_buttons, cfg.show_buttons() ? MF_CHECKED : MF_UNCHECKED);
 		resize();
 	}
 	void change_show_statistics(bool show)
@@ -830,7 +797,6 @@ public:
 		cfg.show_statistics(show);
 		if (!is_any_shown())
 			cfg.show_statistics(true);
-		CheckMenuItem(hMenu, id_show_statistics, cfg.show_statistics() ? MF_CHECKED : MF_UNCHECKED);
 		resize();
 	}
 	void change_show_graph(bool show)
@@ -838,7 +804,6 @@ public:
 		cfg.show_graph(show);
 		if (!is_any_shown())
 			cfg.show_graph(true);
-		CheckMenuItem(hMenu, id_show_graph, cfg.show_graph() ? MF_CHECKED : MF_UNCHECKED);
 		resize();
 	}
 	void modify_keys()
@@ -850,7 +815,6 @@ public:
 	{
 		lang.set_current_language(id);
 		cfg.language(lang.query_current_language_id());
-		create_menu();
 	}
 
 	// 选项窗口
@@ -890,15 +854,37 @@ void main_window::OnPaint(HWND)
 
 				// 按键的发光效果。
 				{
-					auto alpha_param = std::chrono::duration_cast<decltype(0.0s)>(
-						kps::clock::now() - k_manager.previous_by_index(i));
 					color brush_color = _interpolate(cache.theme_color, cache.light_active_color,
 						kps.calc_kps_now(k_manager.get_keys()[i]), 2.0, 4.0);
-					brush_color.a = 0.75;
 					color brush_color_transparent = brush_color;
-					brush_color_transparent.a = 0;
-					brush_color = _interpolate(brush_color, brush_color_transparent,
-						k_manager.down_by_index(i) ? 0 : alpha_param.count(), (0.05s).count(), (0.45s).count());
+					auto now = kps::clock::now();
+					auto down_alpha_param = std::chrono::duration_cast<decltype(0.0s)>(
+						now - k_manager.previous_down_by_index(i));
+					auto up_alpha_param = std::chrono::duration_cast<decltype(0.0s)>(
+						now - k_manager.previous_up_by_index(i));
+					color down_color;
+					{
+						brush_color.a = 0.75;
+						brush_color_transparent.a = 0.675;
+						down_color = _interpolate(brush_color, brush_color_transparent,
+							down_alpha_param.count(), (0.05s).count(), (0.2s).count());
+					}
+					if (k_manager.down_by_index(i))
+					{
+						brush_color = down_color;
+					}
+					else
+					{
+						color up_color;
+						{
+							brush_color.a = brush_color_transparent.a;
+							brush_color_transparent.a = 0;
+							up_color = _interpolate(brush_color, brush_color_transparent,
+								up_alpha_param.count(), (0.05s).count(), (0.45s).count());
+						}
+
+						brush_color = up_color;
+					}
 
 					if (brush_color.a > 1e-6)
 					{
