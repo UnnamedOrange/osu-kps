@@ -225,6 +225,7 @@ class main_window : public window
 		id_show_graph,
 		id_modify_keys,
 		id_about,
+		id_auto_reset_max,
 	};
 	/// <summary>
 	/// 创建或重建菜单。
@@ -269,6 +270,18 @@ class main_window : public window
 			AppendMenuW(menus_kps_method, MF_STRING, id_method_sensitive, lang["menu.sensitive"].c_str());
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_kps_method), lang["menu.kps_method"].c_str());
+		}
+		// menus_advanced
+		{
+			HMENU menus_advanced = CreateMenu();
+			// menus_auto_reset
+			{
+				HMENU menus_auto_reset = CreateMenu();
+				AppendMenuW(menus_auto_reset, MF_STRING, id_auto_reset_max, lang["menu.auto_reset_max"].c_str());
+
+				AppendMenuW(menus_advanced, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_auto_reset), lang["menu.auto_reset"].c_str());
+			}
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_advanced), lang["menu.advanced"].c_str());
 		}
 		AppendMenuW(hMenuPopup, MF_SEPARATOR, NULL, nullptr);
 		// menus_show
@@ -343,6 +356,9 @@ class main_window : public window
 		}
 		// 勾选当前语言。
 		CheckMenuItem(hMenu, lang.query_current_language_id(), MF_CHECKED);
+		// 勾选当前自动重置。
+		if (cfg.auto_reset_max())
+			CheckMenuItem(hMenu, id_auto_reset_max, MF_CHECKED);
 	}
 	void OnRButtonUp(HWND hwnd, int x, int y, UINT flags)
 	{
@@ -421,6 +437,11 @@ class main_window : public window
 				case id_exit:
 				{
 					PostMessageW(hwnd, WM_CLOSE, 0, 0);
+					break;
+				}
+				case id_auto_reset_max:
+				{
+					change_auto_reset_max(!cfg.auto_reset_max());
 					break;
 				}
 				default: // 语言。
@@ -699,6 +720,42 @@ class main_window : public window
 		InvalidateRect(hwnd, nullptr, FALSE);
 	}
 
+	// auto_reset
+private:
+	timer_thread tt_auto_reset{ [this] {
+		static thread_local std::wstring title;
+		if (cfg.auto_reset_max())
+		{
+			HWND hwndOsu = nullptr;
+			{
+				HWND hwndTemp = FindWindowExW(nullptr, nullptr, nullptr, nullptr);
+				do
+				{
+					wchar_t buf[256];
+					int length = GetWindowTextW(hwndTemp, buf, 256);
+					buf[length] = 0;
+					if (!std::wstring(buf).starts_with(L"osu!"))
+						continue;
+					length = GetClassNameW(hwndTemp, buf, 256);
+					if (!std::wstring(buf).starts_with(L"WindowsForms10.Window.2b.app."))
+						continue;
+					hwndOsu = hwndTemp;
+					break;
+				} while (hwndTemp = FindWindowExW(nullptr, hwndTemp, nullptr, nullptr));
+			}
+			if (hwndOsu)
+			{
+				std::wstring new_title;
+				new_title.resize(GetWindowTextLengthW(hwndOsu));
+				if (new_title.size())
+					GetWindowTextW(hwndOsu, new_title.data(), new_title.size() + 1);
+				if (new_title != L"osu!" && title.size() && title != new_title)
+					k_manager.clear_max_kps();
+				title = new_title;
+			}
+		}
+	}, 500 };
+
 	// KPS。
 public:
 	keys_manager k_manager{ &kps };
@@ -786,6 +843,10 @@ public:
 	{
 		lang.set_current_language(id);
 		cfg.language(lang.query_current_language_id());
+	}
+	void change_auto_reset_max(bool whether)
+	{
+		cfg.auto_reset_max(whether);
 	}
 
 	// 选项窗口

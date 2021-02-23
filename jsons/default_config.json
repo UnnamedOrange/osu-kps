@@ -73,4 +73,5 @@
 	"language": 0,
 
 	"advanced.experimental.key_monitor_method": 1,
+	"advanced.experimental.auto_reset_max": true
 }
