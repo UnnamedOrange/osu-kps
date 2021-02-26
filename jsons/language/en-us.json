@@ -3,6 +3,10 @@
 	"locale": "en-US",
 	"language_name": "English",
 
+	"version.title": "Version",
+	"version.distribution": "beta",
+	"version.tag": "2021.226",
+
 	"menu.modify_keys": "Modify keys...",
 	"menu.button_count": "Button count",
 	"menu.reset": "Reset",

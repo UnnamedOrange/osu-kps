@@ -316,6 +316,8 @@ class main_window : public window
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_language), lang["menu.language"].c_str());
 		}
 		AppendMenuW(hMenuPopup, MF_SEPARATOR, NULL, nullptr);
+		AppendMenuW(hMenuPopup, MF_STRING | MF_DISABLED, NULL,
+			(lang["version.title"] + L": " + lang["version.distribution"] + L"-" + lang["version.tag"]).c_str());
 		AppendMenuW(hMenuPopup, MF_STRING, id_about, lang["menu.about"].c_str());
 		AppendMenuW(hMenuPopup, MF_STRING, id_exit, lang["menu.exit"].c_str());
 
