@@ -3,6 +3,8 @@
 	"locale": "zh-CN",
 	"language_name": "简体中文 / &Simplified Chinese",
 
+	"version.title": "版本",
+
 	"menu.modify_keys": "修改按键... (&M)",
 	"menu.button_count": "按键数量 (&B)",
 	"menu.reset": "重置 (&R)",
