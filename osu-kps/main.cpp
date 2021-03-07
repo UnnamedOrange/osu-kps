@@ -490,7 +490,7 @@ class main_window : public window
 
 	// 绘图。
 	com_ptr<ID2D1HwndRenderTarget> pRenderTarget{};
-	struct cache_type
+	struct cache_t
 	{
 		// indep
 		static constexpr auto theme_color = color(203u, 237u, 238u);
@@ -515,9 +515,18 @@ class main_window : public window
 		com_ptr<IDWriteTextFormat> text_format_graph;
 
 		com_ptr<ID2D1LinearGradientBrush> graph_brush;
+
+		void reset()
+		{
+			this->~cache_t();
+			new(this) cache_t;
+		}
 	} cache;
+	bool d2d_inited{};
 	void init_d2d()
 	{
+		cache.reset();
+
 		if (FAILED(factory::d2d1()->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),
 			D2D1::HwndRenderTargetProperties(hwnd, D2D1::SizeU(width(), height())),
 			pRenderTarget.reset_and_get_address())))
@@ -526,6 +535,7 @@ class main_window : public window
 
 		build_indep_resource();
 		build_scale_dep_resource();
+		d2d_inited = true;
 	}
 	void build_indep_resource()
 	{
@@ -897,6 +907,9 @@ public:
 
 void main_window::OnPaint(HWND)
 {
+	if (!d2d_inited)
+		init_d2d();
+
 	pRenderTarget->BeginDraw();
 	pRenderTarget->SetTransform(D2D1::IdentityMatrix());
 	pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::Black));
@@ -1208,8 +1221,11 @@ void main_window::OnPaint(HWND)
 			}
 		}
 	}
-	pRenderTarget->EndDraw();
-	ValidateRect(hwnd, nullptr);
+	HRESULT hr = pRenderTarget->EndDraw();
+	if (SUCCEEDED(hr))
+		ValidateRect(hwnd, nullptr);
+	else
+		d2d_inited = false;
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int)
