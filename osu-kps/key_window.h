@@ -29,6 +29,21 @@ class key_window : public window
 
 			HANDLE_MSG(hwnd, WM_PAINT, OnPaint);
 
+		case WM_DPICHANGED:
+		{
+			RECT* const prcNewWindow = (RECT*)lParam;
+			SetWindowPos(hwnd,
+				NULL,
+				prcNewWindow->left,
+				prcNewWindow->top,
+				prcNewWindow->right - prcNewWindow->left,
+				prcNewWindow->bottom - prcNewWindow->top,
+				SWP_NOZORDER | SWP_NOACTIVATE);
+			build_scale_dep_resource();
+			resize();
+			break;
+		}
+
 		default:
 			return DefWindowProcW(hwnd, message, wParam, lParam);
 		}
@@ -123,7 +138,7 @@ class key_window : public window
 	template <typename T>
 	using com_ptr = d2d_helper::com_ptr<T>;
 	com_ptr<ID2D1HwndRenderTarget> pRenderTarget{};
-	struct cache_type
+	struct cache_t
 	{
 		// indep
 		static constexpr auto theme_color = d2d_helper::color(203u, 237u, 238u);
@@ -142,7 +157,14 @@ class key_window : public window
 		com_ptr<IDWriteTextFormat> text_format_key_name;
 		com_ptr<IDWriteTextFormat> text_format_key_name_small;
 		com_ptr<IDWriteTextFormat> text_format_key_name_MDL2;
+
+		void reset()
+		{
+			this->~cache_t();
+			new(this) cache_t;
+		}
 	} cache;
+	bool d2d_inited{};
 	void init_d2d();
 	void build_indep_resource();
 	void build_scale_dep_resource();
