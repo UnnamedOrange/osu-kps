@@ -124,6 +124,15 @@ public:
 	}
 
 public:
+	bool auto_reset_max() const
+	{
+		return std::get<bool>(get_value(u8"advanced.experimental.auto_reset_max"));
+	}
+	void auto_reset_max(bool whether)
+	{
+		(*this)[u8"advanced.experimental.auto_reset_max"] = whether;
+	}
+
 	kps::key_monitor_implement_type key_monitor_implement() const
 	{
 		return static_cast<kps::key_monitor_implement_type>(std::get<int64_t>(get_value(u8"advanced.experimental.key_monitor_method")));
@@ -133,12 +142,12 @@ public:
 		(*this)[u8"advanced.experimental.key_monitor_method"] = static_cast<int>(type);
 	}
 
-	bool auto_reset_max() const
+	bool child_window() const
 	{
-		return std::get<bool>(get_value(u8"advanced.experimental.auto_reset_max"));
+		return std::get<bool>(get_value(u8"advanced.experimental.child_window"));
 	}
-	void auto_reset_max(bool whether)
+	void child_window(bool is_child_window)
 	{
-		(*this)[u8"advanced.experimental.auto_reset_max"] = whether;
+		(*this)[u8"advanced.experimental.child_window"] = is_child_window;
 	}
 };

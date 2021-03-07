@@ -43,6 +43,9 @@
 	"messagebox.topmost.text": "Fail to make the window top most. Please relaunch this application.",
 	"messagebox.topmost.caption": "Error",
 
+	"messagebox.child.text": "Please ensure that the window of osu! exists before launching this application.",
+	"messagebox.child.caption": "Error",
+
 	"messagebox.first_run.text": "osu-kps will create a config file named osu-kps-config.json in the current directory. However, it's recommended that you never modify the config file. Instead, you should use the menu to set the config.",
 	"messagebox.first_run.caption": "Information"
 }
