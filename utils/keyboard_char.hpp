@@ -32,6 +32,12 @@ public:
 		vk_numpad7,
 		vk_numpad8,
 		vk_numpad9,
+		vk_multiply, // Numpad *
+		vk_add, // Numpad +
+		vk_separator, // ???
+		vk_subtract, // Numpad -
+		vk_decimal, // Numpad .
+		vk_divide, // Numpad /
 		vk_f1 = 0x70,
 		vk_f2,
 		vk_f3,
@@ -51,9 +57,11 @@ public:
 		vk_lalt,
 		vk_ralt,
 		vk_semicolon = 0xBA, // ;:
-		vk_comma = 0xBC, // ,
-		vk_period = 0xBE, // .
-		vk_slash = 0xBF, // /?
+		vk_plus,
+		vk_comma, // ,
+		vk_minus,
+		vk_period, // .
+		vk_slash, // /?
 		vk_lsbracket = 0xDB, // [{
 		vk_backslash, // \|'
 		vk_rsbracket, // ]}
@@ -80,8 +88,18 @@ public:
 		for (char8_t ch = u8'A'; ch <= u8'Z'; ch++)
 			int_to_short[ch] = { false, true, std::u8string(1, ch) };
 		for (int ch = vk_numpad0; ch <= vk_numpad9; ch++)
-			int_to_short[ch] = { false, true, std::u8string(1, u8'0' + static_cast<char8_t>(ch - vk_numpad0)) };
+			int_to_short[ch] = { false, false, u8"Num" + std::u8string(1, u8'0' + static_cast<char8_t>(ch - vk_numpad0)) };
+
 		int_to_short[vk_space] = { true, true, u8"\xE75D" };
+		int_to_short[vk_left] = { true, false, u8"\xE00E" };
+		int_to_short[vk_up] = { true, false, u8"\xE010" };
+		int_to_short[vk_right] = { true, false, u8"\xE00F" };
+		int_to_short[vk_down] = { true, false, u8"\xE011" };
+		int_to_short[vk_multiply] = { false, false, u8"Num*" };
+		int_to_short[vk_add] = { false, false, u8"Num+" };
+		int_to_short[vk_subtract] = { false, false, u8"Num-" };
+		int_to_short[vk_decimal] = { false, false, u8"Num." };
+		int_to_short[vk_divide] = { false, false, u8"Num/" };
 		int_to_short[vk_lshift] = { false, false, u8"lShift" };
 		int_to_short[vk_rshift] = { false, false, u8"rShift" };
 		int_to_short[vk_lcontrol] = { false, false, u8"lCtrl" };
@@ -89,7 +107,9 @@ public:
 		int_to_short[vk_lalt] = { false, false, u8"lAlt" };
 		int_to_short[vk_ralt] = { false, false, u8"rAlt" };
 		int_to_short[vk_semicolon] = { false, true, u8";" };
+		int_to_short[vk_plus] = { false, true, u8"+" };
 		int_to_short[vk_comma] = { false, true, u8"," };
+		int_to_short[vk_minus] = { false, true, u8"-" };
 		int_to_short[vk_period] = { false, true, u8"." };
 		int_to_short[vk_slash] = { false, true, u8"/" };
 		int_to_short[vk_lsbracket] = { false, true, u8"[" };
@@ -107,6 +127,15 @@ public:
 		for (int ch = vk_numpad0; ch <= vk_numpad9; ch++)
 			int_to_full[ch] = u8"Numpad " + std::u8string(1, u8'0' + static_cast<char8_t>(ch - vk_numpad0));
 		int_to_full[vk_space] = u8"Space";
+		int_to_full[vk_left] = u8"Left";
+		int_to_full[vk_up] = u8"Up";
+		int_to_full[vk_right] = u8"Right";
+		int_to_full[vk_down] = u8"Down";
+		int_to_full[vk_multiply] = u8"Numpad *";
+		int_to_full[vk_add] = u8"Numpad +";
+		int_to_full[vk_subtract] = u8"Numpad -";
+		int_to_full[vk_decimal] = u8"Numpad .";
+		int_to_full[vk_divide] = u8"Numpad /";
 		int_to_full[vk_lshift] = u8"left Shift";
 		int_to_full[vk_rshift] = u8"right Shift";
 		int_to_full[vk_lcontrol] = u8"left Ctrl";
@@ -114,7 +143,9 @@ public:
 		int_to_full[vk_lalt] = u8"left Alt";
 		int_to_full[vk_ralt] = u8"right Alt";
 		int_to_full[vk_semicolon] = u8";";
+		int_to_full[vk_plus] = u8"+";
 		int_to_full[vk_comma] = u8",";
+		int_to_full[vk_minus] = u8"-";
 		int_to_full[vk_period] = u8".";
 		int_to_full[vk_slash] = u8"/";
 		int_to_full[vk_lsbracket] = u8"[";

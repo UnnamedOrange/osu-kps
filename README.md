@@ -51,7 +51,7 @@ The remaining targets won't be updated recently.
 
 - [x] first beta release.
 
-- [ ] add more keys in keyboard_char.
+- [x] add more keys in keyboard_char.
 
 - [ ] add keyboard shortcut.
 
