@@ -282,6 +282,7 @@ class main_window : public window
 				AppendMenuW(menus_auto_reset, MF_STRING, id_auto_reset_max, lang["menu.auto_reset_max"].c_str());
 
 				AppendMenuW(menus_advanced, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_auto_reset), lang["menu.auto_reset"].c_str());
+			}
 			// menus_monitor_method
 			{
 				HMENU menus_monitor_method = CreateMenu();
@@ -359,11 +360,6 @@ class main_window : public window
 			CheckMenuItem(hMenu, id_monitor_method_hook, MF_CHECKED);
 			break;
 		}
-		case kps::key_monitor_implement_type::monitor_implement_type_memory:
-		{
-			CheckMenuItem(hMenu, id_monitor_method_memory, MF_CHECKED);
-			break;
-		}
 		}
 		// 勾选当前显示内容。
 		if (cfg.show_buttons())
@@ -413,7 +409,7 @@ class main_window : public window
 			}
 			else if (id_method_hard <= id && id <= id_method_sensitive)
 				change_implement(static_cast<kps::kps_implement_type>(id - id_method_hard));
-			else if (id_monitor_method_async <= id && id <= id_monitor_method_memory)
+			else if (id_monitor_method_async <= id && id <= id_monitor_method_hook)
 				change_monitor_implement(static_cast<kps::key_monitor_implement_type>(id - id_monitor_method_async));
 			else
 				switch (id)
