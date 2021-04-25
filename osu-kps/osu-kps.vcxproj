@@ -91,7 +91,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\third-party\jsoncpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -109,7 +109,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\third-party\jsoncpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -127,7 +127,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\third-party\jsoncpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -145,7 +145,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\third-party\jsoncpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,23 +155,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\third-party\jsoncpp\src\lib_json\json_reader.cpp" />
-    <ClCompile Include="..\third-party\jsoncpp\src\lib_json\json_value.cpp" />
-    <ClCompile Include="..\third-party\jsoncpp\src\lib_json\json_writer.cpp" />
     <ClCompile Include="key_window.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\third-party\jsoncpp\include\json\allocator.h" />
-    <ClInclude Include="..\third-party\jsoncpp\include\json\assertions.h" />
-    <ClInclude Include="..\third-party\jsoncpp\include\json\config.h" />
-    <ClInclude Include="..\third-party\jsoncpp\include\json\forwards.h" />
-    <ClInclude Include="..\third-party\jsoncpp\include\json\json.h" />
-    <ClInclude Include="..\third-party\jsoncpp\include\json\json_features.h" />
-    <ClInclude Include="..\third-party\jsoncpp\include\json\reader.h" />
-    <ClInclude Include="..\third-party\jsoncpp\include\json\value.h" />
-    <ClInclude Include="..\third-party\jsoncpp\include\json\version.h" />
-    <ClInclude Include="..\third-party\jsoncpp\include\json\writer.h" />
     <ClInclude Include="config.hpp" />
     <ClInclude Include="integrated_kps.hpp" />
     <ClInclude Include="keys_manager.hpp" />
@@ -194,6 +181,7 @@
     <None Include="..\jsons\default_config.json" />
     <None Include="..\jsons\language\en-US.json" />
     <None Include="..\jsons\language\zh-CN.json" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\third-party\osu-memory\osu-memory\osu-memory.vcxproj">
@@ -202,5 +190,12 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\JsonCpp-source.1.0.0\build\native\JsonCpp-source.targets" Condition="Exists('..\packages\JsonCpp-source.1.0.0\build\native\JsonCpp-source.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\JsonCpp-source.1.0.0\build\native\JsonCpp-source.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JsonCpp-source.1.0.0\build\native\JsonCpp-source.targets'))" />
+  </Target>
 </Project>
