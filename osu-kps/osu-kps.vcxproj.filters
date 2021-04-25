@@ -16,12 +16,6 @@
     <Filter Include="头文件\kps">
       <UniqueIdentifier>{c4beae85-02cb-45c3-a6cf-c359c89d0728}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\jsoncpp">
-      <UniqueIdentifier>{8a106708-c9fc-45fa-b32a-a8b3e541323e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\jsoncpp">
-      <UniqueIdentifier>{46230125-c02c-4656-ab25-c5987fea98fa}</UniqueIdentifier>
-    </Filter>
     <Filter Include="资源文件\OTF">
       <UniqueIdentifier>{4e3d90a8-d5e3-41f7-8f6e-8661ec03d102}</UniqueIdentifier>
     </Filter>
@@ -32,15 +26,6 @@
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\third-party\jsoncpp\src\lib_json\json_reader.cpp">
-      <Filter>源文件\jsoncpp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\third-party\jsoncpp\src\lib_json\json_value.cpp">
-      <Filter>源文件\jsoncpp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\third-party\jsoncpp\src\lib_json\json_writer.cpp">
-      <Filter>源文件\jsoncpp</Filter>
     </ClCompile>
     <ClCompile Include="key_window.cpp">
       <Filter>源文件</Filter>
@@ -67,36 +52,6 @@
     </ClInclude>
     <ClInclude Include="keys_manager.hpp">
       <Filter>头文件\kps</Filter>
-    </ClInclude>
-    <ClInclude Include="..\third-party\jsoncpp\include\json\allocator.h">
-      <Filter>头文件\jsoncpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\third-party\jsoncpp\include\json\assertions.h">
-      <Filter>头文件\jsoncpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\third-party\jsoncpp\include\json\config.h">
-      <Filter>头文件\jsoncpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\third-party\jsoncpp\include\json\forwards.h">
-      <Filter>头文件\jsoncpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\third-party\jsoncpp\include\json\json.h">
-      <Filter>头文件\jsoncpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\third-party\jsoncpp\include\json\json_features.h">
-      <Filter>头文件\jsoncpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\third-party\jsoncpp\include\json\reader.h">
-      <Filter>头文件\jsoncpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\third-party\jsoncpp\include\json\value.h">
-      <Filter>头文件\jsoncpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\third-party\jsoncpp\include\json\version.h">
-      <Filter>头文件\jsoncpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\third-party\jsoncpp\include\json\writer.h">
-      <Filter>头文件\jsoncpp</Filter>
     </ClInclude>
     <ClInclude Include="config.hpp">
       <Filter>头文件</Filter>
@@ -134,5 +89,6 @@
     <None Include="..\jsons\language\en-US.json">
       <Filter>资源文件\JSON</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
