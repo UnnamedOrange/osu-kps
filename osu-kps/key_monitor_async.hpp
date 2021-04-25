@@ -47,7 +47,7 @@ namespace kps
 			{
 				if (s_exit.try_acquire_for(10ms))
 					break;
-				for (int i = 0; i < 256; i++)
+				for (int i = 1; i < 256; i++)
 					if (msb(GetAsyncKeyState(i)))
 						_on_llkey_down(i, clock::now());
 					else

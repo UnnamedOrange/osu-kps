@@ -20,6 +20,9 @@
 	"menu.advanced": "A&dvanced",
 	"menu.auto_reset": "Reset something on a new game",
 	"menu.auto_reset_max": "Max",
+	"menu.monitor_method": "Key monitor method",
+	"menu.async": "Poll (safe)",
+	"menu.hook": "Hook (recommended)",
 
 	"menu.show": "Show",
 	"menu.buttons": "Buttons",
