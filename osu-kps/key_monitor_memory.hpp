@@ -14,7 +14,7 @@ using namespace std::literals;
 #undef min
 #undef max
 
-#include <osu_memory.hpp>
+#include <osu_memory/osu_memory.hpp>
 
 #include "key_monitor_base.hpp"
 
