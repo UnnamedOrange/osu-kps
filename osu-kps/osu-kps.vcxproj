@@ -184,19 +184,16 @@
     <None Include="..\jsons\language\zh-CN.json" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\third-party\osu-memory\osu-memory\osu-memory.vcxproj">
-      <Project>{62723a49-43ed-4971-bf4d-3e6e7f7149e2}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\JsonCpp-source.1.0.1\build\native\JsonCpp-source.targets" Condition="Exists('..\packages\JsonCpp-source.1.0.1\build\native\JsonCpp-source.targets')" />
+    <Import Project="..\packages\osu-memory.0.0.4\build\native\osu-memory.targets" Condition="Exists('..\packages\osu-memory.0.0.4\build\native\osu-memory.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\JsonCpp-source.1.0.1\build\native\JsonCpp-source.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JsonCpp-source.1.0.1\build\native\JsonCpp-source.targets'))" />
+    <Error Condition="!Exists('..\packages\osu-memory.0.0.4\build\native\osu-memory.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\osu-memory.0.0.4\build\native\osu-memory.targets'))" />
   </Target>
 </Project>
