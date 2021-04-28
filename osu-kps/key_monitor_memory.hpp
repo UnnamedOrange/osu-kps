@@ -14,7 +14,7 @@ using namespace std::literals;
 #undef min
 #undef max
 
-#include <osu_memory/osu_memory.hpp>
+#include <osu_memory/osu_memory.h>
 
 #include "key_monitor_base.hpp"
 
@@ -30,7 +30,6 @@ namespace kps
 		using key_monitor_base::_on_llkey_up;
 
 	private:
-		osu_memory::osu_memory_collection m;
 		int pre{};
 	private:
 		std::binary_semaphore s_exit{ 0 };
@@ -43,11 +42,12 @@ namespace kps
 					break;
 
 				{
-					auto t1 = m.get_50();
-					auto t2 = m.get_100();
-					auto t3 = m.get_200();
-					auto t4 = m.get_300();
-					auto t5 = m.get_perfect();
+					using osu_memory::reader;
+					auto t1 = reader::get_50();
+					auto t2 = reader::get_100();
+					auto t3 = reader::get_200();
+					auto t4 = reader::get_300();
+					auto t5 = reader::get_perfect();
 					if (!(t1 && t2 && t3 && t4 && t5))
 					{
 						pre = 0;
