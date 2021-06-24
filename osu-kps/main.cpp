@@ -943,10 +943,10 @@ void main_window::OnPaint(HWND)
 						now - k_manager.previous_up_by_index(i));
 					color down_color;
 					{
-						brush_color.a = 0.75;
+						brush_color.a = 0;
 						brush_color_transparent.a = 0.675;
 						down_color = _interpolate(brush_color, brush_color_transparent,
-							down_alpha_param.count(), (0.05s).count(), (0.2s).count());
+							down_alpha_param.count(), (0.01s).count(), (0.03s).count());
 					}
 					if (k_manager.down_by_index(i))
 					{
@@ -959,7 +959,7 @@ void main_window::OnPaint(HWND)
 							brush_color.a = brush_color_transparent.a;
 							brush_color_transparent.a = 0;
 							up_color = _interpolate(brush_color, brush_color_transparent,
-								up_alpha_param.count(), (0.05s).count(), (0.45s).count());
+								up_alpha_param.count(), (0.05s).count(), (0.25s).count());
 						}
 
 						brush_color = up_color;
