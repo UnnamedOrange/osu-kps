@@ -29,6 +29,7 @@
 	"menu.statistics": "Statistics",
 	"menu.graph": "Graph",
 	"menu.zoom": "Zoom",
+	"menu.customed_zoom": "Customed",
 	"menu.about": "About...",
 	"menu.exit": "Exit",
 	"menu.language": "Language",
