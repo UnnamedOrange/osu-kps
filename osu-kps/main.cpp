@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full licence text.
 
 #include <functional>
+#include <set>
 
 #include <Windows.h>
 #undef min
@@ -56,6 +57,8 @@ class main_window : public window
 
 			HANDLE_MSG(hwnd, WM_RBUTTONUP, OnRButtonUp);
 			HANDLE_MSG(hwnd, WM_COMMAND, OnCommand);
+
+			HANDLE_MSG(hwnd, WM_MOUSEWHEEL, OnMouseWheel);
 
 			HANDLE_MSG(hwnd, WM_PAINT, OnPaint);
 
@@ -218,6 +221,7 @@ class main_window : public window
 		id_zoom_1,
 		id_zoom_2,
 		id_zoom_3,
+		id_zoom_customed,
 		id_method_hard,
 		id_method_sensitive,
 		id_show_buttons,
@@ -312,6 +316,8 @@ class main_window : public window
 			AppendMenuW(menus_zoom, MF_STRING, id_zoom_1, L"1x");
 			AppendMenuW(menus_zoom, MF_STRING, id_zoom_2, L"2x");
 			AppendMenuW(menus_zoom, MF_STRING, id_zoom_3, L"3x");
+			if (!std::set({ 1.0, 2.0, 3.0, 0.75 }).count(cfg.scale()))
+				AppendMenuW(menus_zoom, MF_STRING | MF_DISABLED, id_zoom_customed, lang["menu.customed_zoom"].c_str());
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_zoom), lang["menu.zoom"].c_str());
 		}
@@ -384,8 +390,10 @@ class main_window : public window
 				CheckMenuItem(hMenu, id_zoom_2, MF_CHECKED);
 			else if (scale == 3)
 				CheckMenuItem(hMenu, id_zoom_3, MF_CHECKED);
-			else
+			else if (scale == 0.75)
 				CheckMenuItem(hMenu, id_zoom_half, MF_CHECKED);
+			else
+				CheckMenuItem(hMenu, id_zoom_customed, MF_CHECKED);
 		}
 		// 勾选当前语言。
 		CheckMenuItem(hMenu, lang.query_current_language_id(), MF_CHECKED);
@@ -485,6 +493,15 @@ class main_window : public window
 					break;
 				}
 				}
+		}
+	}
+
+	// 滚轮。
+	void OnMouseWheel(HWND hwnd, int xPos, int yPos, int zDelta, UINT fwKeys)
+	{
+		if (fwKeys & MK_CONTROL)
+		{
+			change_scale(cfg.scale() + zDelta / WHEEL_DELTA / 100.0);
 		}
 	}
 
@@ -707,7 +724,7 @@ class main_window : public window
 	inline static double cy_separator = 8.0;
 	inline static double cx_statistics = 232.0;
 	inline static double cx_kps_number = 33.0;
-	inline static double cx_kps_text = 30.0;
+	inline static double cx_kps_text = 33.0;
 	inline static double cx_total_number = 40.0;
 	inline static double cy_statistics = 20.0;
 	inline static double cy_statistics_small = 15.0;
@@ -839,7 +856,7 @@ public:
 	/// </summary>
 	void change_scale(double scale)
 	{
-		constexpr double t[]{ 0.75, 1, 2, 3 };
+		scale = std::max(0.5, std::min(5.0, scale));
 		cfg.scale(scale);
 		build_scale_dep_resource();
 		resize();
@@ -950,10 +967,10 @@ void main_window::OnPaint(HWND)
 						now - k_manager.previous_up_by_index(i));
 					color down_color;
 					{
-						brush_color.a = 0.75;
+						brush_color.a = 0;
 						brush_color_transparent.a = 0.675;
 						down_color = _interpolate(brush_color, brush_color_transparent,
-							down_alpha_param.count(), (0.05s).count(), (0.2s).count());
+							down_alpha_param.count(), (0.01s).count(), (0.03s).count());
 					}
 					if (k_manager.down_by_index(i))
 					{
@@ -966,7 +983,7 @@ void main_window::OnPaint(HWND)
 							brush_color.a = brush_color_transparent.a;
 							brush_color_transparent.a = 0;
 							up_color = _interpolate(brush_color, brush_color_transparent,
-								up_alpha_param.count(), (0.05s).count(), (0.45s).count());
+								up_alpha_param.count(), (0.05s).count(), (0.25s).count());
 						}
 
 						brush_color = up_color;
