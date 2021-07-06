@@ -16,10 +16,14 @@ public:
 		vk_mbutton = 0x04,
 		vk_escape = 0x1B,
 		vk_space = 0x20,
+		vk_end = 0x23,
+		vk_home = 0x24,
 		vk_left = 0x25,
 		vk_up = 0x26,
 		vk_right = 0x27,
 		vk_down = 0x28,
+		vk_insert = 0x2D,
+		vk_delete = 0x2E,
 		vk_lwin = 0x5B,
 		vk_rwin = 0x5C,
 		vk_numpad0 = 0x60,
@@ -91,10 +95,14 @@ public:
 			int_to_short[ch] = { false, false, u8"Num" + std::u8string(1, u8'0' + static_cast<char8_t>(ch - vk_numpad0)) };
 
 		int_to_short[vk_space] = { true, true, u8"\xE75D" };
+		int_to_short[vk_end] = { false, false, u8"End" };
+		int_to_short[vk_home] = { false, false, u8"Home" };
 		int_to_short[vk_left] = { true, false, u8"\xE00E" };
 		int_to_short[vk_up] = { true, false, u8"\xE010" };
 		int_to_short[vk_right] = { true, false, u8"\xE00F" };
 		int_to_short[vk_down] = { true, false, u8"\xE011" };
+		int_to_short[vk_insert] = { false, false, u8"Insert" };
+		int_to_short[vk_delete] = { false, false, u8"Delete" };
 		int_to_short[vk_multiply] = { false, false, u8"Num*" };
 		int_to_short[vk_add] = { false, false, u8"Num+" };
 		int_to_short[vk_subtract] = { false, false, u8"Num-" };
@@ -127,10 +135,14 @@ public:
 		for (int ch = vk_numpad0; ch <= vk_numpad9; ch++)
 			int_to_full[ch] = u8"Numpad " + std::u8string(1, u8'0' + static_cast<char8_t>(ch - vk_numpad0));
 		int_to_full[vk_space] = u8"Space";
+		int_to_full[vk_end] = u8"End";
+		int_to_full[vk_home] = u8"Home";
 		int_to_full[vk_left] = u8"Left";
 		int_to_full[vk_up] = u8"Up";
 		int_to_full[vk_right] = u8"Right";
 		int_to_full[vk_down] = u8"Down";
+		int_to_full[vk_insert] = u8"Insert";
+		int_to_full[vk_delete] = u8"Delete";
 		int_to_full[vk_multiply] = u8"Numpad *";
 		int_to_full[vk_add] = u8"Numpad +";
 		int_to_full[vk_subtract] = u8"Numpad -";
