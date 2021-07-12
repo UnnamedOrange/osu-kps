@@ -27,6 +27,7 @@
 	"menu.statistics": "统计信息 (&S)",
 	"menu.graph": "KPS 图 (&G)",
 	"menu.zoom": "缩放 (&Z)",
+	"menu.customed_zoom": "自定义",
 	"menu.about": "关于... (&A)",
 	"menu.exit": "退出 (&E)",
 	"menu.language": "语言 / &Language",

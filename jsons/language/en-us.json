@@ -5,7 +5,7 @@
 
 	"version.title": "Version",
 	"version.distribution": "beta",
-	"version.tag": "2021.319",
+	"version.tag": "2021.706",
 
 	"menu.modify_keys": "Modify keys...",
 	"menu.button_count": "Button count",
@@ -29,6 +29,7 @@
 	"menu.statistics": "Statistics",
 	"menu.graph": "Graph",
 	"menu.zoom": "Zoom",
+	"menu.customed_zoom": "Customed",
 	"menu.about": "About...",
 	"menu.exit": "Exit",
 	"menu.language": "Language",
