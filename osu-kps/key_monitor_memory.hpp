@@ -30,46 +30,35 @@ namespace kps
 		using key_monitor_base::_on_llkey_up;
 
 	private:
-		int pre{};
-	private:
-		std::binary_semaphore s_exit{ 0 };
+		bool exit{ false };
 		std::thread t{ &key_monitor_memory::thread_proc, this };
 		void thread_proc()
 		{
-			while (true)
+			while (!exit)
 			{
-				if (s_exit.try_acquire_for(10ms))
-					break;
+				using osu_memory::reader;
 
+				auto now = clock::now();
+				auto keys = reader::get_keys();
+				if (!keys || (*keys).empty())
 				{
-					using osu_memory::reader;
-					auto t1 = reader::get_50();
-					auto t2 = reader::get_100();
-					auto t3 = reader::get_200();
-					auto t4 = reader::get_300();
-					auto t5 = reader::get_perfect();
-					if (!(t1 && t2 && t3 && t4 && t5))
-					{
-						pre = 0;
-						continue;
-					}
-
-					int crt = *t1 + *t2 + *t3 + *t4 + *t5;
-					if (pre <= crt && crt <= pre + 10)
-						for (int i = 0, to = crt - pre; i < to; i++)
-						{
-							_on_llkey_down(0, clock::now());
-							_on_llkey_up(0, clock::now());
-						}
-					pre = crt;
+					for (int i = 0; i < 256; i++)
+						_on_llkey_up(i, now);
+					continue;
 				}
+
+				for (const auto& t : *keys)
+					if (t.second)
+						_on_llkey_down(t.first, now);
+					else
+						_on_llkey_up(t.first, now);
 			}
 		}
 
 	public:
 		~key_monitor_memory()
 		{
-			s_exit.release();
+			exit = true;
 			t.join();
 		}
 	};
