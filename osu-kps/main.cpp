@@ -1096,15 +1096,8 @@ void main_window::OnPaint(HWND)
 					max_text_rect, cache.theme_brush);
 			}
 			{
-				if (cfg.key_monitor_implement() != kps::key_monitor_implement_type::monitor_implement_type_memory)
-				{
-					std::swprintf(buffer, std::size(buffer), L"%d",
-						k_manager.get_total_count());
-				}
-				else
-				{
-					std::swprintf(buffer, std::size(buffer), L"");
-				}
+				std::swprintf(buffer, std::size(buffer), L"%d",
+					k_manager.get_total_count());
 				auto str = std::wstring(buffer);
 
 				cache.text_format_statistics_small->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
