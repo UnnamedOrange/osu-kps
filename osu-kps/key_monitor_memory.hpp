@@ -32,14 +32,13 @@ namespace kps
 	private:
 		bool exit{ false };
 		std::thread t{ &key_monitor_memory::thread_proc, this };
+		osu_memory::reader r;
 		void thread_proc()
 		{
 			while (!exit)
 			{
-				using osu_memory::reader;
-
 				auto now = clock::now();
-				auto keys = reader::get_keys();
+				auto keys = r.get_mania_keys();
 				if (!keys || (*keys).empty())
 				{
 					for (int i = 0; i < 256; i++)
