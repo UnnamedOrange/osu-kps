@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <set>
+#include <format>
 
 #include <Windows.h>
 #undef min
@@ -1194,27 +1195,17 @@ void main_window::OnPaint(HWND)
 				text_rect.left += 2 * x;
 				text_rect.bottom = y - 2 * x;
 				text_rect.right -= 2 * x;
-				wchar_t buffer[256];
+				std::wstring buffer;
 
-				std::swprintf(buffer, std::size(buffer),
-					lang["draw.graph.recent"].c_str(),
-					max_value);
+				buffer = std::format(lang["draw.graph.recent"], max_value);
 				cache.text_format_graph->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
-				pRenderTarget->DrawTextW(buffer, std::wcslen(buffer),
+				pRenderTarget->DrawTextW(buffer.c_str(), buffer.length(),
 					cache.text_format_graph, text_rect, cache.theme_half_trans_brush);
 
-				if (cfg.key_monitor_implement() != kps::key_monitor_implement_type::monitor_implement_type_memory)
-				{
-					std::swprintf(buffer, std::size(buffer),
-						lang["draw.graph.keys"].c_str(),
-						k_manager.get_button_count());
-				}
-				else
-				{
-					std::swprintf(buffer, std::size(buffer), L"");
-				}
+				buffer = std::format(lang["draw.graph.keys"], k_manager.get_button_count());
+
 				cache.text_format_graph->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
-				pRenderTarget->DrawTextW(buffer, std::wcslen(buffer),
+				pRenderTarget->DrawTextW(buffer.c_str(), buffer.length(),
 					cache.text_format_graph, text_rect, cache.theme_half_trans_brush);
 			}
 			// 外边框。

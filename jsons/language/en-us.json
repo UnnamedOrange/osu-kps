@@ -36,10 +36,10 @@
 	"menu.language": "Language",
 
 	"draw.statistics.max": "max",
-	"draw.graph.recent": "%.1f max KPS in recent 5 minutes.",
-	"draw.graph.keys": "(%d keys)",
+	"draw.graph.recent": "{0:.1f} max KPS in recent 5 minutes.",
+	"draw.graph.keys": "({0} keys)",
 
-	"key_window.caption": "Set keys for %dk",
+	"key_window.caption": "Set keys for {0}k",
 
 	"messagebox.topmost.text": "Fail to make the window top most. Please relaunch this application.",
 	"messagebox.topmost.caption": "Error",

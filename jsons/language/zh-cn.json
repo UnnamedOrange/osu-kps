@@ -34,10 +34,10 @@
 	"menu.language": "语言 / &Language",
 
 	"draw.statistics.max": "最大",
-	"draw.graph.recent": "%.1f 最大 KPS（近 5 分钟内）",
-	"draw.graph.keys": "（%d 键）",
+	"draw.graph.recent": "{0:.1f} 最大 KPS（近 5 分钟内）",
+	"draw.graph.keys": "（{0} 键）",
 
-	"key_window.caption": "为 %dk 设置按键",
+	"key_window.caption": "为 {0}k 设置按键",
 
 	"messagebox.topmost.text": "窗口置顶失败。请重启本应用。",
 	"messagebox.topmost.caption": "错误",
