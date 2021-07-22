@@ -31,7 +31,7 @@ namespace kps
 
 	private:
 		bool exit{ false };
-		std::thread t{ &key_monitor_memory::thread_proc, this };
+		std::thread t;
 		osu_memory::reader r;
 		void thread_proc()
 		{
@@ -55,6 +55,10 @@ namespace kps
 		}
 
 	public:
+		key_monitor_memory()
+		{
+			t = std::thread(&key_monitor_memory::thread_proc, this);
+		}
 		~key_monitor_memory()
 		{
 			exit = true;
