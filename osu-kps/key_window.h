@@ -4,6 +4,7 @@
 #pragma once
 
 #include <thread>
+#include <format>
 
 #include <utils/window.hpp>
 #include <utils/d2d_helper.hpp>
@@ -55,8 +56,8 @@ class key_window : public window
 
 		// 窗口设置相关。
 		{
-			wchar_t buffer[256];
-			std::swprintf(buffer, std::size(buffer), lang["key_window.caption"].c_str(), crt_keys);
+			std::wstring buffer;
+			buffer = std::format(lang["key_window.caption"], crt_keys);
 			caption(buffer);
 		}
 		SetWindowLongW(hwnd, GWL_STYLE, WS_POPUPWINDOW | WS_CAPTION);
