@@ -230,7 +230,9 @@ class main_window : public window
 		id_show_graph,
 		id_modify_keys,
 		id_about,
-		id_auto_reset_max,
+		id_auto_reset_total_hits,
+		id_auto_reset_max_kps,
+		id_auto_reset_kps_graph,
 		id_monitor_method_async,
 		id_monitor_method_hook,
 		id_monitor_method_memory,
@@ -264,7 +266,7 @@ class main_window : public window
 		// menus_reset
 		{
 			HMENU menus_reset = CreateMenu();
-			AppendMenuW(menus_reset, MF_STRING, id_reset_total, lang["menu.total_keys"].c_str());
+			AppendMenuW(menus_reset, MF_STRING, id_reset_total, lang["menu.total_hits"].c_str());
 			AppendMenuW(menus_reset, MF_STRING, id_reset_max, lang["menu.max_kps"].c_str());
 			AppendMenuW(menus_reset, MF_STRING, id_reset_graph, lang["menu.kps_graph"].c_str());
 			AppendMenuW(menus_reset, MF_STRING, id_reset_all, lang["menu.all"].c_str());
@@ -274,7 +276,9 @@ class main_window : public window
 		// menus_auto_reset
 		{
 			HMENU menus_auto_reset = CreateMenu();
-			AppendMenuW(menus_auto_reset, MF_STRING, id_auto_reset_max, lang["menu.auto_reset_max"].c_str());
+			AppendMenuW(menus_auto_reset, MF_STRING, id_auto_reset_total_hits, lang["menu.auto_reset.total_hits"].c_str());
+			AppendMenuW(menus_auto_reset, MF_STRING, id_auto_reset_max_kps, lang["menu.auto_reset.max_kps"].c_str());
+			AppendMenuW(menus_auto_reset, MF_STRING, id_auto_reset_kps_graph, lang["menu.auto_reset.kps_graph"].c_str());
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_auto_reset), lang["menu.auto_reset"].c_str());
 		}
@@ -395,8 +399,12 @@ class main_window : public window
 		// 勾选当前语言。
 		CheckMenuItem(hMenu, lang.query_current_language_id(), MF_CHECKED);
 		// 勾选当前自动重置。
-		if (cfg.auto_reset_max())
-			CheckMenuItem(hMenu, id_auto_reset_max, MF_CHECKED);
+		if (cfg.auto_reset_total_hits())
+			CheckMenuItem(hMenu, id_auto_reset_total_hits, MF_CHECKED);
+		if (cfg.auto_reset_max_kps())
+			CheckMenuItem(hMenu, id_auto_reset_max_kps, MF_CHECKED);
+		if (cfg.auto_reset_kps_graph())
+			CheckMenuItem(hMenu, id_auto_reset_kps_graph, MF_CHECKED);
 	}
 	void OnRButtonUp(HWND hwnd, int x, int y, UINT flags)
 	{
@@ -479,9 +487,19 @@ class main_window : public window
 					PostMessageW(hwnd, WM_CLOSE, 0, 0);
 					break;
 				}
-				case id_auto_reset_max:
+				case id_auto_reset_total_hits:
 				{
-					change_auto_reset_max(!cfg.auto_reset_max());
+					change_auto_reset_total_hits(!cfg.auto_reset_total_hits());
+					break;
+				}
+				case id_auto_reset_max_kps:
+				{
+					change_auto_reset_max(!cfg.auto_reset_max_kps());
+					break;
+				}
+				case id_auto_reset_kps_graph:
+				{
+					change_auto_reset_kps_graph(!cfg.auto_reset_kps_graph());
 					break;
 				}
 				default: // 语言。
@@ -784,7 +802,7 @@ class main_window : public window
 private:
 	timer_thread tt_auto_reset{ [this] {
 		static thread_local std::wstring title;
-		if (cfg.auto_reset_max())
+		if (cfg.auto_reset_total_hits() || cfg.auto_reset_max_kps() || cfg.auto_reset_kps_graph())
 		{
 			HWND hwndOsu = nullptr;
 			{
@@ -810,7 +828,14 @@ private:
 				if (new_title.size())
 					GetWindowTextW(hwndOsu, new_title.data(), new_title.size() + 1);
 				if (new_title != L"osu!" && title.size() && title != new_title)
-					k_manager.clear_max_kps();
+				{
+					if (cfg.auto_reset_total_hits())
+						k_manager.clear_total_count();
+					if (cfg.auto_reset_max_kps())
+						k_manager.clear_max_kps();
+					if (cfg.auto_reset_kps_graph())
+						kps.clear();
+				}
 				title = new_title;
 			}
 		}
@@ -904,9 +929,17 @@ public:
 		lang.set_current_language(id);
 		cfg.language(lang.query_current_language_id());
 	}
+	void change_auto_reset_total_hits(bool whether)
+	{
+		cfg.auto_reset_total_hits(whether);
+	}
 	void change_auto_reset_max(bool whether)
 	{
-		cfg.auto_reset_max(whether);
+		cfg.auto_reset_max_kps(whether);
+	}
+	void change_auto_reset_kps_graph(bool whether)
+	{
+		cfg.auto_reset_kps_graph(whether);
 	}
 	void change_monitor_implement(kps::key_monitor_implement_type new_type)
 	{

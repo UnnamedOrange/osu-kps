@@ -126,19 +126,35 @@ public:
 public:
 	kps::key_monitor_implement_type key_monitor_implement() const
 	{
-		return static_cast<kps::key_monitor_implement_type>(std::get<int64_t>(get_value(u8"advanced.experimental.key_monitor_method")));
+		return static_cast<kps::key_monitor_implement_type>(std::get<int64_t>(get_value(u8"key_monitor_method")));
 	}
 	void key_monitor_implement(kps::key_monitor_implement_type type)
 	{
-		(*this)[u8"advanced.experimental.key_monitor_method"] = static_cast<int>(type);
+		(*this)[u8"key_monitor_method"] = static_cast<int>(type);
 	}
 
-	bool auto_reset_max() const
+	bool auto_reset_total_hits() const
 	{
-		return std::get<bool>(get_value(u8"advanced.experimental.auto_reset_max"));
+		return std::get<bool>(get_value(u8"auto_reset.total_hits"));
 	}
-	void auto_reset_max(bool whether)
+	void auto_reset_total_hits(bool whether)
 	{
-		(*this)[u8"advanced.experimental.auto_reset_max"] = whether;
+		(*this)[u8"auto_reset.total_hits"] = whether;
+	}
+	bool auto_reset_max_kps() const
+	{
+		return std::get<bool>(get_value(u8"auto_reset.max_kps"));
+	}
+	void auto_reset_max_kps(bool whether)
+	{
+		(*this)[u8"auto_reset.max_kps"] = whether;
+	}
+	bool auto_reset_kps_graph() const
+	{
+		return std::get<bool>(get_value(u8"auto_reset.kps_graph"));
+	}
+	void auto_reset_kps_graph(bool whether)
+	{
+		(*this)[u8"auto_reset.kps_graph"] = whether;
 	}
 };

@@ -71,7 +71,10 @@
 	"show.graph": true,
 	"scale": 1.0,
 	"language": 0,
+	
+	"key_monitor_method": 0,
 
-	"advanced.experimental.key_monitor_method": 1,
-	"advanced.experimental.auto_reset_max": true
+	"auto_reset.total_hits": false,
+	"auto_reset.max_kps": false,
+	"auto_reset.kps_graph": false
 }
