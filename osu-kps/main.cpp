@@ -513,6 +513,7 @@ class main_window : public window
 		// indep
 		static constexpr auto theme_color = color(203u, 237u, 238u);
 		static constexpr auto theme_color_half_trans = color(203u, 237u, 238u, 191u);
+		static constexpr auto theme_color_full_trans = color(203u, 237u, 238u, 0u);
 		static constexpr auto light_active_color = color(227u, 172u, 181u);
 		static constexpr auto active_color = color(255u, 104u, 143u);
 
@@ -1139,6 +1140,10 @@ void main_window::OnPaint(HWND)
 
 			// 刻度。
 			{
+				color line_color = _interpolate(cache.theme_color_half_trans, cache.theme_color_full_trans, max_value, 60.0, 120.0);
+				com_ptr<ID2D1SolidColorBrush> brush;
+				pRenderTarget->CreateSolidColorBrush(line_color, brush.reset_and_get_address());
+
 				for (double v = 5; v < max_value; v += 5)
 				{
 					double y = draw_rect.bottom - (draw_rect.bottom - draw_rect.top) *
@@ -1146,7 +1151,7 @@ void main_window::OnPaint(HWND)
 					pRenderTarget->DrawLine(
 						D2D1::Point2F(draw_rect.left, y),
 						D2D1::Point2F(draw_rect.right, y),
-						cache.theme_half_trans_brush,
+						brush,
 						0.75 * x,
 						cache.dash_stroke
 					);
