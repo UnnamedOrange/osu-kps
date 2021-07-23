@@ -1061,9 +1061,11 @@ void main_window::OnPaint(HWND)
 			wchar_t buffer[256];
 			{
 				double kps_now = kps.calc_kps_now(k_manager.get_keys());
-				std::swprintf(buffer, std::size(buffer), L"%d",
-					static_cast<int>(kps_now));
-				auto str = std::wstring(buffer);
+				std::wstring str;
+				if (kps_now < 200)
+					str = std::format(L"{0}", static_cast<int>(kps_now));
+				else
+					str = L"\x221E";
 
 				color text_color = _interpolate(cache.theme_color, cache.active_color, kps_now, 6.0, 13.0);
 				com_ptr<ID2D1SolidColorBrush> brush;
@@ -1081,9 +1083,11 @@ void main_window::OnPaint(HWND)
 					kps_text_rect, cache.theme_brush);
 			}
 			{
-				std::swprintf(buffer, std::size(buffer), L"%d",
-					static_cast<int>(k_manager.get_max_kps()));
-				auto str = std::wstring(buffer);
+				std::wstring str;
+				if (k_manager.get_max_kps() < 200)
+					str = std::format(L"{0}", static_cast<int>(k_manager.get_max_kps()));
+				else
+					str = L"\x221E";
 
 				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics,
