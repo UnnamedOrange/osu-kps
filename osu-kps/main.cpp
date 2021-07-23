@@ -271,6 +271,23 @@ class main_window : public window
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_reset), lang["menu.reset"].c_str());
 		}
+		// menus_auto_reset
+		{
+			HMENU menus_auto_reset = CreateMenu();
+			AppendMenuW(menus_auto_reset, MF_STRING, id_auto_reset_max, lang["menu.auto_reset_max"].c_str());
+
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_auto_reset), lang["menu.auto_reset"].c_str());
+		}
+		AppendMenuW(hMenuPopup, MF_SEPARATOR, NULL, nullptr);
+		// menus_monitor_method
+		{
+			HMENU menus_monitor_method = CreateMenu();
+			AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_async, lang["menu.async"].c_str());
+			AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_hook, lang["menu.hook"].c_str());
+			AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_memory, lang["menu.memory"].c_str());
+
+			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_monitor_method), lang["menu.monitor_method"].c_str());
+		}
 		// menus_kps_method
 		{
 			HMENU menus_kps_method = CreateMenu();
@@ -278,27 +295,6 @@ class main_window : public window
 			AppendMenuW(menus_kps_method, MF_STRING, id_method_sensitive, lang["menu.sensitive"].c_str());
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_kps_method), lang["menu.kps_method"].c_str());
-		}
-		// menus_advanced
-		{
-			HMENU menus_advanced = CreateMenu();
-			// menus_auto_reset
-			{
-				HMENU menus_auto_reset = CreateMenu();
-				AppendMenuW(menus_auto_reset, MF_STRING, id_auto_reset_max, lang["menu.auto_reset_max"].c_str());
-
-				AppendMenuW(menus_advanced, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_auto_reset), lang["menu.auto_reset"].c_str());
-			}
-			// menus_monitor_method
-			{
-				HMENU menus_monitor_method = CreateMenu();
-				AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_async, lang["menu.async"].c_str());
-				AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_hook, lang["menu.hook"].c_str());
-				AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_memory, lang["menu.memory"].c_str());
-
-				AppendMenuW(menus_advanced, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_monitor_method), lang["menu.monitor_method"].c_str());
-			}
-			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_advanced), lang["menu.advanced"].c_str());
 		}
 		AppendMenuW(hMenuPopup, MF_SEPARATOR, NULL, nullptr);
 		// menus_show
