@@ -1173,7 +1173,7 @@ void main_window::OnPaint(HWND)
 
 			// 刻度。
 			{
-				color line_color = _interpolate(cache.theme_color_half_trans, cache.theme_color_full_trans, max_value, 60.0, 120.0);
+				color line_color = _interpolate(cache.theme_color_half_trans, cache.theme_color_full_trans, ceil_height, 60.0, 120.0);
 				com_ptr<ID2D1SolidColorBrush> brush;
 				pRenderTarget->CreateSolidColorBrush(line_color, brush.reset_and_get_address());
 
