@@ -10,6 +10,7 @@
 #include <utils/keyboard_char.hpp>
 
 #include "kps_calculator.hpp"
+#include "autoplay_manager.hpp"
 
 /// <summary>
 /// 按键管理器。用于保存当前按键数量、获取当前各按键。主要用于获取画图时需要的信息。
@@ -24,6 +25,8 @@ private:
 private:
 	kps::kps* src{};
 private:
+	autoplay_manager am;
+private:
 	std::array<std::vector<int>, max_key_count> keys;
 	int crt_button_count{ default_key_count };
 	struct key_info
@@ -36,8 +39,9 @@ private:
 	std::vector<key_info> extra_info{ default_key_count };
 	// 其他统计信息。
 private:
-	int total_count{};
-	double max_kps{};
+	bool is_autoplay{};
+	int total_count{}, total_count_auto{};
+	double max_kps{}, max_kps_auto{};
 
 public:
 	/// <summary>
@@ -60,10 +64,20 @@ public:
 				}
 
 			if (std::count(crt_keys.begin(), crt_keys.end(), key))
-				++total_count;
+			{
+				if (is_autoplay)
+					++total_count_auto;
+				else
+					++total_count;
+			}
 
 			if (src)
-				max_kps = std::max(max_kps, src->calc_kps_now(crt_keys));
+			{
+				if (is_autoplay)
+					max_kps_auto = std::max(max_kps_auto, src->calc_kps_now(crt_keys));
+				else
+					max_kps = std::max(max_kps, src->calc_kps_now(crt_keys));
+			}
 		}
 		else
 		{
@@ -78,15 +92,12 @@ public:
 	}
 
 public:
-	keys_manager()
+	keys_manager(kps::kps* source) :
+		src(source), am(source, std::bind(&keys_manager::autoplay_manager_callback, this, std::placeholders::_1))
 	{
 		using vk = keyboard_char::vk;
 		for (unsigned i = 0; i < max_key_count; i++)
 			keys[i].resize(i + 1);
-	}
-	keys_manager(kps::kps* source) : keys_manager()
-	{
-		src = source;
 	}
 	/// <summary>
 	/// 获取当前按键数量。
@@ -125,11 +136,20 @@ public:
 		keys[static_cast<size_t>(button_count) - 1][static_cast<size_t>(which)] = new_key;
 	}
 
+private:
+	void autoplay_manager_callback(autoplay_manager::status_t crt)
+	{
+		std::lock_guard _(m);
+		total_count_auto = 0;
+		max_kps_auto = 0;
+		is_autoplay = crt == autoplay_manager::status_t::auto_play;
+	}
+
 public:
 	/// <returns>总按键次数。</returns>
 	int get_total_count() const
 	{
-		return total_count;
+		return is_autoplay ? total_count_auto : total_count;
 	}
 	/// <summary>
 	/// 清空总按键次数。
@@ -138,11 +158,12 @@ public:
 	{
 		std::lock_guard _(m);
 		total_count = 0;
+		total_count_auto = 0;
 	}
 	/// <returns>最大 KPS。</returns>
 	double get_max_kps() const
 	{
-		return max_kps;
+		return is_autoplay ? max_kps_auto : max_kps;
 	}
 	/// <summary>
 	/// 清空最大 KPS。
@@ -151,6 +172,7 @@ public:
 	{
 		std::lock_guard _(m);
 		max_kps = 0;
+		max_kps_auto = 0;
 	}
 	/// <summary>
 	/// 获取第 idx 个按键上一次放开的时间。
@@ -175,5 +197,13 @@ public:
 	bool down_by_index(size_t idx)
 	{
 		return extra_info[idx].down;
+	}
+	/// <summary>
+	/// 获取当前是否应当以自动播放的模式显示。
+	/// </summary>
+	/// <returns></returns>
+	bool is_autoplay_display() const
+	{
+		return is_autoplay;
 	}
 };
