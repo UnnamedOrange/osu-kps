@@ -28,6 +28,7 @@ namespace kps
 	private:
 		callback_t callback;
 		key_monitor monitor;
+		key_monitor_implement_type crt_type;
 	private:
 		void on_key(int key, time_point time, bool down)
 		{
@@ -58,6 +59,11 @@ namespace kps
 			default:
 				throw std::invalid_argument("type not supported.");
 			}
+			crt_type = type;
+		}
+		key_monitor_implement_type get_monitor_implement_type() const
+		{
+			return crt_type;
 		}
 
 	public:
@@ -70,8 +76,10 @@ namespace kps
 				std::placeholders::_3));
 #ifdef _DEBUG
 			change_monitor_implement_type(monitor_implement_type_async);
+			crt_type = monitor_implement_type_async;
 #else
 			change_monitor_implement_type(monitor_implement_type_hook);
+			crt_type = monitor_implement_type_hook;
 #endif
 		}
 	};
