@@ -339,9 +339,6 @@ namespace kps
 				std::bind(&kps_implement_sensitive::on_key_down, this,
 					std::placeholders::_1, std::placeholders::_2),
 				reinterpret_cast<kps_interface::id_t>(this));
-
-			std::lock_guard _(src->m);
-
 		}
 		~kps_implement_sensitive()
 		{
