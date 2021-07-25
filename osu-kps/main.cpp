@@ -545,6 +545,7 @@ class main_window : public window
 		com_ptr<IDWriteTextFormat> text_format_number;
 		com_ptr<IDWriteTextFormat> text_format_statistics;
 		com_ptr<IDWriteTextFormat> text_format_statistics_small;
+		com_ptr<IDWriteTextFormat> text_format_statistics_MDL2;
 		com_ptr<IDWriteTextFormat> text_format_graph;
 
 		com_ptr<ID2D1LinearGradientBrush> graph_brush;
@@ -648,7 +649,7 @@ class main_window : public window
 			cache.text_format_key_name_MDL2->SetTextAlignment(DWRITE_TEXT_ALIGNMENT::DWRITE_TEXT_ALIGNMENT_CENTER);
 			cache.text_format_key_name_MDL2->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 		}
-		// text_format_statistics, text_format_statistics_small
+		// text_format_statistics, text_format_statistics_small, text_format_statistics_MDL2
 		{
 			create_text_format(
 				cache.theme_font_collection.get_family_names()[0].c_str(),
@@ -660,6 +661,12 @@ class main_window : public window
 				cache.theme_font_collection.get(),
 				15.0 * x,
 				cache.text_format_statistics_small.reset_and_get_address());
+			create_text_format(
+				L"Segoe MDL2 Assets",
+				nullptr,
+				12.0 * x,
+				cache.text_format_statistics_MDL2.reset_and_get_address());
+			cache.text_format_statistics_MDL2->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR);
 		}
 		// text_format_graph
 		{
@@ -1082,6 +1089,10 @@ void main_window::OnPaint(HWND)
 				max_number_rect.right + cx_gap * x, (cy_statistics - cy_statistics_small) * x,
 				max_number_rect.right + (cx_gap + cx_kps_text) * x,
 				cy_statistics * x); // 最大 kps 文字矩形。
+			auto icon_rect = D2D1::RectF(
+				max_text_rect.right, (cy_statistics - cy_statistics_small) * x,
+				(cx_statistics - cx_gap) * x,
+				cy_statistics * x); // 图标矩形。
 			auto total_number_rect = D2D1::RectF(
 				max_text_rect.right + cx_gap * x, (cy_statistics - cy_statistics_small) * x,
 				(cx_statistics - cx_gap) * x,
@@ -1120,7 +1131,8 @@ void main_window::OnPaint(HWND)
 
 				cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics,
-					max_number_rect, cache.theme_brush);
+					max_number_rect,
+					k_manager.is_autoplay_display() ? cache.theme_half_trans_brush : cache.theme_brush);
 			}
 			{
 				std::swprintf(buffer, std::size(buffer), lang["draw.statistics.max"].c_str());
@@ -1130,6 +1142,12 @@ void main_window::OnPaint(HWND)
 				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics_small,
 					max_text_rect, cache.theme_brush);
 			}
+			if (k_manager.is_autoplay_display())
+			{
+				wchar_t ch = L'\xE116';
+				pRenderTarget->DrawTextW(&ch, 1, cache.text_format_statistics_MDL2,
+					icon_rect, cache.theme_half_trans_brush);
+			}
 			{
 				std::swprintf(buffer, std::size(buffer), L"%d",
 					k_manager.get_total_count());
@@ -1137,7 +1155,8 @@ void main_window::OnPaint(HWND)
 
 				cache.text_format_statistics_small->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 				pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics_small,
-					total_number_rect, cache.theme_brush);
+					total_number_rect,
+					k_manager.is_autoplay_display() ? cache.theme_half_trans_brush : cache.theme_brush);
 			}
 
 			// 平移绘制区域，使得逻辑坐标从 (0, 0) 开始。
