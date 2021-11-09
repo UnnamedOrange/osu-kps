@@ -826,7 +826,7 @@ private:
 						continue;
 					hwndOsu = hwndTemp;
 					break;
-				} while (hwndTemp = FindWindowExW(nullptr, hwndTemp, nullptr, nullptr));
+				} while ((hwndTemp = FindWindowExW(nullptr, hwndTemp, nullptr, nullptr)) != nullptr);
 			}
 			if (hwndOsu)
 			{
