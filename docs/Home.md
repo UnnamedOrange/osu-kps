@@ -6,5 +6,9 @@ The documentation is for the developers.
 
 ### [Miscellaneous](./Miscellaneous)
 
-- [Placeholder](Miscellaneous/Placeholder.md)
+- [Placeholder](./Miscellaneous/Placeholder.md)
+
+### [kps_core](./kps_core)
+
+- [Introduction](./kps_core/Introduction.md)
 
