@@ -13,4 +13,12 @@ Abstractly, the inputs and output are:
   - Heavy data with a long loading time, such as KPS in the recent 5 minutes in hard algorithm.
 
   All outputs are real-time because osu-kps is a dynamic analysis program.
+  
+- Input:
+
+  - Real-time input data, such as keystrokes from a keyboard and keystrokes read from memory.
+  - Real-time reference data, such as standard keystrokes read from memory.
+  - Non-real-time input data, such as keystrokes read from a record.
+  - Non-real-time reference data, such as standard keystrokes loaded from a beat-map.
+
 
