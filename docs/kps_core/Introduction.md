@@ -21,4 +21,4 @@ Abstractly, the inputs and output are:
   - Non-real-time input data, such as keystrokes read from a record.
   - Non-real-time reference data, such as standard keystrokes loaded from a beat-map.
 
-
+At one time, there can be only one input source.
