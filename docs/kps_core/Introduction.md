@@ -21,4 +21,4 @@ Abstractly, the inputs and output are:
   - Non-real-time input data, such as keystrokes read from a record.
   - Non-real-time reference data, such as standard keystrokes loaded from a beat-map.
 
-At one time, there can be only one input source.
+At one time, there can be only one input source and one reference source. However, users can create as many output instances as they want, and multiplexing of each type of output should be considered, especially heavy data with a long loading time.
