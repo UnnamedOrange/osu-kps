@@ -33,6 +33,7 @@
 	"menu.about": "关于... (&A)",
 	"menu.exit": "退出 (&E)",
 	"menu.language": "语言 / &Language",
+	"menu.monitor_fence": "限制窗口在显示器内 (&M)",
 
 	"draw.statistics.max": "最大",
 	"draw.graph.recent": "{0:.1f} 最大 KPS（近 5 分钟内）",

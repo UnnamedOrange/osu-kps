@@ -174,6 +174,9 @@ class main_window : public window
 	}
 	void OnMoving(HWND, RECT* pRect)
 	{
+		if (!cfg.monitor_fence())
+			return;
+
 		RECT& r = *pRect;
 		POINT p;
 		GetCursorPos(&p);
@@ -236,6 +239,7 @@ class main_window : public window
 		id_monitor_method_async,
 		id_monitor_method_hook,
 		id_monitor_method_memory,
+		id_monitor_fence,
 	};
 	/// <summary>
 	/// 创建或重建菜单。
@@ -334,6 +338,7 @@ class main_window : public window
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_language), lang["menu.language"].c_str());
 		}
+		AppendMenuW(hMenuPopup, MF_STRING, id_monitor_fence, lang["menu.monitor_fence"].c_str());
 		AppendMenuW(hMenuPopup, MF_SEPARATOR, NULL, nullptr);
 		AppendMenuW(hMenuPopup, MF_STRING | MF_DISABLED, NULL,
 			(lang["version.title"] + L": " + lang["version.distribution"] + L"-" + lang["version.tag"]).c_str());
@@ -398,6 +403,9 @@ class main_window : public window
 		}
 		// 勾选当前语言。
 		CheckMenuItem(hMenu, lang.query_current_language_id(), MF_CHECKED);
+		// 勾选禁止移出屏幕。
+		if (cfg.monitor_fence())
+			CheckMenuItem(hMenu, id_monitor_fence, MF_CHECKED);
 		// 勾选当前自动重置。
 		if (cfg.auto_reset_total_hits())
 			CheckMenuItem(hMenu, id_auto_reset_total_hits, MF_CHECKED);
@@ -500,6 +508,11 @@ class main_window : public window
 				case id_auto_reset_kps_graph:
 				{
 					change_auto_reset_kps_graph(!cfg.auto_reset_kps_graph());
+					break;
+				}
+				case id_monitor_fence:
+				{
+					change_monitor_fence(!cfg.monitor_fence());
 					break;
 				}
 				default: // 语言。
@@ -935,6 +948,10 @@ public:
 	{
 		lang.set_current_language(id);
 		cfg.language(lang.query_current_language_id());
+	}
+	void change_monitor_fence(bool set)
+	{
+		cfg.monitor_fence(set);
 	}
 	void change_auto_reset_total_hits(bool whether)
 	{
