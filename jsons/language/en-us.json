@@ -35,6 +35,7 @@
 	"menu.about": "About...",
 	"menu.exit": "Exit",
 	"menu.language": "Language",
+	"menu.monitor_fence": "Monitor fence",
 
 	"draw.statistics.max": "max",
 	"draw.graph.recent": "{0:.1f} max KPS in recent 5 minutes.",

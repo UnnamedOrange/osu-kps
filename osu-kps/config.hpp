@@ -63,6 +63,15 @@ public:
 		(*this)[u8"scale"] = new_scale;
 	}
 
+	bool monitor_fence() const
+	{
+		return std::get<bool>(get_value(u8"monitor_fence"));
+	}
+	void monitor_fence(bool set_monitor_fence)
+	{
+		(*this)[u8"monitor_fence"] = set_monitor_fence;
+	}
+
 	bool show_buttons() const
 	{
 		return std::get<bool>(get_value(u8"show.buttons"));

@@ -71,6 +71,7 @@
 	"show.graph": true,
 	"scale": 1.0,
 	"language": 0,
+	"monitor_fence": true,
 	
 	"key_monitor_method": 0,
 
