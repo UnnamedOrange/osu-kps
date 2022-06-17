@@ -1271,12 +1271,12 @@ void main_window::OnPaint(HWND)
 				text_rect.right -= 2 * x;
 				std::wstring buffer;
 
-				buffer = std::format(lang["draw.graph.recent"], max_value);
+				buffer = std::vformat(lang["draw.graph.recent"], std::make_wformat_args(max_value));
 				cache.text_format_graph->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
 				pRenderTarget->DrawTextW(buffer.c_str(), buffer.length(),
 					cache.text_format_graph, text_rect, cache.theme_half_trans_brush);
 
-				buffer = std::format(lang["draw.graph.keys"], k_manager.get_button_count());
+				buffer = std::vformat(lang["draw.graph.keys"], std::make_wformat_args(k_manager.get_button_count()));
 
 				cache.text_format_graph->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 				pRenderTarget->DrawTextW(buffer.c_str(), buffer.length(),

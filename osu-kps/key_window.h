@@ -57,7 +57,7 @@ class key_window : public window
 		// 窗口设置相关。
 		{
 			std::wstring buffer;
-			buffer = std::format(lang["key_window.caption"], crt_keys);
+			buffer = std::vformat(lang["key_window.caption"], std::make_wformat_args(crt_keys));
 			caption(buffer);
 		}
 		SetWindowLongW(hwnd, GWL_STYLE, WS_POPUPWINDOW | WS_CAPTION);
