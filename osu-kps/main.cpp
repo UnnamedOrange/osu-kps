@@ -822,6 +822,7 @@ class main_window : public window
 private:
 	timer_thread tt_auto_reset{ [this] {
 		static thread_local std::wstring title;
+		// TODO: 考虑 cfg 被销毁后的情况。
 		if (cfg.auto_reset_total_hits() || cfg.auto_reset_max_kps() || cfg.auto_reset_kps_graph())
 		{
 			HWND hwndOsu = nullptr;
