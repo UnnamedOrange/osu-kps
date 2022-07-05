@@ -16,6 +16,8 @@ public:
 		vk_mbutton = 0x04,
 		vk_escape = 0x1B,
 		vk_space = 0x20,
+		vk_pageup = 0x21,
+		vk_pagedown = 0x22,
 		vk_end = 0x23,
 		vk_home = 0x24,
 		vk_left = 0x25,
@@ -95,6 +97,8 @@ public:
 			int_to_short[ch] = { false, false, u8"Num" + std::u8string(1, u8'0' + static_cast<char8_t>(ch - vk_numpad0)) };
 
 		int_to_short[vk_space] = { true, true, u8"\xE75D" };
+		int_to_short[vk_pageup] = { false, false, u8"PgUp" };
+		int_to_short[vk_pagedown] = { false, false, u8"PgDn" };
 		int_to_short[vk_end] = { false, false, u8"End" };
 		int_to_short[vk_home] = { false, false, u8"Home" };
 		int_to_short[vk_left] = { true, false, u8"\xE00E" };
@@ -135,6 +139,8 @@ public:
 		for (int ch = vk_numpad0; ch <= vk_numpad9; ch++)
 			int_to_full[ch] = u8"Numpad " + std::u8string(1, u8'0' + static_cast<char8_t>(ch - vk_numpad0));
 		int_to_full[vk_space] = u8"Space";
+		int_to_full[vk_pageup] = u8"Page Up";
+		int_to_full[vk_pagedown] = u8"Page Down";
 		int_to_full[vk_end] = u8"End";
 		int_to_full[vk_home] = u8"Home";
 		int_to_full[vk_left] = u8"Left";
