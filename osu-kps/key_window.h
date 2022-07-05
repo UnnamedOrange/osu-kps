@@ -119,8 +119,19 @@ class key_window : public window
 				}
 				if (ok)
 				{
-					if (flags & (1 << 8))
-						vk++;
+					if (vk != VK_LSHIFT)
+					{
+						// 判断是否是右功能键。
+						constexpr auto EXTENDED_KEYMASK = 1 << 8;
+						if (flags & EXTENDED_KEYMASK)
+							vk++; // 从左键变成右键。
+					}
+					else
+					{
+						// flags = 54 表示是右 Shift。
+						if (flags == 54)
+							vk = VK_RSHIFT;
+					}
 					next(vk);
 				}
 			}
