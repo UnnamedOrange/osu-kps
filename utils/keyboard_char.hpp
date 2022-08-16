@@ -68,6 +68,7 @@ public:
 		vk_minus,
 		vk_period, // .
 		vk_slash, // /?
+		vk_tilde, // `~
 		vk_lsbracket = 0xDB, // [{
 		vk_backslash, // \|'
 		vk_rsbracket, // ]}
@@ -124,6 +125,7 @@ public:
 		int_to_short[vk_minus] = { false, true, u8"-" };
 		int_to_short[vk_period] = { false, true, u8"." };
 		int_to_short[vk_slash] = { false, true, u8"/" };
+		int_to_short[vk_tilde] = { false, true, u8"~" };
 		int_to_short[vk_lsbracket] = { false, true, u8"[" };
 		int_to_short[vk_backslash] = { false, true, u8"\\" };
 		int_to_short[vk_rsbracket] = { false, true, u8"]" };
@@ -166,6 +168,7 @@ public:
 		int_to_full[vk_minus] = u8"-";
 		int_to_full[vk_period] = u8".";
 		int_to_full[vk_slash] = u8"/";
+		int_to_full[vk_tilde] = u8"~";
 		int_to_full[vk_lsbracket] = u8"[";
 		int_to_full[vk_backslash] = u8"\\";
 		int_to_full[vk_rsbracket] = u8"]";
