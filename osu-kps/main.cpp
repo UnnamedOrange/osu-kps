@@ -120,7 +120,7 @@ class main_window : public window
 			LONG ex_style;
 			for (int i = 0; !((ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE)) & WS_EX_TOPMOST) && i < 100; i++)
 			{
-				SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+				SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_ASYNCWINDOWPOS | SWP_NOMOVE | SWP_NOSIZE);
 				SetWindowLongW(hwnd, GWL_EXSTYLE, ex_style | WS_EX_TOPMOST);
 				std::this_thread::yield();
 			}
