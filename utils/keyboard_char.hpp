@@ -70,7 +70,7 @@ public:
 		vk_slash, // /?
 		vk_tilde, // `~
 		vk_lsbracket = 0xDB, // [{
-		vk_backslash, // \|'
+		vk_backslash, // \|
 		vk_rsbracket, // ]}
 		vk_quotes, // '"
 	};
