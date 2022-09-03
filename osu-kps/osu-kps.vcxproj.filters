@@ -71,6 +71,9 @@
     <ClInclude Include="autoplay_manager.hpp">
       <Filter>头文件\kps</Filter>
     </ClInclude>
+    <ClInclude Include="key_monitor_malody.hpp">
+      <Filter>头文件\kps</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">

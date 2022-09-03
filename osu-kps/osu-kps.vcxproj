@@ -169,6 +169,7 @@
     <ClInclude Include="key_monitor_async.hpp" />
     <ClInclude Include="key_monitor_base.hpp" />
     <ClInclude Include="key_monitor_hook.hpp" />
+    <ClInclude Include="key_monitor_malody.hpp" />
     <ClInclude Include="key_monitor_memory.hpp" />
     <ClInclude Include="key_window.h" />
     <ClInclude Include="kps_calculator.hpp" />
