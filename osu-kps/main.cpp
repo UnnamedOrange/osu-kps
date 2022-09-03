@@ -1130,7 +1130,15 @@ void main_window::OnPaint(HWND)
 
 			wchar_t buffer[256];
 			{
-				double kps_now = kps.calc_kps_now(k_manager.get_keys());
+				std::vector<int> keys;
+				if (kps.is_scan_code())
+					keys = k_manager.get_keys();
+				else
+				{
+					for (int i = 0; i < k_manager.get_button_count(); i++)
+						keys.push_back(i);
+				}
+				double kps_now = kps.calc_kps_now(keys);
 				std::wstring str;
 				if (kps_now < 200)
 					str = std::format(L"{0}", static_cast<int>(kps_now));
