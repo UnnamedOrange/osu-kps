@@ -20,7 +20,7 @@ namespace kps
 		/// <summary>
 		/// 回调函数的类型。使用 set_callback 注册回调函数。
 		/// </summary>
-		using callback_t = std::function<void(int key, time_point time, bool is_down)>;
+		using callback_t = std::function<void(int key, time_point time, bool is_down, bool is_scan_code)>;
 	private:
 		std::mutex mutex_callback;
 		callback_t callback;
@@ -57,7 +57,7 @@ namespace kps
 				is_down[key] = true;
 				std::lock_guard _(mutex_callback);
 				if (callback)
-					callback(key, time, true);
+					callback(key, time, true, is_scan_code());
 			}
 		}
 		/// <summary>
@@ -72,8 +72,17 @@ namespace kps
 				is_down[key] = false;
 				std::lock_guard _(mutex_callback);
 				if (callback)
-					callback(key, time, false);
+					callback(key, time, false, is_scan_code());
 			}
+		}
+
+	public:
+		/// <summary>
+		/// 编码是否是键盘扫描码。true 表示是扫描码，false 表示从 0 开始编号，不知道实际按键。
+		/// </summary>
+		virtual bool is_scan_code() const noexcept
+		{
+			return true;
 		}
 
 	public:

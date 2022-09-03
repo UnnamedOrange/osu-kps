@@ -265,6 +265,12 @@ namespace kps
 		}
 
 	public:
+		bool is_scan_code() const noexcept override
+		{
+			return false;
+		}
+
+	public:
 		key_monitor_malody()
 		{
 			t = std::thread(&key_monitor_malody::thread_proc, this);

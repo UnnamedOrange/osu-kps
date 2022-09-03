@@ -865,7 +865,7 @@ private:
 	// KPS。
 public:
 	keys_manager k_manager{ &kps };
-	kps::kps kps{ std::bind(&keys_manager::update_on_key_down, &k_manager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3) };
+	kps::kps kps{ std::bind_front(&keys_manager::update_on_key_down, &k_manager) };
 	// 选项。
 public:
 	config cfg;
@@ -1063,7 +1063,12 @@ void main_window::OnPaint(HWND)
 						key_name_rect, cache.theme_brush);
 				}
 				{
-					double k_now = kps.calc_kps_now(k_manager.get_keys()[i]); // 当前框对应 kps。
+					int key;
+					if (kps.is_scan_code())
+						key = k_manager.get_keys()[i];
+					else
+						key = i;
+					double k_now = kps.calc_kps_now(key); // 当前框对应 kps。
 					auto str = std::to_wstring(static_cast<int>(k_now));
 
 					pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_number,
@@ -1202,8 +1207,19 @@ void main_window::OnPaint(HWND)
 
 			auto text_rect = draw_rect; // 文字矩形。
 
-			auto value = kps.calc_kps_recent(
-				{ k_manager.get_keys().cbegin(), k_manager.get_keys().cend() });
+			kps::history_array value;
+			if (kps.is_scan_code())
+			{
+				value = kps.calc_kps_recent(
+					{ k_manager.get_keys().cbegin(), k_manager.get_keys().cend() });
+			}
+			else
+			{
+				std::vector<int> keys;
+				for (int i = 0; i < k_manager.get_button_count(); i++)
+					keys.push_back(i);
+				value = kps.calc_kps_recent({ keys.cbegin(), keys.cend() });
+			}
 			double max_value = *std::max_element(value.begin(), value.end());
 			double ceil_height = std::max(5.0,
 				1.25 * std::max(k_manager.get_max_kps(), max_value)); // 最高点对应的值。

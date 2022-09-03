@@ -47,23 +47,32 @@ public:
 	/// <summary>
 	/// 当某个键被按下或放开时调用，用于更新信息。该方法可能运行在主线程或子线程。该方法不能花费过多 CPU 时间。
 	/// </summary>
-	/// <param name="key"></param>
-	/// <param name="time"></param>
-	void update_on_key_down(int key, kps::time_point time, bool down)
+	void update_on_key_down(int key, kps::time_point time, bool down, bool is_scan_code)
 	{
 		std::lock_guard _(m);
 		if (down)
 		{
 			const auto& crt_keys = keys[crt_button_count - 1];
-			for (size_t i = 0; i < crt_keys.size(); i++)
-				if (key == crt_keys[i])
-				{
-					extra_info[i].down = true;
-					extra_info[i].times++;
-					extra_info[i].previous_down = time;
-				}
 
-			if (std::count(crt_keys.begin(), crt_keys.end(), key))
+			auto update = [&](size_t i)
+			{
+				extra_info[i].down = true;
+				extra_info[i].times++;
+				extra_info[i].previous_down = time;
+			};
+			if (is_scan_code)
+			{
+				for (size_t i = 0; i < crt_keys.size(); i++)
+					if (key == crt_keys[i])
+						update(i);
+			}
+			else
+			{
+				if (key < crt_keys.size())
+					update(key);
+			}
+
+			if (!is_scan_code && key < crt_button_count || std::count(crt_keys.begin(), crt_keys.end(), key))
 			{
 				if (is_autoplay)
 					++total_count_auto;
@@ -73,21 +82,48 @@ public:
 
 			if (src)
 			{
-				if (is_autoplay)
-					max_kps_auto = std::max(max_kps_auto, src->calc_kps_now(crt_keys));
+				if (is_scan_code)
+				{
+					if (is_autoplay)
+						max_kps_auto = std::max(max_kps_auto, src->calc_kps_now(crt_keys));
+					else
+						max_kps = std::max(max_kps, src->calc_kps_now(crt_keys));
+				}
 				else
-					max_kps = std::max(max_kps, src->calc_kps_now(crt_keys));
+				{
+					std::vector<int> non_scan_code;
+					for (int i = 0; i < crt_button_count; i++)
+						non_scan_code.push_back(i);
+					if (is_autoplay)
+						max_kps_auto = std::max(max_kps_auto, src->calc_kps_now(non_scan_code));
+					else
+						max_kps = std::max(max_kps, src->calc_kps_now(non_scan_code));
+				}
 			}
 		}
 		else
 		{
 			const auto& crt_keys = keys[crt_button_count - 1];
-			for (size_t i = 0; i < crt_keys.size(); i++)
-				if (key == crt_keys[i])
-				{
-					extra_info[i].down = false;
-					extra_info[i].previous_up = time;
-				}
+
+			auto update = [&](size_t i)
+			{
+				extra_info[i].down = false;
+				extra_info[i].previous_up = time;
+			};
+			if (is_scan_code)
+			{
+				for (size_t i = 0; i < crt_keys.size(); i++)
+					if (key == crt_keys[i])
+					{
+						extra_info[i].down = false;
+						extra_info[i].previous_up = time;
+					}
+			}
+			else
+			{
+				if (key < crt_keys.size())
+					update(key);
+			}
 		}
 	}
 
@@ -205,5 +241,12 @@ public:
 	bool is_autoplay_display() const
 	{
 		return is_autoplay;
+	}
+	/// <summary>
+	/// 当前的按键是否是键盘扫描码。
+	/// </summary>
+	bool is_scan_code() const
+	{
+		src->is_scan_code();
 	}
 };

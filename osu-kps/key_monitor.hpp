@@ -60,6 +60,14 @@ namespace kps
 		}
 
 	public:
+		bool is_scan_code() const
+		{
+			if (!implement)
+				return false;
+			return implement->is_scan_code();
+		}
+
+	public:
 		key_monitor() = default;
 		key_monitor(const key_monitor&) = delete;
 		key_monitor(key_monitor&&) = default;
