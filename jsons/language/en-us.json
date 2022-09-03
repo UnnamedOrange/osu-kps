@@ -25,6 +25,7 @@
 	"menu.async": "Poll (safe)",
 	"menu.hook": "Hook (recommended)",
 	"menu.memory": "Memory (experimental, from osu!)",
+	"menu.malody": "Memory (experimental, from Malody)",
 
 	"menu.show": "Show",
 	"menu.buttons": "Buttons",

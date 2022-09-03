@@ -239,6 +239,7 @@ class main_window : public window
 		id_monitor_method_async,
 		id_monitor_method_hook,
 		id_monitor_method_memory,
+		id_monitor_method_malody,
 		id_monitor_fence,
 	};
 	/// <summary>
@@ -293,6 +294,7 @@ class main_window : public window
 			AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_async, lang["menu.async"].c_str());
 			AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_hook, lang["menu.hook"].c_str());
 			AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_memory, lang["menu.memory"].c_str());
+			AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_malody, lang["menu.malody"].c_str());
 
 			AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_monitor_method), lang["menu.monitor_method"].c_str());
 		}
@@ -379,6 +381,11 @@ class main_window : public window
 			CheckMenuItem(hMenu, id_monitor_method_memory, MF_CHECKED);
 			break;
 		}
+		case kps::key_monitor_implement_type::monitor_implement_type_malody:
+		{
+			CheckMenuItem(hMenu, id_monitor_method_malody, MF_CHECKED);
+			break;
+		}
 		}
 		// 勾选当前显示内容。
 		if (cfg.show_buttons())
@@ -437,7 +444,7 @@ class main_window : public window
 			}
 			else if (id_method_hard <= id && id <= id_method_sensitive)
 				change_implement(static_cast<kps::kps_implement_type>(id - id_method_hard));
-			else if (id_monitor_method_async <= id && id <= id_monitor_method_memory)
+			else if (id_monitor_method_async <= id && id <= id_monitor_method_malody)
 				change_monitor_implement(static_cast<kps::key_monitor_implement_type>(id - id_monitor_method_async));
 			else
 				switch (id)
