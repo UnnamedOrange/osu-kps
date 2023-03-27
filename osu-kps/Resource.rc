@@ -51,8 +51,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,2022,816,0
- PRODUCTVERSION 0,2022,816,0
+ FILEVERSION 0,2023,328,0
+ PRODUCTVERSION 0,2023,328,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -69,12 +69,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "UnnamdOrange"
             VALUE "FileDescription", "osu-kps"
-            VALUE "FileVersion", "0.2022.816.0"
+            VALUE "FileVersion", "0.2023.328.0"
             VALUE "InternalName", "osu-kps.exe"
             VALUE "LegalCopyright", "UnnamdOrange Copyright (C) 2021"
             VALUE "OriginalFilename", "osu-kps.exe"
             VALUE "ProductName", "osu-kps"
-            VALUE "ProductVersion", "0.2022.816.0"
+            VALUE "ProductVersion", "0.2023.328.0"
         END
     END
     BLOCK "VarFileInfo"
