@@ -1,0 +1,29 @@
+BasedOnStyle: Microsoft
+
+AccessModifierOffset: -4
+IndentWidth: 4
+TabWidth: 4
+PointerAlignment: Left
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: false
+AllowAllArgumentsOnNextLine: true
+
+AlwaysBreakTemplateDeclarations: Yes
+BraceWrapping:
+  AfterClass: false
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterObjCDeclaration: false
+  AfterStruct: false
+  AfterUnion: false
+  BeforeCatch: false
+  BeforeElse: false
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+IncludeBlocks: Preserve
+NamespaceIndentation: All
