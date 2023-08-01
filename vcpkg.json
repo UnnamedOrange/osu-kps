@@ -1,0 +1,12 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "osu-kps",
+  "version": "1.0.0",
+  "builtin-baseline": "9d47b24eacbd1cd94f139457ef6cd35e5d92cc84",
+  "dependencies": [
+    {
+      "name": "jsoncpp",
+      "version>=": "1.9.5"
+    }
+  ]
+}
