@@ -12,7 +12,7 @@
 #pragma comment(lib, "shell32.lib")
 #include "resource.h"
 
-#include "utils/code_conv.hpp"
+#include "utils/ConvertCode.hpp"
 #include "utils/d2d_helper.hpp"
 #include "utils/keyboard_char.hpp"
 #include "utils/resource_loader.hpp"
@@ -44,6 +44,7 @@
 #define HANDLE_WM_MOVING(hwnd, wParam, lParam, fn) ((fn)((hwnd), (RECT*)(lParam)), 0L)
 #define FORWARD_WM_MOVING(hwnd, pRect, fn) (void)(fn)((hwnd), WM_MOVING, 0L, (LPARAM)(pRect))
 
+using namespace orange;
 using namespace d2d_helper;
 
 class main_window : public window {
@@ -307,7 +308,7 @@ class main_window : public window {
             auto langs = lang.enumerate_supported_language();
             for (const auto& locale : langs) {
                 AppendMenuW(menus_language, MF_STRING, lang.query_language_id(locale),
-                            code_conv<char8_t, wchar_t>::convert(lang.query_language_name(locale)).c_str());
+                            ConvertCode::to_wstring(lang.query_language_name(locale)).c_str());
             }
 
             AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_language),
@@ -918,7 +919,7 @@ void main_window::OnPaint(HWND) {
                 // 写字。
                 {
                     auto s = cache.kc.to_short(k_manager.get_keys()[i]);
-                    auto str = code_conv<char8_t, wchar_t>::convert(s.key);
+                    auto str = ConvertCode::to_wstring(s.key);
                     pRenderTarget->DrawTextW(
                         str.c_str(), str.length(),
                         s.need_MDL2 ? cache.text_format_key_name_MDL2

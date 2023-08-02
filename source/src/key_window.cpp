@@ -4,7 +4,9 @@
 #include "resource.h"
 
 #include "key_window.h"
+#include "utils/ConvertCode.hpp"
 
+using namespace orange;
 using namespace d2d_helper;
 
 void key_window::init_d2d() {
@@ -79,7 +81,7 @@ void key_window::OnPaint(HWND) {
             // 写字。
             if (i < keys.size()) {
                 auto s = cache.kc.to_short(keys[i]);
-                auto str = code_conv<char8_t, wchar_t>::convert(s.key);
+                auto str = ConvertCode::to_wstring(s.key);
                 pRenderTarget->DrawTextW(
                     str.c_str(), str.length(),
                     s.need_MDL2 ? cache.text_format_key_name_MDL2

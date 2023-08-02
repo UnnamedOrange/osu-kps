@@ -17,7 +17,7 @@
 #undef max
 #include <windowsx.h>
 
-#include "code_conv.hpp"
+#include "ConvertCode.hpp"
 
 /// <summary>
 /// window 基类。
@@ -327,7 +327,8 @@ public:
                 ret.push_back(name[i]);
             }
         std::reverse(ret.begin(), ret.end());
-        return code_conv<char, wchar_t>::convert(ret);
+        using namespace orange;
+        return ConvertCode::to_wstring(ret);
     }
 
 private:
