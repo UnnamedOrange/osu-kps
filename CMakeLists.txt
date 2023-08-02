@@ -17,3 +17,6 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 endif()
 
 add_subdirectory("source")
+
+enable_testing()
+add_subdirectory("test")

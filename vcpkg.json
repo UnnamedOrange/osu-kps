@@ -5,6 +5,10 @@
   "builtin-baseline": "9d47b24eacbd1cd94f139457ef6cd35e5d92cc84",
   "dependencies": [
     {
+      "name": "gtest",
+      "version>=": "1.13.0"
+    },
+    {
       "name": "jsoncpp",
       "version>=": "1.9.5"
     }
