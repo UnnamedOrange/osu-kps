@@ -24,11 +24,12 @@ file(
 )
 set(TESTED_SOURCES # Add sources to be test here.
   "utils/ConvertCode.hpp"
+  "utils/d2d/SharedComPtr.hpp"
   "utils/WindowsResource.cpp"
   "utils/WindowsResource.h"
 
-  "Resource.rc"
   "resource.h"
+  "Resource.rc"
 )
 foreach(SOURCE ${TESTED_SOURCES})
   list(APPEND SOURCES "../source/src/${SOURCE}")
