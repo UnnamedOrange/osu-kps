@@ -5,6 +5,7 @@
 
 #include "key_window.h"
 #include "utils/ConvertCode.hpp"
+#include "utils/resource_loader.hpp"
 
 using namespace orange;
 using namespace d2d_helper;

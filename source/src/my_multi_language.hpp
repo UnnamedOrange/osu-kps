@@ -11,19 +11,22 @@
 #include "resource.h"
 
 #include "utils/ConvertCode.hpp"
+#include "utils/WindowsResource.hpp"
 #include "utils/multi_language.hpp"
-#include "utils/resource_loader.hpp"
 
 class my_multi_language : public multi_language {
 public:
     my_multi_language() {
+        using namespace orange;
         {
-            auto t = resource_loader::load(MAKEINTRESOURCEW(IDR_JSON_EN_US), L"JSON");
+            const auto r = WindowsResource::try_from(MAKEINTRESOURCEW(IDR_JSON_EN_US), L"JSON");
+            const auto t = r.to_span();
             if (!load_language(std::string_view(reinterpret_cast<const char*>(t.data()))))
                 throw std::runtime_error("fail to load_language.");
         }
         {
-            auto t = resource_loader::load(MAKEINTRESOURCEW(IDR_JSON_ZH_CN), L"JSON");
+            const auto r = WindowsResource::try_from(MAKEINTRESOURCEW(IDR_JSON_ZH_CN), L"JSON");
+            const auto t = r.to_span();
             load_language(std::string_view(reinterpret_cast<const char*>(t.data())));
         }
     }

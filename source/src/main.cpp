@@ -13,6 +13,7 @@
 #include "resource.h"
 
 #include "utils/ConvertCode.hpp"
+#include "utils/WindowsResource.hpp"
 #include "utils/d2d_helper.hpp"
 #include "utils/keyboard_char.hpp"
 #include "utils/resource_loader.hpp"
@@ -81,7 +82,8 @@ class main_window : public window {
     BOOL OnCreate(HWND, LPCREATESTRUCT) {
         // 读取配置。
         {
-            auto default_cfg = resource_loader::load(MAKEINTRESOURCEW(IDR_JSON_DEFAULT_CFG), L"JSON");
+            auto r = WindowsResource::try_from(MAKEINTRESOURCEW(IDR_JSON_DEFAULT_CFG), L"JSON");
+            auto default_cfg = r.to_span();
             cfg.update(std::u8string_view(reinterpret_cast<const char8_t*>(default_cfg.data())));
         }
         if (!std::filesystem::exists("osu-kps-config.json")) {

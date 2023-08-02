@@ -8,7 +8,6 @@
 
 #include "utils/d2d_helper.hpp"
 #include "utils/keyboard_char.hpp"
-#include "utils/resource_loader.hpp"
 #include "utils/window.hpp"
 
 #include "config.hpp"
