@@ -6,6 +6,7 @@
 #include <format>
 #include <thread>
 
+#include "utils/d2d/SharedComPtr.hpp"
 #include "utils/d2d_helper.hpp"
 #include "utils/keyboard_char.hpp"
 #include "utils/window.hpp"
@@ -113,8 +114,8 @@ class key_window : public window {
 
     // 绘图。
     template <typename T>
-    using com_ptr = d2d_helper::com_ptr<T>;
-    com_ptr<ID2D1HwndRenderTarget> pRenderTarget{};
+    using SharedComPtr = orange::SharedComPtr<T>;
+    SharedComPtr<ID2D1HwndRenderTarget> pRenderTarget{};
     struct cache_t {
         // indep
         static constexpr auto theme_color = d2d_helper::color(203u, 237u, 238u);
@@ -122,17 +123,17 @@ class key_window : public window {
         static constexpr auto light_active_color = d2d_helper::color(227u, 172u, 181u);
         static constexpr auto active_color = d2d_helper::color(255u, 104u, 143u);
 
-        com_ptr<ID2D1SolidColorBrush> theme_brush;
-        com_ptr<ID2D1SolidColorBrush> active_brush;
+        SharedComPtr<ID2D1SolidColorBrush> theme_brush;
+        SharedComPtr<ID2D1SolidColorBrush> active_brush;
 
         d2d_helper::private_font_collection theme_font_collection;
 
         keyboard_char kc;
 
         // scale_dep
-        com_ptr<IDWriteTextFormat> text_format_key_name;
-        com_ptr<IDWriteTextFormat> text_format_key_name_small;
-        com_ptr<IDWriteTextFormat> text_format_key_name_MDL2;
+        SharedComPtr<IDWriteTextFormat> text_format_key_name;
+        SharedComPtr<IDWriteTextFormat> text_format_key_name_small;
+        SharedComPtr<IDWriteTextFormat> text_format_key_name_MDL2;
 
         void reset() {
             this->~cache_t();

@@ -4,6 +4,7 @@
 #pragma once
 
 #include <atomic>
+#include <stdexcept>
 #include <vector>
 
 #include <d2d1.h>
@@ -21,79 +22,16 @@
 #include <dwrite_3.h>
 #pragma comment(lib, "dwrite.lib")
 
+#include "d2d/SharedComPtr.hpp"
+
 namespace d2d_helper {
-    /// <summary>
-    /// 是否是 COM 类型。
-    /// </summary>
-    template <typename T>
-    concept com = requires(T* obj) { std::derived_from<T, IUnknown>; };
-
-    /// <summary>
-    /// COM 类型智能指针。
-    /// </summary>
-    template <com com_t>
-    class com_ptr {
-        com_t* _p{};
-
-    public:
-        constexpr com_ptr() = default;
-        com_ptr<com_t>& operator=(const com_ptr<com_t>& another) {
-            if (this != &another) {
-                _p = another._p;
-                if (_p)
-                    _p->AddRef();
-            }
-            return *this;
-        }
-        com_ptr<com_t>& operator=(com_ptr<com_t>&& another) noexcept {
-            if (this != &another) {
-                _p = another._p;
-                another._p = nullptr;
-            }
-            return *this;
-        }
-        com_ptr(const com_ptr<com_t>& another) {
-            *this = another;
-        }
-        com_ptr(com_ptr<com_t>&& another) noexcept {
-            *this = std::move(another);
-        }
-        virtual ~com_ptr() {
-            reset();
-        }
-
-    public:
-        com_t* get() const {
-            return _p;
-        }
-        com_t** reset_and_get_address() {
-            reset();
-            return &_p;
-        }
-        void reset() {
-            if (_p) {
-                _p->Release();
-                _p = nullptr;
-            }
-        }
-        com_t* operator->() const {
-            return _p;
-        }
-        operator bool() const {
-            return _p;
-        }
-        operator com_t*() const {
-            return _p;
-        }
-    };
-
     /// <summary>
     /// 自动创建并销毁工厂的单例对象。
     /// </summary>
     class factory {
         struct _RAII_factory {
-            com_ptr<ID2D1Factory7> d2d1_factory;
-            com_ptr<IDWriteFactory7> dwrite_factory;
+            orange::SharedComPtr<ID2D1Factory7> d2d1_factory;
+            orange::SharedComPtr<IDWriteFactory7> dwrite_factory;
             _RAII_factory() {
                 if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, __uuidof(ID2D1Factory7),
                                              reinterpret_cast<void**>(d2d1_factory.reset_and_get_address()))))
@@ -120,7 +58,7 @@ namespace d2d_helper {
     };
 
     class _memory_font_file_loader {
-        com_ptr<IDWriteInMemoryFontFileLoader> in_memory_font_file_loader;
+        orange::SharedComPtr<IDWriteInMemoryFontFileLoader> in_memory_font_file_loader;
 
     public:
         _memory_font_file_loader() {
@@ -144,7 +82,7 @@ namespace d2d_helper {
     /// </summary>
     class private_font_collection {
         _memory_font_file_loader in_memory_font_file_loader;
-        com_ptr<IDWriteFontCollection1> collection;
+        orange::SharedComPtr<IDWriteFontCollection1> collection;
         std::vector<std::wstring> family_names;
 
     public:
@@ -155,19 +93,21 @@ namespace d2d_helper {
 
     public:
         void from_font_data(const std::vector<BYTE>& font_data) {
+            using namespace orange;
+
             collection.reset();
             in_memory_font_file_loader.reset();
 
-            com_ptr<IDWriteFontSetBuilder2> font_set_builder;
+            SharedComPtr<IDWriteFontSetBuilder2> font_set_builder;
             factory::dwrite()->CreateFontSetBuilder(font_set_builder.reset_and_get_address());
             {
-                com_ptr<IDWriteFontFile> font_file_reference;
+                SharedComPtr<IDWriteFontFile> font_file_reference;
                 in_memory_font_file_loader->CreateInMemoryFontFileReference(
                     factory::dwrite(), font_data.data(), font_data.size(), nullptr,
                     font_file_reference.reset_and_get_address());
                 font_set_builder->AddFontFile(font_file_reference);
             }
-            com_ptr<IDWriteFontSet> font_set;
+            SharedComPtr<IDWriteFontSet> font_set;
             font_set_builder->CreateFontSet(font_set.reset_and_get_address());
             factory::dwrite()->CreateFontCollectionFromFontSet(font_set, collection.reset_and_get_address());
 
@@ -175,9 +115,9 @@ namespace d2d_helper {
             unsigned to = collection->GetFontFamilyCount();
             family_names.reserve(to);
             for (unsigned i = 0; i < to; i++) {
-                com_ptr<IDWriteFontFamily> family;
+                SharedComPtr<IDWriteFontFamily> family;
                 collection->GetFontFamily(i, family.reset_and_get_address());
-                com_ptr<IDWriteLocalizedStrings> names;
+                SharedComPtr<IDWriteLocalizedStrings> names;
                 family->GetFamilyNames(names.reset_and_get_address());
                 unsigned length{};
                 names->GetStringLength(0, &length);

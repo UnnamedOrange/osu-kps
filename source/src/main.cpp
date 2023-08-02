@@ -14,6 +14,7 @@
 
 #include "utils/ConvertCode.hpp"
 #include "utils/WindowsResource.h"
+#include "utils/d2d/SharedComPtr.hpp"
 #include "utils/d2d_helper.hpp"
 #include "utils/keyboard_char.hpp"
 #include "utils/resource_loader.hpp"
@@ -483,7 +484,7 @@ class main_window : public window {
     }
 
     // 绘图。
-    com_ptr<ID2D1HwndRenderTarget> pRenderTarget{};
+    SharedComPtr<ID2D1HwndRenderTarget> pRenderTarget{};
     struct cache_t {
         // indep
         static constexpr auto theme_color = color(203u, 237u, 238u);
@@ -494,22 +495,22 @@ class main_window : public window {
 
         keyboard_char kc;
 
-        com_ptr<ID2D1SolidColorBrush> theme_brush;
-        com_ptr<ID2D1SolidColorBrush> theme_half_trans_brush;
-        com_ptr<ID2D1StrokeStyle> dash_stroke;
+        SharedComPtr<ID2D1SolidColorBrush> theme_brush;
+        SharedComPtr<ID2D1SolidColorBrush> theme_half_trans_brush;
+        SharedComPtr<ID2D1StrokeStyle> dash_stroke;
         private_font_collection theme_font_collection;
 
         // scale_dep
-        com_ptr<IDWriteTextFormat> text_format_key_name;
-        com_ptr<IDWriteTextFormat> text_format_key_name_small;
-        com_ptr<IDWriteTextFormat> text_format_key_name_MDL2;
-        com_ptr<IDWriteTextFormat> text_format_number;
-        com_ptr<IDWriteTextFormat> text_format_statistics;
-        com_ptr<IDWriteTextFormat> text_format_statistics_small;
-        com_ptr<IDWriteTextFormat> text_format_statistics_MDL2;
-        com_ptr<IDWriteTextFormat> text_format_graph;
+        SharedComPtr<IDWriteTextFormat> text_format_key_name;
+        SharedComPtr<IDWriteTextFormat> text_format_key_name_small;
+        SharedComPtr<IDWriteTextFormat> text_format_key_name_MDL2;
+        SharedComPtr<IDWriteTextFormat> text_format_number;
+        SharedComPtr<IDWriteTextFormat> text_format_statistics;
+        SharedComPtr<IDWriteTextFormat> text_format_statistics_small;
+        SharedComPtr<IDWriteTextFormat> text_format_statistics_MDL2;
+        SharedComPtr<IDWriteTextFormat> text_format_graph;
 
-        com_ptr<ID2D1LinearGradientBrush> graph_brush;
+        SharedComPtr<ID2D1LinearGradientBrush> graph_brush;
 
         void reset() {
             this->~cache_t();
@@ -600,7 +601,7 @@ class main_window : public window {
 
         // graph_brush
         {
-            com_ptr<ID2D1GradientStopCollection> gradient_stops;
+            SharedComPtr<ID2D1GradientStopCollection> gradient_stops;
             D2D1_GRADIENT_STOP stops[] = {
                 {0.f, cache.theme_color},
                 {0.3f, cache.light_active_color},
@@ -911,7 +912,7 @@ void main_window::OnPaint(HWND) {
                     }
 
                     if (brush_color.a > 1e-6) {
-                        com_ptr<ID2D1SolidColorBrush> brush;
+                        SharedComPtr<ID2D1SolidColorBrush> brush;
                         pRenderTarget->CreateSolidColorBrush(brush_color, brush.reset_and_get_address());
                         pRenderTarget->FillRoundedRectangle(draw_rounded_rect, brush);
                     }
@@ -939,7 +940,7 @@ void main_window::OnPaint(HWND) {
                 {
                     color text_color = _interpolate(cache.theme_color, cache.light_active_color,
                                                     kps.calc_kps_now(k_manager.get_keys()[i]), 2.0, 4.0);
-                    com_ptr<ID2D1SolidColorBrush> brush;
+                    SharedComPtr<ID2D1SolidColorBrush> brush;
                     pRenderTarget->CreateSolidColorBrush(text_color, brush.reset_and_get_address());
                     pRenderTarget->DrawRoundedRectangle(draw_rounded_rect, brush, stroke_width);
                 }
@@ -986,7 +987,7 @@ void main_window::OnPaint(HWND) {
                     str = L"\x221E";
 
                 color text_color = _interpolate(cache.theme_color, cache.active_color, kps_now, 6.0, 13.0);
-                com_ptr<ID2D1SolidColorBrush> brush;
+                SharedComPtr<ID2D1SolidColorBrush> brush;
                 pRenderTarget->CreateSolidColorBrush(text_color, brush.reset_and_get_address());
                 cache.text_format_statistics->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
                 pRenderTarget->DrawTextW(str.c_str(), str.length(), cache.text_format_statistics, kps_number_rect,
@@ -1065,7 +1066,7 @@ void main_window::OnPaint(HWND) {
             {
                 color line_color =
                     _interpolate(cache.theme_color_half_trans, cache.theme_color_full_trans, ceil_height, 60.0, 120.0);
-                com_ptr<ID2D1SolidColorBrush> brush;
+                SharedComPtr<ID2D1SolidColorBrush> brush;
                 pRenderTarget->CreateSolidColorBrush(line_color, brush.reset_and_get_address());
 
                 for (double v = 5; v < max_value; v += 5) {
@@ -1076,9 +1077,9 @@ void main_window::OnPaint(HWND) {
             }
             // 具体图形。
             {
-                com_ptr<ID2D1PathGeometry> geometry;
+                SharedComPtr<ID2D1PathGeometry> geometry;
                 factory::d2d1()->CreatePathGeometry(geometry.reset_and_get_address());
-                com_ptr<ID2D1GeometrySink> sink;
+                SharedComPtr<ID2D1GeometrySink> sink;
                 geometry->Open(sink.reset_and_get_address());
                 {
                     sink->BeginFigure(D2D1::Point2F(draw_rect.right, draw_rect.bottom), D2D1_FIGURE_BEGIN_FILLED);
