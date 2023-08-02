@@ -85,14 +85,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-### osu-memory
+### memory-reader
 
-Licensed under the [MIT License](https://github.com/UnnamedOrange/osu-memory/blob/main/LICENSE).
+Licensed under the [MIT License](https://github.com/UnnamedOrange/memory-reader/blob/main/LICENSE).
 
 ```
 MIT License
 
-Copyright (c) 2021 UnnamedOrange
+Copyright (c) 2023 UnnamedOrange
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
