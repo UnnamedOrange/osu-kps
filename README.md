@@ -26,7 +26,7 @@ Supporting languages right now:
 If you want to translate, follow the steps below.
 
 1. Fork this repository and clone the forked.
-2. Make a copy of [en-us.json](jsons/language/en-us.json), and translate based on it. Ignore "id", "locale" in the json file. If you think some things should remain English, just delete those items in the json file; they will be presented in English automatically.
+2. Make a copy of [en-us.json](resources/jsons/language/en-us.json), and translate based on it. Ignore "id", "locale" in the json file. If you think some things should remain English, just delete those items in the json file; they will be presented in English automatically.
 3. Make a pull request.
 4. The remaining work can be done by UnnamedOrange.
 
