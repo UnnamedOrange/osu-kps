@@ -33,9 +33,9 @@ target_compile_features(osu-kps PRIVATE cxx_std_20)
 target_compile_options(osu-kps PRIVATE /utf-8)
 target_compile_options(osu-kps PRIVATE /W4 /permissive) # /WX
 target_link_options(osu-kps PRIVATE /SUBSYSTEM:WINDOWS)
-set_target_properties(osu-kps PROPERTIES
-  MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
-)
+# set_target_properties(osu-kps PROPERTIES
+#   MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
+# )
 target_sources(osu-kps PRIVATE "${SOURCES}")
 
 target_compile_definitions(osu-kps PRIVATE
@@ -46,5 +46,5 @@ target_compile_definitions(osu-kps PRIVATE
 
 target_link_libraries(osu-kps PRIVATE
   memory-reader
-  jsoncpp_static
+  jsoncpp_lib
 )

@@ -3,7 +3,7 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
   message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there.")
 endif()
 
-set(VCPKG_TARGET_TRIPLET "x64-windows-static")
+# set(VCPKG_TARGET_TRIPLET "x64-windows-static")
 
 project(osu-kps
   VERSION 1.0.0
