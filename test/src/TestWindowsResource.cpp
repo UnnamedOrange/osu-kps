@@ -16,7 +16,7 @@
 #include <gtest/gtest.h>
 
 #include <resource.h>
-#include <utils/WindowsResource.hpp>
+#include <utils/WindowsResource.h>
 
 using namespace orange;
 

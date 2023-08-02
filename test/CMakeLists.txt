@@ -24,7 +24,8 @@ file(
 )
 set(TESTED_SOURCES # Add sources to be test here.
   "utils/ConvertCode.hpp"
-  "utils/WindowsResource.hpp"
+  "utils/WindowsResource.cpp"
+  "utils/WindowsResource.h"
 
   "Resource.rc"
   "resource.h"

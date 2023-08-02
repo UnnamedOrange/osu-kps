@@ -11,7 +11,7 @@
 #include "resource.h"
 
 #include "utils/ConvertCode.hpp"
-#include "utils/WindowsResource.hpp"
+#include "utils/WindowsResource.h"
 #include "utils/multi_language.hpp"
 
 class my_multi_language : public multi_language {

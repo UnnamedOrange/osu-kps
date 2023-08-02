@@ -13,7 +13,7 @@
 #include "resource.h"
 
 #include "utils/ConvertCode.hpp"
-#include "utils/WindowsResource.hpp"
+#include "utils/WindowsResource.h"
 #include "utils/d2d_helper.hpp"
 #include "utils/keyboard_char.hpp"
 #include "utils/resource_loader.hpp"
