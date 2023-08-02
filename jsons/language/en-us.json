@@ -4,7 +4,7 @@
 	"language_name": "English",
 
 	"version.title": "Version",
-	"version.distribution": "beta",
+	"version.distribution": "stable",
 	"version.tag": "1.0.0",
 
 	"menu.modify_keys": "Modify keys...",
@@ -23,8 +23,8 @@
 	"menu.auto_reset.kps_graph": "KPS graph",
 	"menu.monitor_method": "Key monitor method",
 	"menu.async": "Poll (safe)",
-	"menu.hook": "Hook (recommended)",
-	"menu.memory": "Memory (experimental, from osu!)",
+	"menu.hook": "Hook (unsafe for debugger)",
+	"menu.memory": "Memory (polling, from osu!)",
 
 	"menu.show": "Show",
 	"menu.buttons": "Buttons",

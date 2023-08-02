@@ -21,8 +21,8 @@
 	"menu.auto_reset.kps_graph": "KPS 图 (&G)",
 	"menu.monitor_method": "按键监视方式 (&K)",
 	"menu.async": "轮询（安全） (&P)",
-	"menu.hook": "钩子（推荐） (&H)",
-	"menu.memory": "内存（实验性功能，从 osu! 读取） (&M)",
+	"menu.hook": "钩子（调试时不安全） (&H)",
+	"menu.memory": "内存（从 osu! 读取，轮询按键） (&M)",
 
 	"menu.show": "显示 (&S)",
 	"menu.buttons": "按键 (&B)",
