@@ -11,6 +11,8 @@
 
 #include "WindowsResource.h"
 
+#include <utility>
+
 using namespace orange;
 
 using Self = WindowsResource;
@@ -34,24 +36,11 @@ Self Self::try_from(const wchar_t* resource_name, const wchar_t* type_name) noex
     return {hResource, p, static_cast<size_t>(size)};
 }
 
-Self::WindowsResource(Self&& other) noexcept
-    : hResource(other.hResource), locked_address(other.locked_address), resource_size(other.resource_size) {
-    other.hResource = nullptr;
-    other.locked_address = nullptr;
-    other.resource_size = 0;
+Self::WindowsResource(Self&& other) noexcept : WindowsResource() {
+    swap(*this, other);
 }
-Self& Self::operator=(Self&& other) noexcept {
-    if (this != &other) {
-        reset();
-
-        hResource = other.hResource;
-        locked_address = other.locked_address;
-        resource_size = other.resource_size;
-
-        other.hResource = nullptr;
-        other.locked_address = nullptr;
-        other.resource_size = 0;
-    }
+Self& Self::operator=(Self other) noexcept {
+    swap(*this, other);
     return *this;
 }
 

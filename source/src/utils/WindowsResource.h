@@ -43,11 +43,17 @@ namespace orange {
     public:
         WindowsResource() noexcept = default;
         WindowsResource(const Self&) = delete;
-        Self& operator=(const Self&) = delete;
         WindowsResource(Self&& other) noexcept;
-        Self& operator=(Self&& other) noexcept;
+        Self& operator=(Self other) noexcept;
 
         ~WindowsResource();
+
+        friend void swap(Self& a, Self& b) noexcept {
+            using std::swap;
+            swap(a.hResource, b.hResource);
+            swap(a.locked_address, b.locked_address);
+            swap(a.resource_size, b.resource_size);
+        }
 
     private:
         WindowsResource(HGLOBAL hResource, const void* locked_address, size_t resource_size) noexcept;
