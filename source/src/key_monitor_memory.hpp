@@ -14,7 +14,7 @@ using namespace std::literals;
 #undef min
 #undef max
 
-#include <osu_memory/osu_memory.h>
+#include "MemoryReaderOsu.h"
 
 #include "key_monitor_base.hpp"
 
@@ -30,7 +30,7 @@ namespace kps {
     private:
         bool exit{false};
         std::thread t;
-        osu_memory::reader r;
+        orange::MemoryReaderOsu r;
         void thread_proc() {
             while (!exit) {
                 auto now = clock::now();

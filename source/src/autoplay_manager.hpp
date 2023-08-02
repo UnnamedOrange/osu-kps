@@ -3,14 +3,14 @@
 
 #pragma once
 
-#include <osu_memory/osu_memory.h>
+#include "MemoryReaderOsu.h"
 
 #include "integrated_kps.hpp"
 #include "utils/timer_thread.hpp"
 
 class autoplay_manager {
 private:
-    mutable osu_memory::reader r;
+    mutable orange::MemoryReaderOsu r;
     const kps::kps* backend;
 
 public:
