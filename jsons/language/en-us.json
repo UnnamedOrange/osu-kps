@@ -1,0 +1,51 @@
+{
+	"id": 1033,
+	"locale": "en-US",
+	"language_name": "English",
+
+	"version.title": "Version",
+	"version.distribution": "beta",
+	"version.tag": "1.0.0",
+
+	"menu.modify_keys": "Modify keys...",
+	"menu.button_count": "Button count",
+	"menu.reset": "Reset",
+	"menu.total_hits": "Total keys",
+	"menu.max_kps": "Max KPS",
+	"menu.kps_graph": "KPS graph",
+	"menu.all": "All",
+	"menu.kps_method": "K&PS method",
+	"menu.hard": "Hard",
+	"menu.sensitive": "Sensitive",
+	"menu.auto_reset": "Rese&t something on a new game",
+	"menu.auto_reset.total_hits": "Total hits",
+	"menu.auto_reset.max_kps": "Max KPS",
+	"menu.auto_reset.kps_graph": "KPS graph",
+	"menu.monitor_method": "Key monitor method",
+	"menu.async": "Poll (safe)",
+	"menu.hook": "Hook (recommended)",
+	"menu.memory": "Memory (experimental, from osu!)",
+
+	"menu.show": "Show",
+	"menu.buttons": "Buttons",
+	"menu.statistics": "Statistics",
+	"menu.graph": "Graph",
+	"menu.zoom": "Zoom",
+	"menu.customed_zoom": "Customed",
+	"menu.about": "About...",
+	"menu.exit": "Exit",
+	"menu.language": "Language",
+	"menu.monitor_fence": "Monitor fence",
+
+	"draw.statistics.max": "max",
+	"draw.graph.recent": "{0:.1f} max KPS in recent 5 minutes.",
+	"draw.graph.keys": "({0} keys)",
+
+	"key_window.caption": "Set keys for {0}k",
+
+	"messagebox.topmost.text": "Fail to make the window top most. Please relaunch this application.",
+	"messagebox.topmost.caption": "Error",
+
+	"messagebox.first_run.text": "osu-kps will create a config file named osu-kps-config.json in the current directory. However, it's recommended that you never modify the config file. Instead, you should use the menu to set the config.",
+	"messagebox.first_run.caption": "Information"
+}

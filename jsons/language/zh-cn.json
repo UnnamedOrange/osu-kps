@@ -1,0 +1,49 @@
+{
+	"id": 2052,
+	"locale": "zh-CN",
+	"language_name": "简体中文 / &Simplified Chinese",
+
+	"version.title": "版本",
+
+	"menu.modify_keys": "修改按键... (&M)",
+	"menu.button_count": "按键数量 (&B)",
+	"menu.reset": "重置 (&R)",
+	"menu.total_hits": "按键总次数 (&T)",
+	"menu.max_kps": "最大 KPS (&M)",
+	"menu.kps_graph": "KPS 图 (&G)",
+	"menu.all": "以上所有 (&A)",
+	"menu.kps_method": "KPS 计算方式 (&P)",
+	"menu.hard": "硬算 (&H)",
+	"menu.sensitive": "灵敏 (&S)",
+	"menu.auto_reset": "新开一局时重置 (&T)",
+	"menu.auto_reset.total_hits": "按键总次数 (&T)",
+	"menu.auto_reset.max_kps": "最大 KPS (&M)",
+	"menu.auto_reset.kps_graph": "KPS 图 (&G)",
+	"menu.monitor_method": "按键监视方式 (&K)",
+	"menu.async": "轮询（安全） (&P)",
+	"menu.hook": "钩子（推荐） (&H)",
+	"menu.memory": "内存（实验性功能，从 osu! 读取） (&M)",
+
+	"menu.show": "显示 (&S)",
+	"menu.buttons": "按键 (&B)",
+	"menu.statistics": "统计信息 (&S)",
+	"menu.graph": "KPS 图 (&G)",
+	"menu.zoom": "缩放 (&Z)",
+	"menu.customed_zoom": "自定义",
+	"menu.about": "关于... (&A)",
+	"menu.exit": "退出 (&E)",
+	"menu.language": "语言 / &Language",
+	"menu.monitor_fence": "限制窗口在显示器内 (&M)",
+
+	"draw.statistics.max": "最大",
+	"draw.graph.recent": "{0:.1f} 最大 KPS（近 5 分钟内）",
+	"draw.graph.keys": "（{0} 键）",
+
+	"key_window.caption": "为 {0}k 设置按键",
+
+	"messagebox.topmost.text": "窗口置顶失败。请重启本应用。",
+	"messagebox.topmost.caption": "错误",
+
+	"messagebox.first_run.text": "osu-kps 将在当前目录创建一个名为 osu-kps-config.json 的文件。但请最好不要手动修改该配置文件，敬请直接通过右键菜单进行设置。",
+	"messagebox.first_run.caption": "提示"
+}

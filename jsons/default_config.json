@@ -1,0 +1,81 @@
+{
+	"key.1k.k0": "left mouse button",
+
+	"key.2k.k0": "left mouse button",
+	"key.2k.k1": "right mouse button",
+
+	"key.3k.k0": "Z",
+	"key.3k.k1": "X",
+	"key.3k.k2": "C",
+
+	"key.4k.k0": "D",
+	"key.4k.k1": "F",
+	"key.4k.k2": "J",
+	"key.4k.k3": "K",
+
+	"key.5k.k0": "D",
+	"key.5k.k1": "F",
+	"key.5k.k2": "Space",
+	"key.5k.k3": "J",
+	"key.5k.k4": "K",
+
+	"key.6k.k0": "S",
+	"key.6k.k1": "D",
+	"key.6k.k2": "F",
+	"key.6k.k3": "J",
+	"key.6k.k4": "K",
+	"key.6k.k5": "L",
+
+	"key.7k.k0": "S",
+	"key.7k.k1": "D",
+	"key.7k.k2": "F",
+	"key.7k.k3": "Space",
+	"key.7k.k4": "J",
+	"key.7k.k5": "K",
+	"key.7k.k6": "L",
+
+	"key.8k.k0": "A",
+	"key.8k.k1": "S",
+	"key.8k.k2": "D",
+	"key.8k.k3": "F",
+	"key.8k.k4": "J",
+	"key.8k.k5": "K",
+	"key.8k.k6": "L",
+	"key.8k.k7": ";",
+
+	"key.9k.k0": "A",
+	"key.9k.k1": "S",
+	"key.9k.k2": "D",
+	"key.9k.k3": "F",
+	"key.9k.k4": "Space",
+	"key.9k.k5": "J",
+	"key.9k.k6": "K",
+	"key.9k.k7": "L",
+	"key.9k.k8": ";",
+
+	"key.10k.k0": "A",
+	"key.10k.k1": "S",
+	"key.10k.k2": "D",
+	"key.10k.k3": "F",
+	"key.10k.k4": "V",
+	"key.10k.k5": "N",
+	"key.10k.k6": "J",
+	"key.10k.k7": "K",
+	"key.10k.k8": "L",
+	"key.10k.k9": ";",
+
+	"kps.button_count": 4,
+	"kps.method": 0,
+	"show.buttons": true,
+	"show.statistics": true,
+	"show.graph": true,
+	"scale": 1.0,
+	"language": 0,
+	"monitor_fence": true,
+	
+	"key_monitor_method": 0,
+
+	"auto_reset.total_hits": false,
+	"auto_reset.max_kps": false,
+	"auto_reset.kps_graph": false
+}
