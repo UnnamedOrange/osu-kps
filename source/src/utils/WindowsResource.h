@@ -13,6 +13,8 @@
 
 #include <cstddef>
 #include <span>
+#include <string>
+#include <string_view>
 #include <vector>
 
 #include <Windows.h>
@@ -55,6 +57,10 @@ namespace orange {
         size_t size() const noexcept;
         void reset() noexcept;
         std::span<const std::byte> to_span() const noexcept;
-        std::vector<std::byte> to_vector() const noexcept;
+        std::string_view to_string_view() const noexcept;
+        std::u8string_view to_u8string_view() const noexcept;
+        std::vector<std::byte> to_vector() const;
+        std::string to_string() const;
+        std::u8string to_u8string() const;
     };
 } // namespace orange

@@ -83,8 +83,7 @@ class main_window : public window {
         // 读取配置。
         {
             auto r = WindowsResource::try_from(MAKEINTRESOURCEW(IDR_JSON_DEFAULT_CFG), L"JSON");
-            auto default_cfg = r.to_span();
-            cfg.update(std::u8string_view(reinterpret_cast<const char8_t*>(default_cfg.data())));
+            cfg.update(r.to_u8string_view());
         }
         if (!std::filesystem::exists("osu-kps-config.json")) {
             lang.set_current_language_to_system_default();

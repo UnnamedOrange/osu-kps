@@ -20,14 +20,12 @@ public:
         using namespace orange;
         {
             const auto r = WindowsResource::try_from(MAKEINTRESOURCEW(IDR_JSON_EN_US), L"JSON");
-            const auto t = r.to_span();
-            if (!load_language(std::string_view(reinterpret_cast<const char*>(t.data()))))
+            if (!load_language(r.to_string_view()))
                 throw std::runtime_error("fail to load_language.");
         }
         {
             const auto r = WindowsResource::try_from(MAKEINTRESOURCEW(IDR_JSON_ZH_CN), L"JSON");
-            const auto t = r.to_span();
-            load_language(std::string_view(reinterpret_cast<const char*>(t.data())));
+            load_language(r.to_string_view());
         }
     }
 
