@@ -24,6 +24,7 @@
 	"menu.monitor_method": "Key monitor method",
 	"menu.async": "Poll (safe)",
 	"menu.hook": "Hook (unsafe for debugger)",
+	"menu.dinput": "DirectInput (safe)",
 	"menu.memory": "Memory (polling, from osu!)",
 
 	"menu.show": "Show",

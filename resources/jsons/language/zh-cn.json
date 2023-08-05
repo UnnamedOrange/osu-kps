@@ -22,6 +22,7 @@
 	"menu.monitor_method": "按键监视方式 (&K)",
 	"menu.async": "轮询（安全） (&P)",
 	"menu.hook": "钩子（调试时不安全） (&H)",
+	"menu.dinput": "DirectInput（安全） (&D)",
 	"menu.memory": "内存（从 osu! 读取，轮询按键） (&M)",
 
 	"menu.show": "显示 (&S)",

@@ -214,6 +214,7 @@ class main_window : public window {
         id_auto_reset_kps_graph,
         id_monitor_method_async,
         id_monitor_method_hook,
+        id_monitor_method_dinput,
         id_monitor_method_memory,
         id_monitor_fence,
     };
@@ -268,6 +269,7 @@ class main_window : public window {
             HMENU menus_monitor_method = CreateMenu();
             AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_async, lang["menu.async"].c_str());
             AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_hook, lang["menu.hook"].c_str());
+            AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_dinput, lang["menu.dinput"].c_str());
             AppendMenuW(menus_monitor_method, MF_STRING, id_monitor_method_memory, lang["menu.memory"].c_str());
 
             AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_monitor_method),
@@ -345,6 +347,10 @@ class main_window : public window {
         }
         case kps::key_monitor_implement_type::monitor_implement_type_hook: {
             CheckMenuItem(hMenu, id_monitor_method_hook, MF_CHECKED);
+            break;
+        }
+        case kps::key_monitor_implement_type::monitor_implement_type_dinput: {
+            CheckMenuItem(hMenu, id_monitor_method_dinput, MF_CHECKED);
             break;
         }
         case kps::key_monitor_implement_type::monitor_implement_type_memory: {

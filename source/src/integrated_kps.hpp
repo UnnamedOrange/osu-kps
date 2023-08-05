@@ -8,6 +8,7 @@
 
 #include "key_monitor.hpp"
 #include "key_monitor_async.hpp"
+#include "key_monitor_dinput.hpp"
 #include "key_monitor_hook.hpp"
 #include "key_monitor_memory.hpp"
 #include "kps_calculator.hpp"
@@ -16,6 +17,7 @@ namespace kps {
     enum key_monitor_implement_type {
         monitor_implement_type_async,
         monitor_implement_type_hook,
+        monitor_implement_type_dinput,
         monitor_implement_type_memory,
     };
 
@@ -50,6 +52,9 @@ namespace kps {
             case monitor_implement_type_hook:
                 change_monitor_implement_type(std::make_shared<key_monitor_hook>());
                 break;
+            case monitor_implement_type_dinput:
+                change_monitor_implement_type(std::make_shared<key_monitor_dinput>());
+                break;
             case monitor_implement_type_memory:
                 change_monitor_implement_type(std::make_shared<key_monitor_memory>());
                 break;
@@ -63,15 +68,9 @@ namespace kps {
 
     public:
         kps(callback_t callback) : callback(callback) {
-            monitor.set_callback(
-                std::bind(&kps::on_key, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-#ifdef _DEBUG
-            change_monitor_implement_type(monitor_implement_type_async);
-            crt_type = monitor_implement_type_async;
-#else
-            change_monitor_implement_type(monitor_implement_type_hook);
-            crt_type = monitor_implement_type_hook;
-#endif
+            monitor.set_callback(std::bind_front(&kps::on_key, this));
+            change_monitor_implement_type(monitor_implement_type_dinput);
+            crt_type = monitor_implement_type_dinput;
         }
     };
 } // namespace kps
