@@ -30,6 +30,7 @@ TEST(TestSharedComPtr, test_copy_constructor) {
         return; // Skip.
     }
     auto p2 = p1;
+    EXPECT_TRUE(p1);
     EXPECT_FALSE(p1.empty());
     EXPECT_EQ(p1.get(), p2.get());
 }

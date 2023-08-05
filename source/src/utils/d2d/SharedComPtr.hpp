@@ -30,10 +30,11 @@ namespace orange {
     public:
         constexpr SharedComPtr() noexcept = default;
         SharedComPtr(const Self& other) : SharedComPtr() {
-            ptr = other.ptr;
-            if (ptr) {
-                ptr->AddRef(); // Assume an exception may be thrown.
+            auto new_ptr = other.ptr;
+            if (new_ptr) {
+                new_ptr->AddRef(); // Assume an exception may be thrown.
             }
+            ptr = new_ptr;
         }
         SharedComPtr(Self&& other) noexcept : SharedComPtr() {
             swap(*this, other);
@@ -72,7 +73,7 @@ namespace orange {
         ComType* operator->() const noexcept {
             return ptr;
         }
-        constexpr operator bool() const noexcept {
+        explicit constexpr operator bool() const noexcept {
             return ptr;
         }
         constexpr operator ComType*() const noexcept {
