@@ -301,8 +301,10 @@ class main_window : public window {
             AppendMenuW(menus_zoom, MF_STRING, id_zoom_1, L"1x");
             AppendMenuW(menus_zoom, MF_STRING, id_zoom_2, L"2x");
             AppendMenuW(menus_zoom, MF_STRING, id_zoom_3, L"3x");
-            if (!std::set({1.0, 2.0, 3.0, 0.75}).count(cfg.scale()))
-                AppendMenuW(menus_zoom, MF_STRING | MF_DISABLED, id_zoom_customed, lang["menu.customed_zoom"].c_str());
+            if (!std::set({1.0, 2.0, 3.0, 0.75}).count(cfg.scale())) {
+                auto str = std::vformat(lang["menu.customed_zoom"], std::make_wformat_args(cfg.scale()));
+                AppendMenuW(menus_zoom, MF_STRING | MF_DISABLED, id_zoom_customed, str.c_str());
+            }
 
             AppendMenuW(hMenuPopup, MF_POPUP, reinterpret_cast<UINT_PTR>(menus_zoom), lang["menu.zoom"].c_str());
         }

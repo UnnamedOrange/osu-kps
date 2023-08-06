@@ -32,7 +32,7 @@
 	"menu.statistics": "Statistics",
 	"menu.graph": "Graph",
 	"menu.zoom": "Zoom",
-	"menu.customed_zoom": "Customed",
+	"menu.customed_zoom": "Customed ({0:.2f}x)",
 	"menu.about": "About...",
 	"menu.exit": "Exit",
 	"menu.language": "Language",
