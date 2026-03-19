@@ -31,7 +31,7 @@ struct Self::Hub final {
         offsets_array_base;
 
     // Keys in osu!mania.
-    POffsets<-0xB, 0x4, 0xD0, 0x94, 0x4, 0x44> //
+    POffsets<-0xB, 0x4, 0xCC, 0x94, 0x4, 0x44> //
         offsets_mania_keys_array_object;
     VOffsets<std::int32_t, 0x30> //
         offsets_mania_key_code;
