@@ -30,16 +30,16 @@
 
 #if defined _M_IX86
 #pragma comment(                                                                                                       \
-        linker,                                                                                                        \
-            "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"")
+    linker,                                                                                                            \
+    "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #elif defined _M_X64
 #pragma comment(                                                                                                       \
-        linker,                                                                                                        \
-            "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*'\"")
+    linker,                                                                                                            \
+    "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #else
 #pragma comment(                                                                                                       \
-        linker,                                                                                                        \
-            "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+    linker,                                                                                                            \
+    "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
 
 /* void OnMoving(HWND hwnd, RECT* pRect) */
@@ -164,6 +164,7 @@ class main_window : public window {
         RECT rWorkArea = monitor_area();
         int nWidth = r.right - r.left;
         int nHeight = r.bottom - r.top; // 获取窗口大小。
+
         rWorkArea.right -= nWidth; // 将窗口可能出现的位置更改为窗口左上角的点可能出现的位置。
         rWorkArea.bottom -= nHeight;
 
@@ -302,7 +303,8 @@ class main_window : public window {
             AppendMenuW(menus_zoom, MF_STRING, id_zoom_2, L"2x");
             AppendMenuW(menus_zoom, MF_STRING, id_zoom_3, L"3x");
             if (!std::set({1.0, 2.0, 3.0, 0.75}).count(cfg.scale())) {
-                auto str = std::vformat(lang["menu.customed_zoom"], std::make_wformat_args(cfg.scale()));
+                auto const scale = cfg.scale();
+                auto str = std::vformat(lang["menu.customed_zoom"], std::make_wformat_args(scale));
                 AppendMenuW(menus_zoom, MF_STRING | MF_DISABLED, id_zoom_customed, str.c_str());
             }
 
@@ -1121,14 +1123,17 @@ void main_window::OnPaint(HWND) {
                 pRenderTarget->DrawTextW(buffer.c_str(), buffer.length(), cache.text_format_graph, text_rect,
                                          cache.theme_half_trans_brush);
 
-                buffer = std::vformat(lang["draw.graph.keys"], std::make_wformat_args(k_manager.get_button_count()));
+                auto const button_count = k_manager.get_button_count();
+                buffer = std::vformat(lang["draw.graph.keys"], std::make_wformat_args(button_count));
 
                 cache.text_format_graph->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
                 pRenderTarget->DrawTextW(buffer.c_str(), buffer.length(), cache.text_format_graph, text_rect,
                                          cache.theme_half_trans_brush);
             }
             // 外边框。
-            { pRenderTarget->DrawRectangle(draw_rect, cache.theme_brush, stroke_width); }
+            {
+                pRenderTarget->DrawRectangle(draw_rect, cache.theme_brush, stroke_width);
+            }
 
             // 平移绘制区域，使得逻辑坐标从 (0, 0) 开始。
             {
