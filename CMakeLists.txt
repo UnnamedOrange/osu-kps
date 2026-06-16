@@ -6,7 +6,7 @@ endif()
 # set(VCPKG_TARGET_TRIPLET "x64-windows-static")
 
 project(osu-kps
-  VERSION 1.0.0
+  VERSION 1.0.1
   DESCRIPTION "KPS (keys per second) indicator for osu! in C++"
   HOMEPAGE_URL "https://github.com/UnnamedOrange/osu-kps"
   LANGUAGES CXX
