@@ -35,7 +35,7 @@ public:
             }
 
         key_monitor_implement(static_cast<kps::key_monitor_implement_type>(
-            std::max(0, std::min(2, static_cast<int>(key_monitor_implement())))));
+            std::max(0, std::min(3, static_cast<int>(key_monitor_implement())))));
 
         if (language() && !lang.is_language_supported(language()))
             language(0);
