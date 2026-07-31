@@ -63,7 +63,7 @@ std::optional<std::vector<std::pair<int, bool>>> Self::get_mania_keys() noexcept
     }
 
     const auto array_base = pimpl->offsets_array_base.read(pimpl->process, *array_object_base);
-    if (!array_object_base) {
+    if (!array_base) {
         return std::nullopt;
     }
 
